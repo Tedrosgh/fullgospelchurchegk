@@ -15,7 +15,7 @@ export default makeStyles((theme) => ({
   },
   appBarUnten: {
     borderRadius: 15,
-    backgroundColor: "red",
+    backgroundColor: "darkblue",
     margin: "20px 0",
     display: "flex",
     flexDirection: "row",
@@ -36,7 +36,7 @@ export default makeStyles((theme) => ({
   toolbar: {
     display: "flex",
     justifyContent: "flex-end",
-    width: "400px",
+    width: "400px"
   },
   profile: {
     display: "flex",

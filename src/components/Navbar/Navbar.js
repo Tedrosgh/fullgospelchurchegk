@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AppBar, Toolbar, Avatar, Button, Typography, Container, Box, Drawer, List, useMediaQuery, useTheme, ThemeProvider } from "@material-ui/core";
+import { AppBar, Toolbar, Avatar, Button, Typography, Container, Box, Drawer, List, useMediaQuery, useTheme, ThemeProvider } from "@mui/material";
 import { ListItemButton, ListItemText } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import useStyles from "./stylesNavbar";
@@ -116,7 +116,7 @@ const Navbar = () => {
                   &nbsp; Eritrean full Gospel Cologne &nbsp;
                 </Typography>
                 <img className={classes.image} src={logo} alt="icon" height="140" />
-              </div>
+              {/* </div> */}
               <Toolbar className={classes.toolbar}>
                 {user ? (
                   <div className={classes.profile}>
@@ -150,7 +150,7 @@ const Navbar = () => {
                   </Button>
                 )}
               </Toolbar>
-
+          </div>
 
 
 
@@ -158,10 +158,10 @@ const Navbar = () => {
           )
         }
       </AppBar>
-      {isMatch ? (<Typography style={{textAlign: "center", color: "lightblue"}}>For more links press the burger butten</Typography>) : (
+      {isMatch ? (<Typography style={{textAlign: "center", color: "yellow"}}>For more links press the burger butten</Typography>) : (
       <Toolbar className={classes.appBarUnten} position="static" color="inherit">
         {pagesArrD.map((page, index) => (
-          <ListItemButton key={index} component={Link} to={`/${page}`} style={{ color: "rgba(0,183,255, 1)", fontWeight: "700" }}>
+          <ListItemButton key={index} component={Link} to={`/${page}`} style={{ color: "rgba(0,183,255, 1)", fontWeight: 700 }}>
 
             <ListItemText primary={page} />
 
