@@ -1,23 +1,23 @@
 {
   "files": {
     "main.css": "/FGospelChurchEGK/static/css/main.b19fdc2f.chunk.css",
-    "main.js": "/FGospelChurchEGK/static/js/main.33d8fd16.chunk.js",
-    "main.js.map": "/FGospelChurchEGK/static/js/main.33d8fd16.chunk.js.map",
+    "main.js": "/FGospelChurchEGK/static/js/main.6584768c.chunk.js",
+    "main.js.map": "/FGospelChurchEGK/static/js/main.6584768c.chunk.js.map",
     "runtime-main.js": "/FGospelChurchEGK/static/js/runtime-main.58a6ba8e.js",
     "runtime-main.js.map": "/FGospelChurchEGK/static/js/runtime-main.58a6ba8e.js.map",
-    "static/js/2.ef8cd61b.chunk.js": "/FGospelChurchEGK/static/js/2.ef8cd61b.chunk.js",
-    "static/js/2.ef8cd61b.chunk.js.map": "/FGospelChurchEGK/static/js/2.ef8cd61b.chunk.js.map",
+    "static/js/2.33b08400.chunk.js": "/FGospelChurchEGK/static/js/2.33b08400.chunk.js",
+    "static/js/2.33b08400.chunk.js.map": "/FGospelChurchEGK/static/js/2.33b08400.chunk.js.map",
     "index.html": "/FGospelChurchEGK/index.html",
     "static/css/main.b19fdc2f.chunk.css.map": "/FGospelChurchEGK/static/css/main.b19fdc2f.chunk.css.map",
-    "static/js/2.ef8cd61b.chunk.js.LICENSE.txt": "/FGospelChurchEGK/static/js/2.ef8cd61b.chunk.js.LICENSE.txt",
+    "static/js/2.33b08400.chunk.js.LICENSE.txt": "/FGospelChurchEGK/static/js/2.33b08400.chunk.js.LICENSE.txt",
     "static/media/camera.bfd9e91b.png": "/FGospelChurchEGK/static/media/camera.bfd9e91b.png",
     "static/media/karte.edacca08.png": "/FGospelChurchEGK/static/media/karte.edacca08.png",
     "static/media/logo.35222f61.jpg": "/FGospelChurchEGK/static/media/logo.35222f61.jpg"
   },
   "entrypoints": [
     "static/js/runtime-main.58a6ba8e.js",
-    "static/js/2.ef8cd61b.chunk.js",
+    "static/js/2.33b08400.chunk.js",
     "static/css/main.b19fdc2f.chunk.css",
-    "static/js/main.33d8fd16.chunk.js"
+    "static/js/main.6584768c.chunk.js"
   ]
 }
