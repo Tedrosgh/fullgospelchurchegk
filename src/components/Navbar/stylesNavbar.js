@@ -1,8 +1,8 @@
-import { makeStyles } from "@material-ui/core/styles";
-import { deepPurple, red } from "@material-ui/core/colors";
+import styled  from "@emotion/styled";
+import { deepPurple, red } from "@mui/material/colors";
 import { borderRadius, style } from "@mui/system";
 
-export default makeStyles((theme) => ({
+export default styled((theme) => ({
   appBar: {
     borderRadius: 15,
     margin: "30px 0",
@@ -69,6 +69,5 @@ export default makeStyles((theme) => ({
     backgroundColor: "rgba(0,183,255, 1)",
     marginBottom: "40px"
   },
- 
 
 }));

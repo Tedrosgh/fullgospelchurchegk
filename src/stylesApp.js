@@ -1,6 +1,6 @@
-import { makeStyles } from "@material-ui/core/styles";
+import styled  from "@emotion/styled";
 
-export default makeStyles(() => ({
+export default styled(() => ({
   appBar: {
     borderRadius: 15,
     margin: "30px 0",

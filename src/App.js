@@ -28,7 +28,7 @@ const App = () => {
           <Route path="/mezmur/list" exact component={MezmurList}></Route>
           <Route path="/mezmur/:id" exact component={SingleMezmur}></Route>
         </Switch>
-        <p>Under construction</p>
+        <p style={{color: "yellow"}}>Under construction</p>
       </Container>
     </BrowserRouter>
   );

@@ -105,13 +105,16 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <div className={classes.brandContainer}>
+              <div className={classes.brandContainer} style={{display: "flex",
+  alignItems: "center", justifyContent: "space-between"}}>
                 <Typography
                   component={Link}
                   to="/"
                   className={classes.heading}
                   variant="h5"
                   align="center"
+                  color="red"
+                  text-decoration="none"
                 >
                   &nbsp; Eritrean full Gospel Cologne &nbsp;
                 </Typography>
@@ -151,9 +154,6 @@ const Navbar = () => {
                 )}
               </Toolbar>
           </div>
-
-
-
             </>
           )
         }

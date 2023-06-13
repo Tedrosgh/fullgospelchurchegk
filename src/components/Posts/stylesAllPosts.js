@@ -1,6 +1,6 @@
-import { makeStyles } from "@material-ui/core/styles";
+import styled  from "@emotion/styled";
 
-export default makeStyles((theme) => ({
+export default styled((theme) => ({
   mainContainer: {
     display: "flex",
     alignItems: "center",

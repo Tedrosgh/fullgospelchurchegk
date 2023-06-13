@@ -6,7 +6,7 @@ import {
   Grid,
   Typography,
   Container,
-} from "@material-ui/core";
+} from "@mui/material";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import useStyles from "./stylesAuth";
 import Input from "./Input";
