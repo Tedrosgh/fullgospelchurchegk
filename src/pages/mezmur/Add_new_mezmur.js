@@ -81,7 +81,7 @@ const Add_new_mezmur = ({  currentId, setCurrentId }) => {
     );
   }
   const createmezmur = () => {
-    axios.post('http://localhost:8000/mezmur', startState).then((response) => {
+    axios.post('https://server-full-gospel.onrender.com/mezmur', startState).then((response) => {
       setStartState(...startState, response.data);
     });
   }

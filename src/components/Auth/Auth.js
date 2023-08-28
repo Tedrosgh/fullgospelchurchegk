@@ -75,13 +75,15 @@ const Auth = () => {
   return (
     <Container component="main" maxWidth="xs">
       <Paper className={classes.paper} elevation={3}>
-        <Avatar className={classes.avatar}>
+        <Avatar className={classes.avatar} style={{alignContent: "center"}}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h5">
+        <Typography component="h1" variant="h5" style={{textAlign: "center"}}>
           {isSignup ? "Sign up" : "Sign in"}
         </Typography>
-        <form className={classes.form} onSubmit={handleSubmit}>
+        <form className={classes.form} onSubmit={handleSubmit} 
+              style={{display: "flex", flexDirection: "column", 
+              margin: "30px"}}>
           <Grid container spacing={2}>
             {isSignup && (
               <>

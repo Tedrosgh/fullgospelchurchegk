@@ -14,7 +14,7 @@ const SingleMezmur = () => {
     const { id } = useParams();
     const [startState, setStartState] = useState(startingState);
     useEffect(()=>{
-        axios.get(`http://localhost:8000/mezmur/${id}`).then((response)=>{
+        axios.get(`https://server-full-gospel.onrender.com/mezmur/${id}`).then((response)=>{
           setStartState(response.data);
         });
     }, [id]);

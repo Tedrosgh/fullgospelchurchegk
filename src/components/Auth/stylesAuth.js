@@ -1,4 +1,5 @@
 import styled  from "@emotion/styled";
+import { red } from "@mui/material/colors";
 
 export default styled((theme) => ({
   paper: {
