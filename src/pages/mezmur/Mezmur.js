@@ -11,7 +11,7 @@ import { CircularProgress } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import Add_new_mezmur from './Add_new_mezmur';
 
-const page = { page: '/mezmur' };
+const page = { page: '/fullgospelchurchegk/mezmur' };
 
 
 
@@ -32,7 +32,7 @@ const AllMezmurs = ({ setCurrentId }) => {
     let { id } = useParams();
     const dispatch = useDispatch();
     const handlenewMezmur = () => {
-        history.push('/mezmur/addmezmur');
+        history.push('/fullgospelchurchegk/mezmur/addmezmur');
     };
 
     useEffect(() => {
@@ -68,7 +68,7 @@ const AllMezmurs = ({ setCurrentId }) => {
                         return <div>
                             {mezmurs.sort((a, b) => a.title > b.title ? 1 : -1).map((mez) => (
                                 <ul style={{ color: "yellow", backgroundColor: "green" }} key={mez._id}>
-                                    <li style={{ color: "red" }} ><Link to={`/mezmur/${mez._id}`}> {[mez.title]} </Link>
+                                    <li style={{ color: "red" }} ><Link to={`/fullgospelchurchegk/mezmur/${mez._id}`}> {[mez.title]} </Link>
                                     </li>
                                 </ul>))}
                                 
@@ -81,7 +81,7 @@ const AllMezmurs = ({ setCurrentId }) => {
                         <div key={val._id} style={{ color: "yellow", backgroundColor: "lightgreen", fontWeight: "bold" }}>
                             <ul>
                                 <li style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <Link style={{ textDecoration: "none" }} to={`/mezmur/${val._id}`}>{[val.title]}</Link>
+                                    <Link style={{ textDecoration: "none" }} to={`/fullgospelchurchegk/mezmur/${val._id}`}>{[val.title]}</Link>
                                     <button
                                         // onClick={() => handleRemoveMezmur(val._id)}
                                         onClick={() => dispatch(deleteMezmurAction(val._id))}

@@ -31,7 +31,7 @@ const Navbar = () => {
   const logout = () => {
     //we need to dispatch an action
     dispatch({ type: "LOGOUT" });
-    history.push("/");
+    history.push("/fullgospelchurchegk");
     setUser(null);
   };
 
@@ -57,11 +57,16 @@ const Navbar = () => {
             <>
               <Typography><img src={logo} alt="icon" height="70" /></Typography>
 
-              <button onClick={() => setOpen(true)}><MenuIcon style={{ color: "rgba(0,183,255, 1)" }} /></button>
+              <button onClick={() => setOpen(true)}><MenuIcon 
+                    style={{ color: "rgba(0,183,255, 1)" }} /></button>
               <Drawer open={open} onClose={() => setOpen(false)}>
-                <List sx={{ bgcolor: '#1976d2', color: 'white', marginTop: '38PX', fontWeight: 'medium', variant: 'body2', fontSize: 25 }}>
+                <List sx={{ bgcolor: '#1976d2', color: 'white', 
+                          marginTop: '38PX', fontWeight: 'medium', 
+                          variant: 'body2', fontSize: 25 }}>
                   {pagesArrD.map((page, index) => (
-                    <ListItemButton key={index} onClick={() => setOpen(false)} component={Link} to={`/${page}`} style={{ color: "rgba(0,183,255, 1)", fontWeight: "700" }}>
+                    <ListItemButton key={index} onClick={() => setOpen(false)} 
+                    component={Link} to={`/fullgospelchurchegk/${page}`} 
+                    style={{ color: "rgba(0,183,255, 1)", fontWeight: "700" }}>
 
                       <ListItemText primary={page} />
 
@@ -109,7 +114,7 @@ const Navbar = () => {
   alignItems: "center", justifyContent: "space-between"}}>
                 <Typography
                   component={Link}
-                  to="/"
+                  to="/fullgospelchurchegk"
                   className={classes.heading}
                   variant="h5"
                   align="center"
@@ -145,7 +150,7 @@ const Navbar = () => {
                 ) : (
                   <Button
                     component={Link}
-                    to="/auth"
+                    to="/fullgospelchurchegk/auth"
                     variant="contained"
                     color="primary"
                   >
@@ -161,7 +166,7 @@ const Navbar = () => {
       {isMatch ? (<Typography style={{textAlign: "center", color: "yellow"}}>For more links press the burger butten</Typography>) : (
       <Toolbar className={classes.appBarUnten} position="static" color="inherit">
         {pagesArrD.map((page, index) => (
-          <ListItemButton key={index} component={Link} to={`/${page}`} style={{ color: "rgba(0,183,255, 1)", fontWeight: 700 }}>
+          <ListItemButton key={index} component={Link} to={`/fullgospelchurchegk/${page}`} style={{ color: "rgba(0,183,255, 1)", fontWeight: 700 }}>
 
             <ListItemText primary={page} />
 
