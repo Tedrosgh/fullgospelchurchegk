@@ -55,7 +55,7 @@ const Navbar = () => {
         {
           isMatch ? (
             <>
-              <Typography><img src={logo} alt="icon" height="70" /></Typography>
+              <Typography component={Link} to="/fullgospelchurchegk"><img src={logo} alt="icon" height="70" /></Typography>
 
               <button onClick={() => setOpen(true)}><MenuIcon 
                     style={{ color: "rgba(0,183,255, 1)" }} /></button>
@@ -111,7 +111,7 @@ const Navbar = () => {
           ) : (
             <>
               <div className={classes.brandContainer} style={{display: "flex",
-  alignItems: "center", justifyContent: "space-between"}}>
+                  alignItems: "center", justifyContent: "space-between"}}>
                 <Typography
                   component={Link}
                   to="/fullgospelchurchegk"
@@ -123,7 +123,8 @@ const Navbar = () => {
                 >
                   &nbsp; Eritrean full Gospel Cologne &nbsp;
                 </Typography>
-                <img className={classes.image} src={logo} alt="icon" height="140" />
+                <img className={classes.image} src={logo} alt="icon"  
+                height="140" />
               {/* </div> */}
               <Toolbar className={classes.toolbar}>
                 {user ? (

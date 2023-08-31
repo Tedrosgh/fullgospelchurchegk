@@ -10,6 +10,12 @@ import Add_new_mezmur from "./pages/mezmur/Add_new_mezmur";
 import MezmurList from "./pages/mezmur/MezmurList";
 import SingleMezmur from "./pages/mezmur/SingleMezmur";
 import AllMezmurs from "./pages/mezmur/Mezmur.js";
+import Program from "./pages/program/Program";
+import Finanz from "./pages/finanz/Finanz";
+import Predict from "./pages/predict/Predict";
+import Jugend from "./pages/jugend/Jugend";
+import Kinder from "./pages/kinder/Kinder";
+import Help from "./pages/help/Help";
 
 const App = () => {
   //const [currentId, setCurrentId] = useState(null);
@@ -23,12 +29,17 @@ const App = () => {
          <Switch>
           <Route path="/fullgospelchurchegk" exact component={Home} />
           <Route path="/fullgospelchurchegk/auth" exact component={Auth} /> 
+          <Route path="/fullgospelchurchegk/program" exact component={Program} />
           <Route path="/fullgospelchurchegk/mezmur" exact component={AllMezmurs} />
+          <Route path="/fullgospelchurchegk/finanz" exact component={Finanz} />
+          <Route path="/fullgospelchurchegk/predict" exact component={Predict} />
+          <Route path="/fullgospelchurchegk/jugend" exact component={Jugend} />
+          <Route path="/fullgospelchurchegk/kinder" exact component={Kinder} />
+          <Route path="/fullgospelchurchegk/help" exact component={Help} />
           <Route path="/fullgospelchurchegk/mezmur/addmezmur" exact component={Add_new_mezmur} />
           <Route path="/fullgospelchurchegk/mezmur/list" exact component={MezmurList}></Route>
           <Route path="/fullgospelchurchegk/mezmur/:id" exact component={SingleMezmur}></Route>
         </Switch>
-        <p style={{color: "yellow"}}>Under construction . . .</p>
       </Container>
     </BrowserRouter>
   );
