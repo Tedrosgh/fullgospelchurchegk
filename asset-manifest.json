@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/fullgospelchurchegk/static/css/main.78b7cfd3.css",
-    "main.js": "/fullgospelchurchegk/static/js/main.0f0f90af.js",
+    "main.js": "/fullgospelchurchegk/static/js/main.cfcbfaf9.js",
     "static/media/camera.png": "/fullgospelchurchegk/static/media/camera.bfd9e91b8bb14475f4cb.png",
     "static/media/karte.png": "/fullgospelchurchegk/static/media/karte.edacca08a4d3d15de427.png",
     "static/media/logo.jpg": "/fullgospelchurchegk/static/media/logo.35222f615cdd4c7213c1.jpg",
     "index.html": "/fullgospelchurchegk/index.html",
     "main.78b7cfd3.css.map": "/fullgospelchurchegk/static/css/main.78b7cfd3.css.map",
-    "main.0f0f90af.js.map": "/fullgospelchurchegk/static/js/main.0f0f90af.js.map"
+    "main.cfcbfaf9.js.map": "/fullgospelchurchegk/static/js/main.cfcbfaf9.js.map"
   },
   "entrypoints": [
     "static/css/main.78b7cfd3.css",
-    "static/js/main.0f0f90af.js"
+    "static/js/main.cfcbfaf9.js"
   ]
 }
