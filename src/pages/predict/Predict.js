@@ -1,6 +1,7 @@
 const Predict = () => {
     return (
         <>
+        <div style={{display: "flex"}}>
         <h1 style={{color: "yellow", writingMode: "vertical-lr", float: "left"}}>ደጊፍካ ምግልጋል
         ናይ ደገፍ ኣገልግሎት
         </h1>,<br></br>, <p style={{whiteSpace: "wrap"}}> ናይ ልቢ ጉዳይ እዩ።
@@ -53,7 +54,34 @@ const Predict = () => {
         
         •	ካብኡ ተበጊስካ ብጸጋኡ ኣገልግል
         
-        </p></>
+        </p>
+        <div style={{ float: "right"}}>
+        <iframe width="560" height="315" 
+            src="https://www.youtube.com/embed/t-F_GZIkoak?si=Dt5LPAnzouPZLQ0u" 
+            title="YouTube video player" frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; 
+            encrypted-media; gyroscope; picture-in-picture; web-share" 
+            allowfullscreen>
+        </iframe>
+        <h1>ስለዚ ንሕና ኸኣ ካብታ ዝሰማዕናላ መዓልቲ ጀሚርና፡ በቲ ፍልጠት ፍቓዱ ብዅሉ መንፈሳዊ ጥበብን ኣእምሮን ኪመልኣኩም፡ ምእንታኹም ጸሎትን ልማኖን ኣየብኰርናን።
+        </h1>
+        <p style={{textAlign: "right", paddingLeft: "80px"}}>ቆሎሴ 1 9</p>
+        <iframe width="560" height="315" 
+        src="https://www.youtube.com/embed/nJeyg2mEdjM?si=S0s9FGdyXR7YeyBm&amp;clip=UgkxU14iJYXdV-9rzg0TdUa5kHTKPXHXFAuE&amp;clipt=ENqVDhjyig8" 
+        title="YouTube video player" frameborder="0" 
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+        </iframe>
+        <h2>Worship time</h2>
+        <iframe width="560" height="315" 
+        src="https://www.youtube.com/embed/9I7N3db4who?si=2Xqgf8EkZrD8Qlre" 
+        title="YouTube video player" frameborder="0" allow="accelerometer; 
+        autoplay; clipboard-write; encrypted-media; gyroscope; 
+        picture-in-picture; web-share" allowfullscreen>
+        </iframe>
+        <h4>Teaching Trinity by Pastor Isaac Haileab</h4>
+        </div>
+        </div>
+        </>
     )
 };
 

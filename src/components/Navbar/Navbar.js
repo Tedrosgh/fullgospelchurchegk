@@ -110,7 +110,7 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <div className={classes.brandContainer} style={{display: "flex",
+              <div className={classes.brandContainer} style={{display: "flex", fontWeight: "700",
                   alignItems: "center", justifyContent: "space-between"}}>
                 <Typography
                   component={Link}
@@ -119,9 +119,12 @@ const Navbar = () => {
                   variant="h5"
                   align="center"
                   color="red"
-                  text-decoration="none"
+                  textDecoration={"none"}
+                  border={"2px solid red"}
+                  padding={"5px"}
+                  margin={"3px"}
                 >
-                  &nbsp; Eritrean full Gospel Cologne &nbsp;
+                  &nbsp; Eritrean Full Gospel Cologne &nbsp;
                 </Typography>
                 <img className={classes.image} src={logo} alt="icon"  
                 height="140" />
