@@ -1,0 +1,16 @@
+@media screen and (min-width: 800px) {
+    .page {
+        margin: auto;  
+        display: flex;
+        flex-wrap: wrap; 
+        flex-direction: row;
+        border: 2px solid orange;
+    }
+};
+
+@media screen and (max-width: 800px) {
+    .page {
+        display: block;
+        border: 2px solid red
+    }
+};

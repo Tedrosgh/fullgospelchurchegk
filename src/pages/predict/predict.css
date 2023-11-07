@@ -1,0 +1,27 @@
+@media screen and (min-width: 800px) {
+.sunday {
+    background-color: yellowgreen;
+    float: "right"
+  }
+};
+
+@media screen and (max-width: 800px) {
+    .sunday {
+        background-color: red;
+    }
+    
+  }
+
+@media screen and (min-width: 800px) {
+  .page {
+        display: flex;
+        flex-direction: row;
+        border: 2px solid blue;
+  }
+};
+@media screen and (max-width: 800px) {
+    .page {
+        display: block;
+        border: 2px solid red;
+    }
+  }
