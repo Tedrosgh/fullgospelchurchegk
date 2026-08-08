@@ -32,6 +32,7 @@ const App = () => {
           <Route path="/kinder" exact component={Kinder} />
           <Route path="/help" exact component={Help} />
           <Route path="/mezmur/addmezmur" exact component={Add_new_mezmur} />
+          <Route path="/mezmur/:id/edit" exact component={Add_new_mezmur} />
           <Route path="/mezmur/list" exact component={MezmurList} />
           <Route path="/mezmur/:id" exact component={SingleMezmur} />
           <Route component={NotFound} />

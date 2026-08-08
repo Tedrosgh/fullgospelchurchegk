@@ -1,13 +1,73 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Alert, Box, Button, CircularProgress, IconButton, List, ListItem, ListItemText, Paper, TextField, Typography } from "@mui/material";
+import {
+  Alert,
+  Box,
+  Button,
+  CircularProgress,
+  Menu,
+  MenuItem,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { Link, useHistory } from "react-router-dom";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteMezmurAction, getMezmurs } from "../../actions/postsActions";
 
+const formatDate = (value) => {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "—"
+    : new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(date);
+};
+
+const exportAsPdf = (mezmur) => {
+  const printWindow = window.open("", "_blank", "noopener,noreferrer");
+  if (!printWindow) {
+    window.alert("Allow pop-ups to export this song as PDF.");
+    return;
+  }
+
+  const { document } = printWindow;
+  document.title = mezmur.title || "Mezmur";
+  const style = document.createElement("style");
+  style.textContent = `
+    body { font-family: Arial, sans-serif; color: #111; max-width: 760px; margin: 48px auto; padding: 0 24px; }
+    h1 { margin-bottom: 8px; }
+    .meta { color: #555; margin-bottom: 32px; }
+    .lyrics { white-space: pre-wrap; font-size: 18px; line-height: 1.7; }
+    @page { margin: 18mm; }
+  `;
+  document.head.appendChild(style);
+
+  const heading = document.createElement("h1");
+  heading.textContent = mezmur.title || "Untitled";
+  const meta = document.createElement("p");
+  meta.className = "meta";
+  meta.textContent = [mezmur.artist, mezmur.name, formatDate(mezmur.createdAt)]
+    .filter(Boolean)
+    .join(" · ");
+  const lyrics = document.createElement("div");
+  lyrics.className = "lyrics";
+  lyrics.textContent = mezmur.langetext || "";
+  document.body.append(heading, meta, lyrics);
+
+  setTimeout(() => printWindow.print(), 250);
+};
+
 const Mezmur = () => {
   const [query, setQuery] = useState("");
+  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [selectedMezmur, setSelectedMezmur] = useState(null);
   const history = useHistory();
   const dispatch = useDispatch();
   const user = JSON.parse(localStorage.getItem("profile"));
@@ -20,44 +80,94 @@ const Mezmur = () => {
   const mezmurs = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
     return [...items]
-      .filter((item) => (item.title || "").toLocaleLowerCase().includes(normalizedQuery))
+      .filter((item) =>
+        [item.title, item.artist, item.name]
+          .filter(Boolean)
+          .some((value) => value.toLocaleLowerCase().includes(normalizedQuery))
+      )
       .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
   }, [items, query]);
 
-  const removeMezmur = async (id) => {
-    if (!window.confirm("Delete this song permanently?")) return;
+  const openActions = (event, mezmur) => {
+    setMenuAnchor(event.currentTarget);
+    setSelectedMezmur(mezmur);
+  };
+
+  const closeActions = () => {
+    setMenuAnchor(null);
+    setSelectedMezmur(null);
+  };
+
+  const ownsSelectedMezmur =
+    Boolean(user?.result?._id) && user.result._id === selectedMezmur?.creator;
+
+  const removeSelectedMezmur = async () => {
+    const mezmur = selectedMezmur;
+    closeActions();
+    if (!mezmur || !window.confirm(`Delete “${mezmur.title}” permanently?`)) return;
     try {
-      await dispatch(deleteMezmurAction(id));
+      await dispatch(deleteMezmurAction(mezmur._id));
     } catch (requestError) {
       window.alert(requestError.response?.data?.message || "Unable to delete this song.");
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 800, mx: "auto", py: 4 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, mb: 3 }}>
+    <Box sx={{ py: 4 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 3 }}>
         <Typography component="h1" variant="h3">Mezmur</Typography>
         {user?.result && (
           <Button variant="contained" startIcon={<AddIcon />} onClick={() => history.push("/mezmur/addmezmur")}>Add song</Button>
         )}
       </Box>
-      <TextField fullWidth label="Search songs" value={query} onChange={(event) => setQuery(event.target.value)} sx={{ mb: 3 }} />
+
+      <TextField
+        fullWidth
+        label="Search by title, artist, or name"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        sx={{ mb: 3 }}
+      />
+
       {loading && <Box sx={{ display: "grid", placeItems: "center", py: 6 }}><CircularProgress /></Box>}
       {error && <Alert severity="error">{error}</Alert>}
       {!loading && !error && !mezmurs.length && <Alert severity="info">No songs found.</Alert>}
+
       {!!mezmurs.length && (
-        <Paper>
-          <List disablePadding>
-            {mezmurs.map((mezmur, index) => (
-              <ListItem key={mezmur._id} divider={index < mezmurs.length - 1} secondaryAction={user?.result?._id === mezmur.creator && (
-                <IconButton aria-label={`Delete ${mezmur.title}`} onClick={() => removeMezmur(mezmur._id)}><DeleteIcon color="error" /></IconButton>
-              )}>
-                <ListItemText primary={<Link to={`/mezmur/${mezmur._id}`}>{mezmur.title}</Link>} secondary={mezmur.artist} />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
+        <TableContainer component={Paper} elevation={2}>
+          <Table aria-label="Mezmur songs">
+            <TableHead>
+              <TableRow sx={{ bgcolor: "primary.main" }}>
+                {['Title', 'Artist', 'Name', 'Created at', 'Action'].map((heading) => (
+                  <TableCell key={heading} sx={{ color: "primary.contrastText", fontWeight: 700 }}>{heading}</TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {mezmurs.map((mezmur) => (
+                <TableRow key={mezmur._id} hover>
+                  <TableCell component="th" scope="row" sx={{ fontWeight: 600 }}>{mezmur.title || "Untitled"}</TableCell>
+                  <TableCell>{mezmur.artist || "—"}</TableCell>
+                  <TableCell>{mezmur.name || "—"}</TableCell>
+                  <TableCell sx={{ whiteSpace: "nowrap" }}>{formatDate(mezmur.createdAt)}</TableCell>
+                  <TableCell>
+                    <Button size="small" variant="outlined" endIcon={<ArrowDropDownIcon />} onClick={(event) => openActions(event, mezmur)}>
+                      Actions
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
+
+      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={closeActions}>
+        <MenuItem onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) history.push(`/mezmur/${id}`); }}>View</MenuItem>
+        <MenuItem disabled={!ownsSelectedMezmur} onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) history.push(`/mezmur/${id}/edit`); }}>Modify</MenuItem>
+        <MenuItem disabled={!ownsSelectedMezmur} onClick={removeSelectedMezmur}>Delete</MenuItem>
+        <MenuItem onClick={() => { const mezmur = selectedMezmur; closeActions(); if (mezmur) exportAsPdf(mezmur); }}>Export as PDF</MenuItem>
+      </Menu>
     </Box>
   );
 };
