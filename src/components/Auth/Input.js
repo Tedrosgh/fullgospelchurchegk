@@ -1,8 +1,8 @@
 import React from "react";
 import { TextField, Grid, InputAdornment, IconButton } from "@mui/material";
 
-import Visibility from "@material-ui/icons/Visibility";
-import VisibilityOff from "@material-ui/icons/VisibilityOff";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const Input = ({
   name,
@@ -28,7 +28,7 @@ const Input = ({
           ? {
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={handleShowPassword}>
+                  <IconButton type="button" onClick={handleShowPassword} aria-label="Toggle password visibility">
                     {type === "password" ? <Visibility /> : <VisibilityOff />}
                   </IconButton>
                 </InputAdornment>

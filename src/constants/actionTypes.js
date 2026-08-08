@@ -1,9 +1,16 @@
-export const CREATE = "CREATE";
-export const UPDATE = "UPDATE";
-export const DELETE = "DELETE";
-export const FETCH_ALL = "FETCH_ALL";
-export const LIKE = "LIKE";
-export const FETCH_ONE = 'FETCH_ONE';
+export const POSTS_REQUEST = "POSTS_REQUEST";
+export const POSTS_SUCCESS = "POSTS_SUCCESS";
+export const POSTS_FAILURE = "POSTS_FAILURE";
+export const POST_CREATE = "POST_CREATE";
+export const POST_UPDATE = "POST_UPDATE";
+export const POST_DELETE = "POST_DELETE";
+
+export const MEZMURS_REQUEST = "MEZMURS_REQUEST";
+export const MEZMURS_SUCCESS = "MEZMURS_SUCCESS";
+export const MEZMURS_FAILURE = "MEZMURS_FAILURE";
+export const MEZMUR_CREATE = "MEZMUR_CREATE";
+export const MEZMUR_UPDATE = "MEZMUR_UPDATE";
+export const MEZMUR_DELETE = "MEZMUR_DELETE";
 
 export const AUTH = "AUTH";
 export const LOGOUT = "LOGOUT";

@@ -3,19 +3,26 @@ import Post from "./Post/Post";
 import { useSelector } from "react-redux";
 
 import useStyles from "./stylesAllPosts";
-import { Grid, CircularProgress } from "@material-ui/core";
+import { Alert, Box, CircularProgress, Grid, Typography } from "@mui/material";
 
 const AllPosts = ({ setCurrentId }) => {
   const classes = useStyles(); //classes.container
 
-  const posts = useSelector((state) => state.postReducer);
-  console.log("All posts: ", posts);
+  const { items: posts, loading, error } = useSelector(
+    (state) => state.postReducer
+  );
 
-  return !posts.length ? (
-    <CircularProgress />
-  ) : (
+  if (loading) {
+    return <Box sx={{ display: "grid", placeItems: "center", py: 8 }}><CircularProgress /></Box>;
+  }
+  if (error) return <Alert severity="error">{error}</Alert>;
+  if (!posts.length) {
+    return <Typography sx={{ py: 4 }}>No announcements have been posted yet.</Typography>;
+  }
+
+  return (
     <Grid
-      className={classes.container}
+      className={classes.mainContainer}
       container
       alignItems="stretch"
       spacing={3}

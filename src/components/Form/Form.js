@@ -17,7 +17,7 @@ const Form = ({ currentId, setCurrentId }) => {
   });
 
   const post = useSelector((state) =>
-    currentId ? state.posts.find((p) => p._id === currentId) : null
+    currentId ? state.postReducer.items.find((p) => p._id === currentId) : null
   );
 
   const dispatch = useDispatch();
@@ -30,17 +30,22 @@ const Form = ({ currentId, setCurrentId }) => {
 
   const classes = useStyles();
 
-  const handleSubmit = (e) => {
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (currentId) {
-      dispatch(
-        updatePost(currentId, { ...postData, name: user?.result?.name })
-      );
-    } else {
-      dispatch(createPost({ ...postData, name: user?.result?.name }));
+    setError("");
+    setSubmitting(true);
+    try {
+      const payload = { ...postData, name: user?.result?.name };
+      await dispatch(currentId ? updatePost(currentId, payload) : createPost(payload));
+      clear();
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Unable to save this post.");
+    } finally {
+      setSubmitting(false);
     }
-    console.log(dispatch);
-    clear();
   };
 
   const clear = () => {
@@ -75,6 +80,7 @@ const Form = ({ currentId, setCurrentId }) => {
         <Typography variant="h5">
           {currentId ? `Editing` : `Creating`} Image Card
         </Typography>
+        {error && <Typography color="error">{error}</Typography>}
         {/* <TextField
           name="creator"
           variant="outlined"
@@ -130,8 +136,9 @@ const Form = ({ currentId, setCurrentId }) => {
           size="large"
           type="submit"
           fullWidth
+          disabled={submitting}
         >
-          Submit
+          {submitting ? "Saving…" : "Submit"}
         </Button>
 
         <Button

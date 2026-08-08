@@ -24,8 +24,6 @@ const Post = ({ post, setCurrentId }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
 
-  console.log("POST, ", post);
-
   const user = JSON.parse(localStorage.getItem("profile"));
 
   const Likes = () => {
@@ -119,7 +117,11 @@ const Post = ({ post, setCurrentId }) => {
           <Button
             size="small"
             color="primary"
-            onClick={() => dispatch(deletePostAction(post._id))}
+            onClick={() => {
+              if (window.confirm("Delete this post permanently?")) {
+                dispatch(deletePostAction(post._id));
+              }
+            }}
           >
             <DeleteIcon fontSize="small" />
             Delete

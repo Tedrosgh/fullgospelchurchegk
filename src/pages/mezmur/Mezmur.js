@@ -1,82 +1,65 @@
-import React, { useEffect, useState } from 'react';
-import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
-import { Link, useHistory } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { deleteMezmurAction, getMezmurs } from '../../actions/postsActions';
-import DeleteIcon from "@material-ui/icons/Delete";
-import { CircularProgress } from '@material-ui/core';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useMemo, useState } from "react";
+import { Alert, Box, Button, CircularProgress, IconButton, List, ListItem, ListItemText, Paper, TextField, Typography } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Link, useHistory } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { deleteMezmurAction, getMezmurs } from "../../actions/postsActions";
 
+const Mezmur = () => {
+  const [query, setQuery] = useState("");
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const user = JSON.parse(localStorage.getItem("profile"));
+  const { items, loading, error } = useSelector((state) => state.mezmurReducer);
 
+  useEffect(() => {
+    dispatch(getMezmurs());
+  }, [dispatch]);
 
+  const mezmurs = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase();
+    return [...items]
+      .filter((item) => (item.title || "").toLocaleLowerCase().includes(normalizedQuery))
+      .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+  }, [items, query]);
 
-// 
-const AllMezmurs = ({ setCurrentId }) => {
-    // const classes = useStyles(); //classes.container
-    const [value, setValue] = useState("");
-    const history = useHistory();
-    const dispatch = useDispatch();
-    const handlenewMezmur = () => {
-        history.push('/mezmur/addmezmur');
-    };
+  const removeMezmur = async (id) => {
+    if (!window.confirm("Delete this song permanently?")) return;
+    try {
+      await dispatch(deleteMezmurAction(id));
+    } catch (requestError) {
+      window.alert(requestError.response?.data?.message || "Unable to delete this song.");
+    }
+  };
 
-    useEffect(() => {
-        dispatch(getMezmurs());
-      }, [dispatch]);       
-
-    const mezmurs = useSelector((state) => state.mezmurReducer);
-    console.log("All Mermurs: ", mezmurs);
-    const filteredMezmurs = [...mezmurs]
-        .filter((mezmur) =>
-            mezmur.title?.toLowerCase().includes(value.trim().toLowerCase())
-        )
-        .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
-
-    return !mezmurs.length ? (
-        <CircularProgress />
-    ) : (<div className="sunday">
-        <h1>Mezmur</h1>
-        <Stack spacing={2} direction="row" justifyContent={'center'}>
-            <Button variant="outlined" onClick={handlenewMezmur}>Add new Mezmur</Button>
-            {/* <Button variant="outlined" onClick={handleListMezmur}>mezmur List</Button> */}
-            {/* <Button variant="outlined" onClick={findHandler}>Current Mezmur</Button> */}
-            {/* <Button variant="outlined" onClick={loginHandler4}>Delete Mezmur</Button>
-         <Button variant="outlined"> <NavLink to='/mezmur/displaymezmur'> Display Mezmur</NavLink></Button>
-         <Button variant="outlined"> <NavLink to='/mezmur/searchmezmur'>search Mezmur</NavLink> </Button>
-         <Button variant="outlined"> <NavLink to='/mezmur/help'> HELP ?</NavLink></Button> */}
-        </Stack>
-        {/* <div style={{ display:  "flex", justifyContent: "center"}}> */}
-        <div>
-            {/* <h3>Title of the mezmur</h3> */}
-            {/* <div style={{ padding: "15px", maxWidth: "auto" }}>  */}
-            <div>
-                <input type='text' placeholder='search mezmur . . .'
-                    value={value} onChange={(e) => setValue(e.target.value)} />
-                {filteredMezmurs.map((val) => {
-                    return (
-                        <div key={val._id} style={{ color: "yellow", backgroundColor: "lightgreen", fontWeight: "bold" }}>
-                            <ul>
-                                <li style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <Link style={{ textDecoration: "none" }} to={`/mezmur/${val._id}`}>{[val.title]}</Link>
-                                    <button
-                                        // onClick={() => handleRemoveMezmur(val._id)}
-                                        onClick={() => dispatch(deleteMezmurAction(val._id))}
-                                        style={{ border: "none", backgroundColor: "lightgreen" }}>
-                                        <DeleteIcon fontSize="small" style={{ color: "red" }} />
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-                    )
-                })}
-            </div>
-        </div>
-        
-       </div>
-    )
-
-    
+  return (
+    <Box sx={{ maxWidth: 800, mx: "auto", py: 4 }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2, mb: 3 }}>
+        <Typography component="h1" variant="h3">Mezmur</Typography>
+        {user?.result && (
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => history.push("/mezmur/addmezmur")}>Add song</Button>
+        )}
+      </Box>
+      <TextField fullWidth label="Search songs" value={query} onChange={(event) => setQuery(event.target.value)} sx={{ mb: 3 }} />
+      {loading && <Box sx={{ display: "grid", placeItems: "center", py: 6 }}><CircularProgress /></Box>}
+      {error && <Alert severity="error">{error}</Alert>}
+      {!loading && !error && !mezmurs.length && <Alert severity="info">No songs found.</Alert>}
+      {!!mezmurs.length && (
+        <Paper>
+          <List disablePadding>
+            {mezmurs.map((mezmur, index) => (
+              <ListItem key={mezmur._id} divider={index < mezmurs.length - 1} secondaryAction={user?.result && (
+                <IconButton aria-label={`Delete ${mezmur.title}`} onClick={() => removeMezmur(mezmur._id)}><DeleteIcon color="error" /></IconButton>
+              )}>
+                <ListItemText primary={<Link to={`/mezmur/${mezmur._id}`}>{mezmur.title}</Link>} secondary={mezmur.artist} />
+              </ListItem>
+            ))}
+          </List>
+        </Paper>
+      )}
+    </Box>
+  );
 };
 
-export default AllMezmurs;
+export default Mezmur;

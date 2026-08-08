@@ -1,7 +1,6 @@
 import React from "react";
 import { Container } from "@mui/material";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import useStyles from "./stylesApp";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./components/Home/Home";
 import Auth from "./components/Auth/Auth";
@@ -15,10 +14,9 @@ import Predict from "./pages/predict/Predict";
 import Jugend from "./pages/jugend/Jugend";
 import Kinder from "./pages/kinder/Kinder";
 import Help from "./pages/help/Help";
+import NotFound from "./pages/NotFound";
 
 const App = () => {
-  useStyles();
-
   return (
     <BrowserRouter>
       <Container maxWidth="lg">
@@ -36,6 +34,7 @@ const App = () => {
           <Route path="/mezmur/addmezmur" exact component={Add_new_mezmur} />
           <Route path="/mezmur/list" exact component={MezmurList} />
           <Route path="/mezmur/:id" exact component={SingleMezmur} />
+          <Route component={NotFound} />
         </Switch>
       </Container>
     </BrowserRouter>

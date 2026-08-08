@@ -1,37 +1,32 @@
 import axios from "axios";
 
-//const url = "http://localhost:5000/posts";
+const API = axios.create({
+  baseURL:
+    process.env.REACT_APP_API_URL || "https://server-full-gospel.onrender.com",
+  timeout: 20000,
+});
 
-//const API = axios?.create({ baseURL: "https://nameless-hollows-61846.herokuapp.com" });
-const API = axios.create({ baseURL: "https://server-full-gospel.onrender.com"});
-
-API.interceptors.request.use((req) => {
-  if (localStorage.getItem("profile")) {
-    req.headers.Authorization = `Bearer ${
-      JSON.parse(localStorage.getItem("profile")).token
-    }`;
+API.interceptors.request.use((request) => {
+  try {
+    const token = JSON.parse(localStorage.getItem("profile"))?.token;
+    if (token) request.headers.Authorization = `Bearer ${token}`;
+  } catch {
+    localStorage.removeItem("profile");
   }
-  return req;
+  return request;
 });
 
 export const fetchPosts = () => API.get("/posts");
-export const fetchPostsmezmur = () => API.get("/mezmur");
-
-export const createPost = (newPost) => API.post("/posts", newPost);
-export const addnMezmur = (newMezmur) => API.post("/mezmur", newMezmur);
-
-export const fetchSingleMezmur = (id) => API.get(`/mezmur/${id}`);
-
-export const updatePost = (id, updatePost) =>
-  API.patch(`/posts/${id}`, updatePost);
-export const updatePostMezmur = (id, updateMezmur) =>
-  API.patch(`/mezmur/${id}`, updateMezmur);
-
+export const createPost = (post) => API.post("/posts", post);
+export const updatePost = (id, post) => API.patch(`/posts/${id}`, post);
 export const deletePost = (id) => API.delete(`/posts/${id}`);
-export const deleteMezmur = (id) => API.delete(`/mezmur/${id}`);
-
-
 export const likePost = (id) => API.patch(`/posts/${id}/likepost`);
+
+export const fetchMezmurs = () => API.get("/mezmur");
+export const fetchSingleMezmur = (id) => API.get(`/mezmur/${id}`);
+export const createMezmur = (mezmur) => API.post("/mezmur", mezmur);
+export const updateMezmur = (id, mezmur) => API.patch(`/mezmur/${id}`, mezmur);
+export const deleteMezmur = (id) => API.delete(`/mezmur/${id}`);
 
 export const signIn = (formData) => API.post("/user/signin", formData);
 export const signUp = (formData) => API.post("/user/signup", formData);

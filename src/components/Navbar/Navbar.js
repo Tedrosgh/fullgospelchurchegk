@@ -29,9 +29,7 @@ const Navbar = () => {
   const history = useHistory();
   const location = useLocation();
   const theme = useTheme();
-  console.log(theme);
   const isMatch = useMediaQuery(theme.breakpoints.down('sm'));
-  console.log(isMatch);
 
   const logout = () => {
     //we need to dispatch an action
@@ -39,8 +37,6 @@ const Navbar = () => {
     history.push("/");
     setUser(null);
   };
-
-  console.log("User: ", user);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("profile"));

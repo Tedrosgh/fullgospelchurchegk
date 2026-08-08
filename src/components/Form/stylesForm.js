@@ -1,6 +1,6 @@
-import styled  from "@emotion/styled";
+import { makeStyles } from "@material-ui/core/styles";
 
-export default styled((theme) => ({
+export default makeStyles((theme) => ({
   root: {
     "& .MuiTextField-root": {
       margin: theme.spacing(1),

@@ -1,7 +1,7 @@
-import styled  from "@emotion/styled";
+import { makeStyles } from "@material-ui/core/styles";
 import { deepPurple } from "@mui/material/colors";
 
-export default styled((theme) => ({
+export default makeStyles((theme) => ({
   appBar: {
     borderRadius: 15,
     margin: "30px 0",

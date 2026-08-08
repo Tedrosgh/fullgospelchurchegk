@@ -1,101 +1,59 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addMezmur, updateMezmur } from "../../actions/postsActions";
-//import { createPost, addMezmur, updatePost } from "../../api/api";
+import React, { useState } from "react";
+import { Alert, Box, Button, Paper, TextField, Typography } from "@mui/material";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { addMezmur } from "../../actions/postsActions";
 
-//import TodoItem from '../TodoItem/TodoItem';
+const initialState = { title: "", artist: "", langetext: "" };
 
-//import todoContext from '../../store/context';
-//import { ADD_TODO } from '../../store/actions';
-
-// Add a submit listener that...
-// Add the new todo text to our App State
-
-const Add_new_mezmur = ({  currentId, setCurrentId }) => {
+const AddNewMezmur = () => {
   const user = JSON.parse(localStorage.getItem("profile"));
-
-  // Get the values we need from the Context with useContext()
-  //const { todoTasks, dispatch } = useContext(todoContext);
-
-  // Control the input to always have the input value in state (onChange, value)
-
-  const startingState = {
-    title: "",
-    langetext: "",
-  };
-  const [startState, setStartState] = useState(startingState);
-  const mezmu = useSelector((state) =>
-    currentId ? state.mezmurReducer.find((p) => p._id === currentId) : null
-  );
-
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    if (mezmu) {
-      setStartState(mezmu);
-    }
-  }, [mezmu]);
-
-  const handleChange = evt => {
-    const { name, value } = evt.target;
-    setStartState({ ...startState, [name]: value })
-    //setTitle(evt.target.value)
-  }
-  const handleSubmit = evt => {
-    evt.preventDefault();
-    //const newMezmur = { title, mezmur };
-
-    if (currentId) {
-      dispatch(
-        updateMezmur(currentId, { ...startState, name: user?.result?.name })
-      );
-    } else {
-      dispatch(addMezmur({ ...startState, name: user?.result?.name }));
-    }
-    console.log(dispatch);
-    clear();
-  };
-
-  const clear = () => {
-    //setCurrentId(null);
-    setStartState({
-      title: "",
-      langetext: "",
-    });
-  };
+  const history = useHistory();
+  const [formData, setFormData] = useState(initialState);
+  const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   if (!user?.result?.name) {
-    //Please sign in
     return (
-      <div style={{color: "red"}}>
-        <p variant="h6" align="center">
-          Please Sign In to add new mezmur
-        </p>
-      </div>
+      <Alert severity="warning" sx={{ my: 4 }}>
+        Please <Link to="/auth">sign in</Link> to add a song.
+      </Alert>
     );
   }
-  return (
-    <div className="sunday">
-      <h2>Add new mezmur</h2>
-      <form className="sunday" onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column" }} >
-        <label className="input-item" placeholder="add title" style={{ margin: "20PX" }}>Add title
-          <input type="text" name="title" id="title" value={startState.title} onChange={handleChange} />
-        </label>
-        <label className="input-item" placeholder="add artist" style={{ margin: "10PX" }}>Add artist
-          <input type="text" name="artist" id="artist" value={startState.artist} onChange={handleChange} />
-        </label>
-        <label htmlFor="langetext">Add text mezmur here</label>
-        <textarea id="langetext" name="langetext" rows="50" cols="30" placeholder="Add Mezmur here" value={startState.langetext} onChange={handleChange} style={{ whiteSpace: 'pre-wrap' }}>
-        </textarea>  <br></br>
-        <button className="btn" type="submit">submit</button>
-      </form>
-      <div className="todos">
 
-        {/* Take the items array, and map Todo items based on it, passing the individual item data down to the component */}
-        {/*todoTasks.map((item, index) => <TodoItem key={index} data={item} />)*/}
-      </div>
-    </div>
-  )
+  const handleChange = (event) => {
+    setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    setError("");
+    setSubmitting(true);
+    try {
+      await dispatch(addMezmur({ ...formData, name: user.result.name }));
+      history.push("/mezmur");
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "Unable to add this song.");
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <Paper sx={{ maxWidth: 760, mx: "auto", my: 4, p: { xs: 2, sm: 4 } }}>
+      <Typography component="h1" variant="h4" gutterBottom>Add a new mezmur</Typography>
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
+        <TextField required name="title" label="Title" value={formData.title} onChange={handleChange} />
+        <TextField name="artist" label="Artist" value={formData.artist} onChange={handleChange} />
+        <TextField required multiline minRows={12} name="langetext" label="Lyrics" value={formData.langetext} onChange={handleChange} />
+        <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+          <Button component={Link} to="/mezmur">Cancel</Button>
+          <Button type="submit" variant="contained" disabled={submitting}>{submitting ? "Saving…" : "Save song"}</Button>
+        </Box>
+      </Box>
+    </Paper>
+  );
 };
 
-export default Add_new_mezmur;
+export default AddNewMezmur;

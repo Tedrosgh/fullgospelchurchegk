@@ -1,24 +1,20 @@
 import { AUTH } from "../constants/actionTypes";
 import * as api from "../api/api";
 
-export const signin = (formData, history) => async (dispatch) => {
+const authenticate = (request, formData) => async (dispatch) => {
   try {
-    //log in the user ...
-    const { data } = await api.signIn(formData);
+    const { data } = await request(formData);
     dispatch({ type: AUTH, data });
-    history.push("/");
+    return { ok: true };
   } catch (error) {
-    console.log(error);
+    return {
+      ok: false,
+      message:
+        error.response?.data?.message ||
+        "Authentication failed. Please check your details and try again.",
+    };
   }
 };
 
-export const signup = (formData, history) => async (dispatch) => {
-  try {
-    //sign up the user ...
-    const { data } = await api.signUp(formData);
-    dispatch({ type: AUTH, data });
-    history.push("/");
-  } catch (error) {
-    console.log(error);
-  }
-};
+export const signin = (formData) => authenticate(api.signIn, formData);
+export const signup = (formData) => authenticate(api.signUp, formData);
