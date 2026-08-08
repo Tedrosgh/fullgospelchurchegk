@@ -1,3 +1,29 @@
+# Eritrean Full Gospel Church Cologne
+
+## Supabase setup
+
+1. Open the Supabase SQL Editor for project `epmeeuihtaubxireizng`.
+2. Run `supabase/schema.sql` once to create the tables, indexes, Row Level Security policies, and the protected like function.
+3. In Vercel, add these Production environment variables:
+
+```text
+REACT_APP_SUPABASE_URL=https://epmeeuihtaubxireizng.supabase.co
+REACT_APP_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+```
+
+4. In Supabase Authentication URL Configuration, set the Site URL to the production Vercel URL and add the same URL to Redirect URLs.
+
+To import the existing public Render data, use a Supabase secret key locally. Never add the secret key to Vercel or commit it:
+
+```powershell
+$env:SUPABASE_URL="https://epmeeuihtaubxireizng.supabase.co"
+$env:SUPABASE_SECRET_KEY="your_secret_key"
+npm run migrate:supabase
+Remove-Item Env:SUPABASE_SECRET_KEY
+```
+
+The import is idempotent and currently migrates 3 posts and 84 mezmurs. Existing password hashes cannot be migrated; users must register through Supabase Auth.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
