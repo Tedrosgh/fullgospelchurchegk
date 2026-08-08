@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   CircularProgress,
+  IconButton,
   Menu,
   MenuItem,
   Paper,
@@ -14,6 +15,7 @@ import {
   TableHead,
   TableRow,
   TextField,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -81,7 +83,7 @@ const Mezmur = () => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
     return [...items]
       .filter((item) =>
-        [item.title, item.artist, item.name]
+        [item.title, item.artist]
           .filter(Boolean)
           .some((value) => value.toLocaleLowerCase().includes(normalizedQuery))
       )
@@ -117,13 +119,23 @@ const Mezmur = () => {
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 3 }}>
         <Typography component="h1" variant="h3">Mezmur</Typography>
         {user?.result && (
-          <Button variant="contained" startIcon={<AddIcon />} onClick={() => history.push("/mezmur/addmezmur")}>Add song</Button>
+          <Tooltip title="Add a new mezmur">
+            <IconButton
+              color="primary"
+              size="large"
+              aria-label="Add a new mezmur"
+              onClick={() => history.push("/mezmur/addmezmur")}
+              sx={{ border: 1, borderColor: "primary.main" }}
+            >
+              <AddIcon />
+            </IconButton>
+          </Tooltip>
         )}
       </Box>
 
       <TextField
         fullWidth
-        label="Search by title, artist, or name"
+        label="Search by title or artist"
         value={query}
         onChange={(event) => setQuery(event.target.value)}
         sx={{ mb: 3 }}
@@ -138,7 +150,7 @@ const Mezmur = () => {
           <Table aria-label="Mezmur songs">
             <TableHead>
               <TableRow sx={{ bgcolor: "primary.main" }}>
-                {['Title', 'Artist', 'Name', 'Created at', 'Action'].map((heading) => (
+                {['Title', 'Artist', 'Created at', 'Action'].map((heading) => (
                   <TableCell key={heading} sx={{ color: "primary.contrastText", fontWeight: 700 }}>{heading}</TableCell>
                 ))}
               </TableRow>
@@ -148,7 +160,6 @@ const Mezmur = () => {
                 <TableRow key={mezmur._id} hover>
                   <TableCell component="th" scope="row" sx={{ fontWeight: 600 }}>{mezmur.title || "Untitled"}</TableCell>
                   <TableCell>{mezmur.artist || "—"}</TableCell>
-                  <TableCell>{mezmur.name || "—"}</TableCell>
                   <TableCell sx={{ whiteSpace: "nowrap" }}>{formatDate(mezmur.createdAt)}</TableCell>
                   <TableCell>
                     <Button size="small" variant="outlined" endIcon={<ArrowDropDownIcon />} onClick={(event) => openActions(event, mezmur)}>
