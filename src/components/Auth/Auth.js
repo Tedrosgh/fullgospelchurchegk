@@ -51,8 +51,15 @@ const Auth = () => {
     const result = await dispatch(isSignup ? signup(formData) : signin(formData));
     setSubmitting(false);
 
-    if (result.ok) history.push("/");
-    else setError(result.message);
+    if (result.confirmationRequired) {
+      setIsSignup(false);
+      setFormData(initialState);
+      setError(result.message);
+    } else if (result.ok) {
+      history.push("/");
+    } else {
+      setError(result.message);
+    }
   };
 
   return (

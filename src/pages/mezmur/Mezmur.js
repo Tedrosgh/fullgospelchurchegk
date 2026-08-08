@@ -49,7 +49,7 @@ const Mezmur = () => {
         <Paper>
           <List disablePadding>
             {mezmurs.map((mezmur, index) => (
-              <ListItem key={mezmur._id} divider={index < mezmurs.length - 1} secondaryAction={user?.result && (
+              <ListItem key={mezmur._id} divider={index < mezmurs.length - 1} secondaryAction={user?.result?._id === mezmur.creator && (
                 <IconButton aria-label={`Delete ${mezmur.title}`} onClick={() => removeMezmur(mezmur._id)}><DeleteIcon color="error" /></IconButton>
               )}>
                 <ListItemText primary={<Link to={`/mezmur/${mezmur._id}`}>{mezmur.title}</Link>} secondary={mezmur.artist} />
