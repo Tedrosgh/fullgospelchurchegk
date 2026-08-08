@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import { Link, NavLink, useHis, useHistory, useParams } from 'react-router-dom';
-import axios from 'axios';
+import { Link, useHistory } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { deleteMezmurAction, getMezmurs, getSingleMezmur } from '../../actions/postsActions';
-import Form from '../../components/Form/Form';
+import { deleteMezmurAction, getMezmurs } from '../../actions/postsActions';
 import DeleteIcon from "@material-ui/icons/Delete";
 import { CircularProgress } from '@material-ui/core';
 import { useSelector } from 'react-redux';
-import Add_new_mezmur from './Add_new_mezmur';
-
-const page = { page: '/fullgospelchurchegk/mezmur' };
 
 
 
@@ -19,20 +14,11 @@ const page = { page: '/fullgospelchurchegk/mezmur' };
 // 
 const AllMezmurs = ({ setCurrentId }) => {
     // const classes = useStyles(); //classes.container
-    const startingState = [{
-        title: "",
-        langetext: "",
-    }];
-
-    const [startState, setStartState] = useState(startingState);
-    const [data, setData] = useState([]);
     const [value, setValue] = useState("");
-    const [state, setState] = React.useState(page);
     const history = useHistory();
-    let { id } = useParams();
     const dispatch = useDispatch();
     const handlenewMezmur = () => {
-        history.push('/fullgospelchurchegk/mezmur/addmezmur');
+        history.push('/mezmur/addmezmur');
     };
 
     useEffect(() => {
@@ -41,7 +27,6 @@ const AllMezmurs = ({ setCurrentId }) => {
 
     const mezmurs = useSelector((state) => state.mezmurReducer);
     console.log("All Mermurs: ", mezmurs);
-    console.log("startState: ", startState);
 
     return !mezmurs.length ? (
         <CircularProgress />
@@ -68,7 +53,7 @@ const AllMezmurs = ({ setCurrentId }) => {
                         return <div>
                             {mezmurs.sort((a, b) => a.title > b.title ? 1 : -1).map((mez) => (
                                 <ul style={{ color: "yellow", backgroundColor: "green" }} key={mez._id}>
-                                    <li style={{ color: "red" }} ><Link to={`/fullgospelchurchegk/mezmur/${mez._id}`}> {[mez.title]} </Link>
+                                    <li style={{ color: "red" }} ><Link to={`/mezmur/${mez._id}`}> {[mez.title]} </Link>
                                     </li>
                                 </ul>))}
                                 
@@ -81,7 +66,7 @@ const AllMezmurs = ({ setCurrentId }) => {
                         <div key={val._id} style={{ color: "yellow", backgroundColor: "lightgreen", fontWeight: "bold" }}>
                             <ul>
                                 <li style={{ display: "flex", justifyContent: "space-between" }}>
-                                    <Link style={{ textDecoration: "none" }} to={`/fullgospelchurchegk/mezmur/${val._id}`}>{[val.title]}</Link>
+                                    <Link style={{ textDecoration: "none" }} to={`/mezmur/${val._id}`}>{[val.title]}</Link>
                                     <button
                                         // onClick={() => handleRemoveMezmur(val._id)}
                                         onClick={() => dispatch(deleteMezmurAction(val._id))}

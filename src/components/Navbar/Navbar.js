@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { AppBar, Toolbar, Avatar, Button, Typography, Container, Box, Drawer, List, useMediaQuery, useTheme, ThemeProvider } from "@mui/material";
+import { AppBar, Toolbar, Avatar, Button, Typography, Container, Drawer, List, useMediaQuery, useTheme } from "@mui/material";
 import { ListItemButton, ListItemText } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import useStyles from "./stylesNavbar";
-import camera from "../../images/camera.png";
-import karte from "../../images/karte.png";
 import logo from "../../images/logo.jpg";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import decode from "jwt-decode";
 
-const pagesArr = ["Program", "Mezmur", "Finanz", "Predict", "Jugend", "Kinder", "Help?"];
-const pagesArrD = ["Program", "Mezmur", "Finanz", "Predict", "Jugend", "Kinder", "Help?"];
+const pages = [
+  { label: "Program", path: "/program" },
+  { label: "Mezmur", path: "/mezmur" },
+  { label: "Finanz", path: "/finanz" },
+  { label: "Predict", path: "/predict" },
+  { label: "Jugend", path: "/jugend" },
+  { label: "Kinder", path: "/kinder" },
+  { label: "Help?", path: "/help" },
+];
 
 const Navbar = () => {
   const classes = useStyles();
@@ -31,7 +36,7 @@ const Navbar = () => {
   const logout = () => {
     //we need to dispatch an action
     dispatch({ type: "LOGOUT" });
-    history.push("/fullgospelchurchegk");
+    history.push("/");
     setUser(null);
   };
 
@@ -55,7 +60,7 @@ const Navbar = () => {
         {
           isMatch ? (
             <>
-              <Typography component={Link} to="/fullgospelchurchegk"><img src={logo} alt="icon" height="70" /></Typography>
+              <Typography component={Link} to="/"><img src={logo} alt="Church logo" height="70" /></Typography>
 
               <button onClick={() => setOpen(true)}><MenuIcon 
                     style={{ color: "rgba(0,183,255, 1)" }} /></button>
@@ -63,12 +68,12 @@ const Navbar = () => {
                 <List sx={{ bgcolor: '#1976d2', color: 'white', 
                           marginTop: '38PX', fontWeight: 'medium', 
                           variant: 'body2', fontSize: 25 }}>
-                  {pagesArrD.map((page, index) => (
-                    <ListItemButton key={index} onClick={() => setOpen(false)} 
-                    component={Link} to={`/fullgospelchurchegk/${page}`} 
+                  {pages.map((page) => (
+                    <ListItemButton key={page.path} onClick={() => setOpen(false)}
+                    component={Link} to={page.path}
                     style={{ color: "rgba(0,183,255, 1)", fontWeight: "700" }}>
 
-                      <ListItemText primary={page} />
+                      <ListItemText primary={page.label} />
 
                     </ListItemButton>))}
                   <ListItemButton>
@@ -114,7 +119,7 @@ const Navbar = () => {
                   alignItems: "center", justifyContent: "space-between"}}>
                 <Typography
                   component={Link}
-                  to="/fullgospelchurchegk"
+                  to="/"
                   className={classes.heading}
                   variant="h5"
                   align="center"
@@ -154,7 +159,7 @@ const Navbar = () => {
                 ) : (
                   <Button
                     component={Link}
-                    to="/fullgospelchurchegk/auth"
+                    to="/auth"
                     variant="contained"
                     color="primary"
                   >
@@ -169,10 +174,10 @@ const Navbar = () => {
       </AppBar>
       {isMatch ? (<Typography style={{textAlign: "center", color: "yellow"}}>For more links press the burger butten</Typography>) : (
       <Toolbar className={classes.appBarUnten} position="static" color="inherit">
-        {pagesArrD.map((page, index) => (
-          <ListItemButton key={index} component={Link} to={`/fullgospelchurchegk/${page}`} style={{ color: "rgba(0,183,255, 1)", fontWeight: 700 }}>
+        {pages.map((page) => (
+          <ListItemButton key={page.path} component={Link} to={page.path} style={{ color: "rgba(0,183,255, 1)", fontWeight: 700 }}>
 
-            <ListItemText primary={page} />
+            <ListItemText primary={page.label} />
 
           </ListItemButton>))}
       </Toolbar>)
