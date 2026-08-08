@@ -118,19 +118,17 @@ const Mezmur = () => {
     <Box sx={{ py: 4 }}>
       <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 3 }}>
         <Typography component="h1" variant="h3">Mezmur</Typography>
-        {user?.result && (
-          <Tooltip title="Add a new mezmur">
-            <IconButton
-              color="primary"
-              size="large"
-              aria-label="Add a new mezmur"
-              onClick={() => history.push("/mezmur/addmezmur")}
-              sx={{ border: 1, borderColor: "primary.main" }}
-            >
-              <AddIcon />
-            </IconButton>
-          </Tooltip>
-        )}
+        <Tooltip title={user?.result ? "Add a new mezmur" : "Sign in to add a mezmur"}>
+          <IconButton
+            color="primary"
+            size="large"
+            aria-label="Add a new mezmur"
+            onClick={() => history.push(user?.result ? "/mezmur/addmezmur" : "/auth")}
+            sx={{ border: 1, borderColor: "primary.main" }}
+          >
+            <AddIcon />
+          </IconButton>
+        </Tooltip>
       </Box>
 
       <TextField
