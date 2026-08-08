@@ -1,9 +1,5 @@
-import { useDispatch, useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
-import Mezmur from "./Mezmur.js";
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FETCH_ONE } from "../../constants/actionTypes.js";
 
 const startingState = [{
     title: "",
@@ -11,12 +7,9 @@ const startingState = [{
   }];
 const MezmurList = () => {
     const [startState, setStartState] = useState(startingState)
-    const { dispatch } = useDispatch();
-    
-    let { id } = useParams();
+
     useEffect(()=>{
-        //getData();
-        axios.get('http://localhost:8000/mezmur').then((response)=>{
+        axios.get('https://server-full-gospel.onrender.com/mezmur').then((response)=>{
           setStartState(response.data);
         });
     }, []);
@@ -28,11 +21,11 @@ const MezmurList = () => {
         <div>
     
         
-        {startState.map((mez)=>{
+        {startState.map((mez)=>(
             <ul style={{color: "yellow", backgroundColor: "green"}} key={mez._id}>
                 <li style={{color: "blue", backgroundColor: "yellow"}}>{mez.title} </li>
             </ul>
-        })}
+        ))}
         
        
         </div>
@@ -40,4 +33,4 @@ const MezmurList = () => {
     )
 };
 
-export default MezmurList; 
+export default MezmurList;

@@ -27,6 +27,11 @@ const AllMezmurs = ({ setCurrentId }) => {
 
     const mezmurs = useSelector((state) => state.mezmurReducer);
     console.log("All Mermurs: ", mezmurs);
+    const filteredMezmurs = [...mezmurs]
+        .filter((mezmur) =>
+            mezmur.title?.toLowerCase().includes(value.trim().toLowerCase())
+        )
+        .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
 
     return !mezmurs.length ? (
         <CircularProgress />
@@ -48,20 +53,7 @@ const AllMezmurs = ({ setCurrentId }) => {
             <div>
                 <input type='text' placeholder='search mezmur . . .'
                     value={value} onChange={(e) => setValue(e.target.value)} />
-                {mezmurs.filter((val) => {
-                    if (value == "") {
-                        return <div>
-                            {mezmurs.sort((a, b) => a.title > b.title ? 1 : -1).map((mez) => (
-                                <ul style={{ color: "yellow", backgroundColor: "green" }} key={mez._id}>
-                                    <li style={{ color: "red" }} ><Link to={`/mezmur/${mez._id}`}> {[mez.title]} </Link>
-                                    </li>
-                                </ul>))}
-                                
-                        </div>
-                    } else if (val.title.includes(value)) {
-                        return val
-                    }
-                }).map((val) => {
+                {filteredMezmurs.map((val) => {
                     return (
                         <div key={val._id} style={{ color: "yellow", backgroundColor: "lightgreen", fontWeight: "bold" }}>
                             <ul>

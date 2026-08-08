@@ -1,6 +1,5 @@
 import styled  from "@emotion/styled";
-import { deepPurple, red } from "@mui/material/colors";
-import { borderRadius, style } from "@mui/system";
+import { deepPurple } from "@mui/material/colors";
 
 export default styled((theme) => ({
   appBar: {

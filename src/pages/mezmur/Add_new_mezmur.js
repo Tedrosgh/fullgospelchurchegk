@@ -1,7 +1,6 @@
-import axios from "axios";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addMezmur, getMezmurs, updateMezmur } from "../../actions/postsActions";
+import { addMezmur, updateMezmur } from "../../actions/postsActions";
 //import { createPost, addMezmur, updatePost } from "../../api/api";
 
 //import TodoItem from '../TodoItem/TodoItem';
@@ -25,11 +24,8 @@ const Add_new_mezmur = ({  currentId, setCurrentId }) => {
     langetext: "",
   };
   const [startState, setStartState] = useState(startingState);
-  const [isSubmitted, setisSubmitted] = useState(false);
-  const [title, setTitle] = useState('');
-  const [mezmur, setMezmur] = useState('');
   const mezmu = useSelector((state) =>
-    currentId ? state.mezmurs.find((p) => p._id === currentId) : null
+    currentId ? state.mezmurReducer.find((p) => p._id === currentId) : null
   );
 
   const dispatch = useDispatch();
@@ -45,8 +41,6 @@ const Add_new_mezmur = ({  currentId, setCurrentId }) => {
     setStartState({ ...startState, [name]: value })
     //setTitle(evt.target.value)
   }
-  const handleMezmur = evt => setMezmur(evt.target.value);
-
   const handleSubmit = evt => {
     evt.preventDefault();
     //const newMezmur = { title, mezmur };
@@ -80,14 +74,6 @@ const Add_new_mezmur = ({  currentId, setCurrentId }) => {
       </div>
     );
   }
-  const createmezmur = () => {
-    axios.post('https://server-full-gospel.onrender.com/mezmur', startState).then((response) => {
-      setStartState(...startState, response.data);
-    });
-  }
-  //console.log(startState);
-
-
   return (
     <div className="sunday">
       <h2>Add new mezmur</h2>
@@ -98,7 +84,7 @@ const Add_new_mezmur = ({  currentId, setCurrentId }) => {
         <label className="input-item" placeholder="add artist" style={{ margin: "10PX" }}>Add artist
           <input type="text" name="artist" id="artist" value={startState.artist} onChange={handleChange} />
         </label>
-        <label for="langetext">Add text mezmur here</label>
+        <label htmlFor="langetext">Add text mezmur here</label>
         <textarea id="langetext" name="langetext" rows="50" cols="30" placeholder="Add Mezmur here" value={startState.langetext} onChange={handleChange} style={{ whiteSpace: 'pre-wrap' }}>
         </textarea>  <br></br>
         <button className="btn" type="submit">submit</button>

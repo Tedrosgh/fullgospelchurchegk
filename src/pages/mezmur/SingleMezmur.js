@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from "react";
-import { useQuery } from "react-query";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 

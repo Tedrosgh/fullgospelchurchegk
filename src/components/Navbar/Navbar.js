@@ -43,16 +43,22 @@ const Navbar = () => {
   console.log("User: ", user);
 
   useEffect(() => {
-    const token = user?.token;
-    //JWT..
+    const storedUser = JSON.parse(localStorage.getItem("profile"));
+    const token = storedUser?.token;
+
     if (token) {
       const decodedToken = decode(token);
 
-      if (decodedToken.exp * 1000 < new Date().getTime()) logout();
+      if (decodedToken.exp * 1000 < Date.now()) {
+        dispatch({ type: "LOGOUT" });
+        setUser(null);
+        history.push("/");
+        return;
+      }
     }
 
-    setUser(JSON.parse(localStorage.getItem("profile")));
-  }, [location]);
+    setUser(storedUser);
+  }, [dispatch, history, location]);
 
   return (
     <Container>
