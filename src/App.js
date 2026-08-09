@@ -16,13 +16,15 @@ import Kinder from "./pages/kinder/Kinder";
 import Help from "./pages/help/Help";
 import NotFound from "./pages/NotFound";
 import PostDetail from "./pages/PostDetail";
+import MezmurPrint from "./pages/mezmur/MezmurPrint";
 
-const App = () => {
-  return (
-    <BrowserRouter>
+const AppContent = () => (
+  <Switch>
+    <Route path="/mezmur/:id/print" exact component={MezmurPrint} />
+    <Route>
       <Container maxWidth="lg">
         <Navbar />
-         <Switch>
+        <Switch>
           <Route path="/" exact component={Home} />
           <Route path="/auth" exact component={Auth} />
           <Route path="/posts/:id" exact component={PostDetail} />
@@ -40,8 +42,14 @@ const App = () => {
           <Route component={NotFound} />
         </Switch>
       </Container>
-    </BrowserRouter>
-  );
-};
+    </Route>
+  </Switch>
+);
+
+const App = () => (
+  <BrowserRouter>
+    <AppContent />
+  </BrowserRouter>
+);
 
 export default App;
