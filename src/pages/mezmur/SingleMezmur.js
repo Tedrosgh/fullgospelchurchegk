@@ -31,6 +31,11 @@ const SingleMezmur = () => {
       </Button>
       <Typography component="h1" variant="h3" align="center" gutterBottom>{mezmur.title}</Typography>
       {mezmur.artist && <Typography color="text.secondary" align="center" gutterBottom>{mezmur.artist}</Typography>}
+      {mezmur.writtenAt && (
+        <Typography color="text.secondary" align="center" sx={{ mb: 3 }}>
+          Written on {new Intl.DateTimeFormat(undefined, { dateStyle: "long", timeZone: "UTC" }).format(new Date(`${mezmur.writtenAt}T00:00:00Z`))}
+        </Typography>
+      )}
       <Typography component="div" sx={{ whiteSpace: "pre-wrap", fontSize: { xs: 18, md: 22 }, lineHeight: 1.8 }}>{mezmur.langetext}</Typography>
     </Box>
   );

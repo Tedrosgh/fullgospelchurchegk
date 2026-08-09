@@ -29,7 +29,10 @@ const formatDate = (value) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? "—"
-    : new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(date);
+    : new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        ...(/^\d{4}-\d{2}-\d{2}$/.test(value) ? { timeZone: "UTC" } : {}),
+      }).format(date);
 };
 
 const exportAsPdf = (mezmur) => {
@@ -55,7 +58,7 @@ const exportAsPdf = (mezmur) => {
   heading.textContent = mezmur.title || "Untitled";
   const meta = document.createElement("p");
   meta.className = "meta";
-  meta.textContent = [mezmur.artist, mezmur.name, formatDate(mezmur.createdAt)]
+  meta.textContent = [mezmur.artist, mezmur.name, mezmur.writtenAt ? `Written ${formatDate(mezmur.writtenAt)}` : null]
     .filter(Boolean)
     .join(" · ");
   const lyrics = document.createElement("div");
@@ -148,7 +151,7 @@ const Mezmur = () => {
           <Table aria-label="Mezmur songs">
             <TableHead>
               <TableRow sx={{ bgcolor: "primary.main" }}>
-                {['Title', 'Artist', 'Created at', 'Action'].map((heading) => (
+                {['Title', 'Artist', 'Date written', 'Action'].map((heading) => (
                   <TableCell key={heading} sx={{ color: "primary.contrastText", fontWeight: 700 }}>{heading}</TableCell>
                 ))}
               </TableRow>
@@ -172,7 +175,7 @@ const Mezmur = () => {
                 >
                   <TableCell component="th" scope="row" sx={{ fontWeight: 600 }}>{mezmur.title || "Untitled"}</TableCell>
                   <TableCell>{mezmur.artist || "—"}</TableCell>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>{formatDate(mezmur.createdAt)}</TableCell>
+                  <TableCell sx={{ whiteSpace: "nowrap" }}>{formatDate(mezmur.writtenAt)}</TableCell>
                   <TableCell>
                     <Button
                       size="small"

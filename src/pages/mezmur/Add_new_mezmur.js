@@ -5,7 +5,7 @@ import { Link, useHistory, useParams } from "react-router-dom";
 import { addMezmur, updateMezmur } from "../../actions/postsActions";
 import { fetchSingleMezmur } from "../../api/api";
 
-const initialState = { title: "", artist: "", langetext: "" };
+const initialState = { title: "", artist: "", writtenAt: "", langetext: "" };
 
 const AddNewMezmur = () => {
   const user = JSON.parse(localStorage.getItem("profile"));
@@ -24,7 +24,12 @@ const AddNewMezmur = () => {
     fetchSingleMezmur(id)
       .then(({ data }) => {
         if (active) {
-          setFormData({ title: data.title || "", artist: data.artist || "", langetext: data.langetext || "" });
+          setFormData({
+            title: data.title || "",
+            artist: data.artist || "",
+            writtenAt: data.writtenAt || "",
+            langetext: data.langetext || "",
+          });
           setLoading(false);
         }
       })
@@ -71,6 +76,15 @@ const AddNewMezmur = () => {
       <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
         <TextField required name="title" label="Title" value={formData.title} onChange={handleChange} />
         <TextField name="artist" label="Artist" value={formData.artist} onChange={handleChange} />
+        <TextField
+          name="writtenAt"
+          label="Date written"
+          type="date"
+          value={formData.writtenAt}
+          onChange={handleChange}
+          InputLabelProps={{ shrink: true }}
+          helperText="Enter the historical date the song was written."
+        />
         <TextField required multiline minRows={12} name="langetext" label="Lyrics" value={formData.langetext} onChange={handleChange} />
         <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
           <Button component={Link} to="/mezmur">Cancel</Button>
