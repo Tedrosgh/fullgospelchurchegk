@@ -5,10 +5,11 @@ import FileBase from "react-file-base64";
 
 import { useDispatch, useSelector } from "react-redux";
 import { createPost, updatePost } from "../../actions/postsActions";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Form = ({ currentId, setCurrentId }) => {
   const user = JSON.parse(localStorage.getItem("profile"));
+  const location = useLocation();
 
   const [postData, setPostData] = useState({
     title: "",
@@ -66,7 +67,7 @@ const Form = ({ currentId, setCurrentId }) => {
         <Typography variant="h6" align="center">
           Please Sign In to create your own cards and like other's cards
         </Typography>
-        <Button component={Link} to="/auth" variant="contained" fullWidth sx={{ mt: 2 }}>
+        <Button component={Link} to={{ pathname: "/auth", state: { from: location.pathname } }} variant="contained" fullWidth sx={{ mt: 2 }}>
           Sign In
         </Button>
       </Paper>

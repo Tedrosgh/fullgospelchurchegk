@@ -18,6 +18,8 @@ const authenticate = (request, formData) => async (dispatch) => {
       ok: false,
       message:
         error.response?.data?.message ||
+        error.response?.data?.msg ||
+        error.response?.data?.error_description ||
         "Authentication failed. Please check your details and try again.",
     };
   }

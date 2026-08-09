@@ -1,6 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import useStyles from "./stylesPost";
 import {
   Card,
@@ -25,6 +25,7 @@ const Post = ({ post, setCurrentId }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const history = useHistory();
+  const location = useLocation();
 
   const user = JSON.parse(localStorage.getItem("profile"));
   const cardPalettes = [
@@ -138,7 +139,7 @@ const Post = ({ post, setCurrentId }) => {
           style={{ color: palette.accent }}
           onClick={(event) => {
             event.stopPropagation();
-            if (!user?.result) history.push("/auth");
+            if (!user?.result) history.push("/auth", { from: location.pathname });
             else dispatch(likePostAction(post._id));
           }}
           onKeyDown={(event) => event.stopPropagation()}

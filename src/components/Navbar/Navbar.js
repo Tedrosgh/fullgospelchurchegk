@@ -7,6 +7,7 @@ import logo from "../../images/logo.jpg";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import decode from "jwt-decode";
+import { refreshSession, signOut } from "../../api/api";
 
 const pages = [
   { label: "Program", path: "/program" },
@@ -31,29 +32,66 @@ const Navbar = () => {
   const theme = useTheme();
   const isMatch = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const logout = () => {
-    //we need to dispatch an action
+  const logout = async () => {
+    const accessToken = user?.token;
     dispatch({ type: "LOGOUT" });
     history.push("/");
     setUser(null);
+    if (accessToken) {
+      try {
+        await signOut(accessToken);
+      } catch {
+        // The local session is already cleared even if the remote session expired.
+      }
+    }
   };
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("profile"));
-    const token = storedUser?.token;
+    let active = true;
+    let refreshTimer;
 
-    if (token) {
-      const decodedToken = decode(token);
+    const synchronizeSession = async () => {
+      let storedUser;
+      try {
+        storedUser = JSON.parse(localStorage.getItem("profile"));
+      } catch {
+        localStorage.removeItem("profile");
+      }
 
-      if (decodedToken.exp * 1000 < Date.now()) {
-        dispatch({ type: "LOGOUT" });
-        setUser(null);
-        history.push("/");
+      if (!storedUser?.token) {
+        if (active) setUser(null);
         return;
       }
-    }
 
-    setUser(storedUser);
+      try {
+        const decodedToken = decode(storedUser.token);
+        const refreshIn = decodedToken.exp * 1000 - Date.now() - 60_000;
+
+        if (refreshIn <= 0) {
+          if (!storedUser.refreshToken) throw new Error("Missing refresh token");
+          const { data } = await refreshSession(storedUser.refreshToken);
+          if (active) {
+            dispatch({ type: "AUTH", data });
+            setUser(data);
+          }
+          return;
+        }
+
+        if (active) {
+          setUser(storedUser);
+          refreshTimer = setTimeout(synchronizeSession, refreshIn);
+        }
+      } catch {
+        dispatch({ type: "LOGOUT" });
+        if (active) setUser(null);
+      }
+    };
+
+    synchronizeSession();
+    return () => {
+      active = false;
+      clearTimeout(refreshTimer);
+    };
   }, [dispatch, history, location]);
 
   return (

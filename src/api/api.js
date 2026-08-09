@@ -170,6 +170,26 @@ const authData = (response) => {
   };
 };
 
+export const refreshSession = async (refreshToken) => {
+  const response = await auth.post("/token?grant_type=refresh_token", {
+    refresh_token: refreshToken,
+  });
+  return { ...response, data: authData(response) };
+};
+
+export const signOut = (accessToken) =>
+  auth.post("/logout", {}, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
+export const requestPasswordReset = (email) =>
+  auth.post(`/recover?redirect_to=${encodeURIComponent(`${window.location.origin}/auth`)}`, { email });
+
+export const updatePassword = (accessToken, password) =>
+  auth.put("/user", { password }, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+
 export const signIn = async ({ email, password }) => {
   const response = await auth.post("/token?grant_type=password", { email, password });
   return { ...response, data: authData(response) };
