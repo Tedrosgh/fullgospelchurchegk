@@ -19,13 +19,10 @@ create table if not exists public.mezmurs (
   title text not null check (char_length(title) between 1 and 200),
   artist text not null default '',
   lyrics text not null,
-  written_at date,
   name text not null default '',
   creator uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now()
 );
-
-alter table public.mezmurs add column if not exists written_at date;
 
 create index if not exists posts_created_at_idx on public.posts (created_at desc);
 create index if not exists mezmurs_title_idx on public.mezmurs (lower(title));

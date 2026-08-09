@@ -24,15 +24,36 @@ import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteMezmurAction, getMezmurs } from "../../actions/postsActions";
 
-const formatDate = (value) => {
-  if (!value) return "—";
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "—"
-    : new Intl.DateTimeFormat(undefined, {
-        dateStyle: "medium",
-        ...(/^\d{4}-\d{2}-\d{2}$/.test(value) ? { timeZone: "UTC" } : {}),
-      }).format(date);
+const exportAsPdf = (mezmur) => {
+  const printWindow = window.open("", "_blank", "noopener,noreferrer");
+  if (!printWindow) {
+    window.alert("Allow pop-ups to export this song as PDF.");
+    return;
+  }
+
+  const { document } = printWindow;
+  document.title = mezmur.title || "Mezmur";
+  const style = document.createElement("style");
+  style.textContent = `
+    body { font-family: Arial, sans-serif; color: #111; max-width: 760px; margin: 48px auto; padding: 0 24px; }
+    h1 { margin-bottom: 8px; }
+    .meta { color: #555; margin-bottom: 32px; }
+    .lyrics { white-space: pre-wrap; font-size: 18px; line-height: 1.7; }
+    @page { margin: 18mm; }
+  `;
+  document.head.appendChild(style);
+
+  const heading = document.createElement("h1");
+  heading.textContent = mezmur.title || "Untitled";
+  const meta = document.createElement("p");
+  meta.className = "meta";
+  meta.textContent = [mezmur.artist, mezmur.name].filter(Boolean).join(" · ");
+  const lyrics = document.createElement("div");
+  lyrics.className = "lyrics";
+  lyrics.textContent = mezmur.langetext || "";
+  document.body.append(heading, meta, lyrics);
+
+  setTimeout(() => printWindow.print(), 250);
 };
 
 const Mezmur = () => {
@@ -117,7 +138,7 @@ const Mezmur = () => {
           <Table aria-label="Mezmur songs">
             <TableHead>
               <TableRow sx={{ bgcolor: "primary.main" }}>
-                {['Title', 'Artist', 'Date written', 'Action'].map((heading) => (
+                {['Title', 'Artist', 'Action'].map((heading) => (
                   <TableCell key={heading} sx={{ color: "primary.contrastText", fontWeight: 700 }}>{heading}</TableCell>
                 ))}
               </TableRow>
@@ -141,7 +162,6 @@ const Mezmur = () => {
                 >
                   <TableCell component="th" scope="row" sx={{ fontWeight: 600 }}>{mezmur.title || "Untitled"}</TableCell>
                   <TableCell>{mezmur.artist || "—"}</TableCell>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>{formatDate(mezmur.writtenAt)}</TableCell>
                   <TableCell>
                     <Button
                       size="small"
@@ -167,6 +187,7 @@ const Mezmur = () => {
         <MenuItem onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) history.push(`/mezmur/${id}`); }}>View</MenuItem>
         <MenuItem disabled={!ownsSelectedMezmur} onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) history.push(`/mezmur/${id}/edit`); }}>Modify</MenuItem>
         <MenuItem disabled={!ownsSelectedMezmur} onClick={removeSelectedMezmur}>Delete</MenuItem>
+        <MenuItem onClick={() => { const mezmur = selectedMezmur; closeActions(); if (mezmur) exportAsPdf(mezmur); }}>Export as PDF</MenuItem>
       </Menu>
     </Box>
   );

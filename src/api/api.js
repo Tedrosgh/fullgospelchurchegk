@@ -60,7 +60,6 @@ const mapMezmur = (mezmur) => ({
   title: mezmur.title,
   artist: mezmur.artist,
   langetext: mezmur.lyrics,
-  writtenAt: mezmur.written_at,
   name: mezmur.name,
   creator: mezmur.creator,
   createdAt: mezmur.created_at,
@@ -70,7 +69,6 @@ const mezmurPayload = (mezmur) => ({
   title: mezmur.title,
   artist: mezmur.artist || "",
   lyrics: mezmur.langetext,
-  written_at: mezmur.writtenAt || null,
   name: mezmur.name || "",
   creator: getProfile()?.result?._id,
 });
