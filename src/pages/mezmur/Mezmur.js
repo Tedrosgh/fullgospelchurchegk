@@ -24,6 +24,17 @@ import { useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteMezmurAction, getMezmurs } from "../../actions/postsActions";
 
+const formatCreatedAt = (value) => {
+  if (!value) return "—";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime())
+    ? "—"
+    : new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(date);
+};
+
 const exportAsPdf = (mezmur) => {
   const printWindow = window.open("", "_blank", "noopener,noreferrer");
   if (!printWindow) {
@@ -138,7 +149,7 @@ const Mezmur = () => {
           <Table aria-label="Mezmur songs">
             <TableHead>
               <TableRow sx={{ bgcolor: "primary.main" }}>
-                {['Title', 'Artist', 'Action'].map((heading) => (
+                {['Title', 'Artist', 'Created at', 'Action'].map((heading) => (
                   <TableCell key={heading} sx={{ color: "primary.contrastText", fontWeight: 700 }}>{heading}</TableCell>
                 ))}
               </TableRow>
@@ -162,6 +173,7 @@ const Mezmur = () => {
                 >
                   <TableCell component="th" scope="row" sx={{ fontWeight: 600 }}>{mezmur.title || "Untitled"}</TableCell>
                   <TableCell>{mezmur.artist || "—"}</TableCell>
+                  <TableCell sx={{ whiteSpace: "nowrap" }}>{formatCreatedAt(mezmur.createdAt)}</TableCell>
                   <TableCell>
                     <Button
                       size="small"
