@@ -155,12 +155,35 @@ const Mezmur = () => {
             </TableHead>
             <TableBody>
               {mezmurs.map((mezmur) => (
-                <TableRow key={mezmur._id} hover>
+                <TableRow
+                  key={mezmur._id}
+                  hover
+                  role="link"
+                  tabIndex={0}
+                  aria-label={`View ${mezmur.title || "mezmur"}`}
+                  onClick={() => history.push(`/mezmur/${mezmur._id}`)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      history.push(`/mezmur/${mezmur._id}`);
+                    }
+                  }}
+                  sx={{ cursor: "pointer" }}
+                >
                   <TableCell component="th" scope="row" sx={{ fontWeight: 600 }}>{mezmur.title || "Untitled"}</TableCell>
                   <TableCell>{mezmur.artist || "—"}</TableCell>
                   <TableCell sx={{ whiteSpace: "nowrap" }}>{formatDate(mezmur.createdAt)}</TableCell>
                   <TableCell>
-                    <Button size="small" variant="outlined" endIcon={<ArrowDropDownIcon />} onClick={(event) => openActions(event, mezmur)}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      endIcon={<ArrowDropDownIcon />}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        openActions(event, mezmur);
+                      }}
+                      onKeyDown={(event) => event.stopPropagation()}
+                    >
                       Actions
                     </Button>
                   </TableCell>

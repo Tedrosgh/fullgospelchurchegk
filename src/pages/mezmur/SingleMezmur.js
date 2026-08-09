@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Alert, Box, CircularProgress, Typography } from "@mui/material";
-import { useParams } from "react-router-dom";
+import { Alert, Box, Button, CircularProgress, Typography } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { useHistory, useParams } from "react-router-dom";
 import { fetchSingleMezmur } from "../../api/api";
 
 const SingleMezmur = () => {
   const { id } = useParams();
+  const history = useHistory();
   const [mezmur, setMezmur] = useState(null);
   const [error, setError] = useState("");
 
@@ -24,6 +26,9 @@ const SingleMezmur = () => {
 
   return (
     <Box component="article" sx={{ maxWidth: 800, mx: "auto", py: 4 }}>
+      <Button startIcon={<ArrowBackIcon />} onClick={() => history.goBack()} sx={{ mb: 3 }}>
+        Back
+      </Button>
       <Typography component="h1" variant="h3" align="center" gutterBottom>{mezmur.title}</Typography>
       {mezmur.artist && <Typography color="text.secondary" align="center" gutterBottom>{mezmur.artist}</Typography>}
       <Typography component="div" sx={{ whiteSpace: "pre-wrap", fontSize: { xs: 18, md: 22 }, lineHeight: 1.8 }}>{mezmur.langetext}</Typography>
