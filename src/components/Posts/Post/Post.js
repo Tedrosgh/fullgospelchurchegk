@@ -27,6 +27,15 @@ const Post = ({ post, setCurrentId }) => {
   const history = useHistory();
 
   const user = JSON.parse(localStorage.getItem("profile"));
+  const cardPalettes = [
+    { background: "#fff8e1", text: "#3e2723", accent: "#9a4d00" },
+    { background: "#e8f5e9", text: "#17351b", accent: "#1b5e20" },
+    { background: "#e3f2fd", text: "#102a43", accent: "#0d47a1" },
+    { background: "#f3e5f5", text: "#32133b", accent: "#6a1b9a" },
+  ];
+  const paletteIndex = [...String(post._id || post.title || "")]
+    .reduce((total, character) => total + character.charCodeAt(0), 0) % cardPalettes.length;
+  const palette = cardPalettes[paletteIndex];
 
   const Likes = () => {
     if (post.likes?.length > 0) {
@@ -68,7 +77,7 @@ const Post = ({ post, setCurrentId }) => {
           history.push(`/posts/${post._id}`);
         }
       }}
-      style={{ cursor: "pointer" }}
+      style={{ cursor: "pointer", backgroundColor: palette.background, color: palette.text }}
     >
       <CardMedia
         className={classes.media}
@@ -101,7 +110,7 @@ const Post = ({ post, setCurrentId }) => {
       </div>
 
       <div className={classes.details}>
-        <Typography variant="body2" color="textSecondary" component="h2">
+        <Typography variant="body2" component="h2" style={{ color: palette.accent, fontWeight: 600 }}>
           {post.tags?.map((tag) => `የሱስ ህያው እዩ! - ${tag} `)}
         </Typography>
       </div>
@@ -111,12 +120,13 @@ const Post = ({ post, setCurrentId }) => {
         gutterBottom
         variant="h5"
         component="h2"
+        style={{ color: palette.text, fontWeight: 700 }}
       >
         {post.title}
       </Typography>
 
       <CardContent>
-        <Typography variant="body2" color="textSecondary" component="p">
+        <Typography variant="body2" component="p" style={{ color: palette.text, lineHeight: 1.6 }}>
           {post.message}
         </Typography>
       </CardContent>
@@ -125,6 +135,7 @@ const Post = ({ post, setCurrentId }) => {
         <Button
           size="small"
           color="primary"
+          style={{ color: palette.accent }}
           onClick={(event) => {
             event.stopPropagation();
             if (!user?.result) history.push("/auth");
@@ -140,6 +151,7 @@ const Post = ({ post, setCurrentId }) => {
           <Button
             size="small"
             color="primary"
+            style={{ color: palette.accent }}
             onClick={(event) => {
               event.stopPropagation();
               if (window.confirm("Delete this post permanently?")) {

@@ -9,6 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import Input from "./Input";
@@ -65,6 +66,13 @@ const Auth = () => {
   return (
     <Container component="main" maxWidth="xs" sx={{ py: 6 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => (history.length > 1 ? history.goBack() : history.push("/"))}
+          sx={{ mb: 2 }}
+        >
+          Back
+        </Button>
         <Avatar sx={{ mx: "auto", mb: 2, bgcolor: "secondary.main" }}>
           <LockOutlinedIcon />
         </Avatar>
