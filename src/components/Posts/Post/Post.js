@@ -1,5 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
 import useStyles from "./stylesPost";
 import {
   Card,
@@ -23,6 +24,7 @@ import ThumbUpAltOutlined from "@material-ui/icons/ThumbUpAltOutlined";
 const Post = ({ post, setCurrentId }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const user = JSON.parse(localStorage.getItem("profile"));
 
@@ -54,7 +56,20 @@ const Post = ({ post, setCurrentId }) => {
   };
 
   return (
-    <Card className={classes.card}>
+    <Card
+      className={classes.card}
+      role="link"
+      tabIndex={0}
+      aria-label={`View ${post.title || "card"}`}
+      onClick={() => history.push(`/posts/${post._id}`)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          history.push(`/posts/${post._id}`);
+        }
+      }}
+      style={{ cursor: "pointer" }}
+    >
       <CardMedia
         className={classes.media}
         image={post.selectedFile}
@@ -74,7 +89,11 @@ const Post = ({ post, setCurrentId }) => {
           <Button
             style={{ color: "white" }}
             size="small"
-            onClick={() => setCurrentId(post._id)}
+            onClick={(event) => {
+              event.stopPropagation();
+              setCurrentId(post._id);
+            }}
+            onKeyDown={(event) => event.stopPropagation()}
           >
             <MoreHorizIcon fontSize="default" />
           </Button>
@@ -106,8 +125,12 @@ const Post = ({ post, setCurrentId }) => {
         <Button
           size="small"
           color="primary"
-          disabled={!user?.result}
-          onClick={() => dispatch(likePostAction(post._id))}
+          onClick={(event) => {
+            event.stopPropagation();
+            if (!user?.result) history.push("/auth");
+            else dispatch(likePostAction(post._id));
+          }}
+          onKeyDown={(event) => event.stopPropagation()}
         >
           <Likes />
         </Button>
@@ -117,11 +140,13 @@ const Post = ({ post, setCurrentId }) => {
           <Button
             size="small"
             color="primary"
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               if (window.confirm("Delete this post permanently?")) {
                 dispatch(deletePostAction(post._id));
               }
             }}
+            onKeyDown={(event) => event.stopPropagation()}
           >
             <DeleteIcon fontSize="small" />
             Delete

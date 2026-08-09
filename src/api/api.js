@@ -91,6 +91,16 @@ const mapFirst = (records, mapper) =>
 export const fetchPosts = async () =>
   mappedResponse(await rest.get("/posts?select=*&order=created_at.desc"), mapPost);
 
+export const fetchSinglePost = async (id) => {
+  const response = await rest.get(`/posts?id=eq.${encodeURIComponent(id)}&select=*&limit=1`);
+  if (!response.data.length) {
+    const error = new Error("Card not found.");
+    error.response = { data: { message: error.message } };
+    throw error;
+  }
+  return { ...response, data: mapPost(response.data[0]) };
+};
+
 export const createPost = async (post) =>
   firstMappedResponse(
     await rest.post("/posts", postPayload(post), {

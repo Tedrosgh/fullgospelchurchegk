@@ -15,6 +15,7 @@ import Jugend from "./pages/jugend/Jugend";
 import Kinder from "./pages/kinder/Kinder";
 import Help from "./pages/help/Help";
 import NotFound from "./pages/NotFound";
+import PostDetail from "./pages/PostDetail";
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
          <Switch>
           <Route path="/" exact component={Home} />
           <Route path="/auth" exact component={Auth} />
+          <Route path="/posts/:id" exact component={PostDetail} />
           <Route path="/program" exact component={Program} />
           <Route path="/mezmur" exact component={AllMezmurs} />
           <Route path="/finanz" exact component={Finanz} />
