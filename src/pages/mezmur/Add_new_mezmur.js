@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { Alert, Box, Button, Paper, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, Chip, Paper, Stack, TextField, Typography } from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { addMezmur, updateMezmur } from "../../actions/postsActions";
@@ -68,21 +70,29 @@ const AddNewMezmur = () => {
   };
 
   return (
-    <Paper sx={{ maxWidth: 760, mx: "auto", my: 4, p: { xs: 2, sm: 4 } }}>
-      <Typography component="h1" variant="h4" gutterBottom>{isEditing ? "Modify mezmur" : "Add a new mezmur"}</Typography>
+    <Box sx={{ maxWidth: 860, mx: "auto", my: { xs: 2, md: 4 }, pb: 6 }}>
+    <Paper sx={{ p: { xs: 3, md: 4 }, borderRadius: "24px 24px 0 0", color: "common.white", background: "linear-gradient(120deg, #311b92, #1565c0 65%, #00897b)" }}>
+      <Button component={Link} to="/mezmur" color="inherit" startIcon={<ArrowBackIcon />} sx={{ mb: 2 }}>Back to Mezmur</Button>
+      <Stack direction="row" spacing={2} alignItems="center">
+        <Box sx={{ width: 56, height: 56, borderRadius: 2, bgcolor: "#ffca28", color: "#24164f", display: "grid", placeItems: "center" }}><MusicNoteOutlinedIcon /></Box>
+        <Box><Chip label={isEditing ? "Edit song" : "New song"} size="small" sx={{ mb: 0.75, bgcolor: "rgba(255,255,255,.16)", color: "white" }} /><Typography component="h1" variant="h4" fontWeight={850}>{isEditing ? "Modify Mezmur" : "Add a new Mezmur"}</Typography></Box>
+      </Stack>
+    </Paper>
+    <Paper elevation={4} sx={{ p: { xs: 2.5, sm: 4 }, borderRadius: "0 0 24px 24px" }}>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {loading ? <Typography>Loading song…</Typography> : (
       <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
         <TextField required name="title" label="Title" value={formData.title} onChange={handleChange} />
         <TextField name="artist" label="Artist" value={formData.artist} onChange={handleChange} />
         <TextField required multiline minRows={12} name="langetext" label="Lyrics" value={formData.langetext} onChange={handleChange} />
-        <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "flex-end" }}>
           <Button component={Link} to="/mezmur">Cancel</Button>
           <Button type="submit" variant="contained" disabled={submitting}>{submitting ? "Saving…" : isEditing ? "Save changes" : "Save song"}</Button>
         </Box>
       </Box>
       )}
     </Paper>
+    </Box>
   );
 };
 
