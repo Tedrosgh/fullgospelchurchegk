@@ -251,17 +251,21 @@ export const deleteFinanceDocument = (id) =>
   rest.delete(`/finance_documents?id=eq.${encodeURIComponent(id)}`);
 
 const authData = (response) => {
-  const user = response.data.user;
+  // Password sign-in returns a session containing `user`, while an email-
+  // confirmation signup can return the user directly with no session yet.
+  const user = response.data.user || response.data;
   const metadata = user.user_metadata || {};
+  const accessToken = response.data.access_token || response.data.session?.access_token;
+  const refreshToken = response.data.refresh_token || response.data.session?.refresh_token;
   return {
     result: {
       _id: user.id,
       name: metadata.full_name || metadata.name || user.email,
       email: user.email,
     },
-    token: response.data.access_token,
-    refreshToken: response.data.refresh_token,
-    confirmationRequired: !response.data.access_token,
+    token: accessToken,
+    refreshToken,
+    confirmationRequired: !accessToken,
   };
 };
 
