@@ -290,7 +290,18 @@ export const signIn = async ({ email, password }) => {
   return { ...response, data: authData(response) };
 };
 
-export const signUp = async ({ firstName, lastName, email, password }) => {
+export const signUp = async (formData) => {
+  const firstName = String(formData.firstName || "").trim();
+  const lastName = String(formData.lastName || "").trim();
+  const email = String(formData.email || "").trim().toLowerCase();
+  const password = String(formData.password || "");
+
+  if (!email || !password) {
+    const error = new Error("Email and password are required to create an account.");
+    error.response = { data: { message: error.message } };
+    throw error;
+  }
+
   const response = await auth.post("/signup", {
     email,
     password,

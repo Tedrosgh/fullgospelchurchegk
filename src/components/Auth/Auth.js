@@ -46,7 +46,30 @@ const Auth = () => {
     event.preventDefault();
     setFeedback(null);
 
-    if ((isSignup || recoveryToken) && formData.password !== formData.confirmPassword) {
+    // Read the submitted controls as well as React state. Browsers and password
+    // managers can autofill an uncontrolled field without firing onChange.
+    const submittedValues = Object.fromEntries(new FormData(event.currentTarget).entries());
+    const submittedForm = {
+      ...formData,
+      ...submittedValues,
+      email: String(submittedValues.email || formData.email || "").trim().toLowerCase(),
+      password: String(submittedValues.password || formData.password || ""),
+      confirmPassword: String(
+        submittedValues.confirmPassword || formData.confirmPassword || ""
+      ),
+    };
+
+    if (!recoveryToken && !submittedForm.email) {
+      setFeedback({ severity: "error", message: "Enter your email address." });
+      return;
+    }
+
+    if (!submittedForm.password) {
+      setFeedback({ severity: "error", message: "Enter your password." });
+      return;
+    }
+
+    if ((isSignup || recoveryToken) && submittedForm.password !== submittedForm.confirmPassword) {
       setFeedback({ severity: "error", message: "Passwords do not match." });
       return;
     }
@@ -54,7 +77,7 @@ const Auth = () => {
     setSubmitting(true);
     if (recoveryToken) {
       try {
-        await updatePassword(recoveryToken, formData.password);
+        await updatePassword(recoveryToken, submittedForm.password);
         setRecoveryToken("");
         setFormData(initialState);
         setFeedback({ severity: "success", message: "Password updated. You can now sign in." });
@@ -66,7 +89,7 @@ const Auth = () => {
       return;
     }
 
-    const result = await dispatch(isSignup ? signup(formData) : signin(formData));
+    const result = await dispatch(isSignup ? signup(submittedForm) : signin(submittedForm));
     setSubmitting(false);
     if (result.confirmationRequired) {
       setIsSignup(false);
