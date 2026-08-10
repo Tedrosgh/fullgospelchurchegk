@@ -41,6 +41,8 @@ import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
+import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import {
   checkFinanceAdmin,
   createFinanceDocument,
@@ -125,7 +127,7 @@ const Finanz = () => {
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState([]);
   const [documents, setDocuments] = useState([]);
-  const [activeSection, setActiveSection] = useState("income");
+  const [activeSection, setActiveSection] = useState("overview");
   const [selectedWeek, setSelectedWeek] = useState(currentWeekStart());
   const [form, setForm] = useState(blankEntry());
   const [editingId, setEditingId] = useState(null);
@@ -202,6 +204,18 @@ const Finanz = () => {
         { income: 0, expense: 0 }
       ),
     [weeklyEntries]
+  );
+
+  const allTimeTotals = useMemo(
+    () =>
+      entries.reduce(
+        (result, entry) => ({
+          ...result,
+          [entry.type]: result[entry.type] + entry.amount,
+        }),
+        { income: 0, expense: 0 }
+      ),
+    [entries]
   );
 
   const copy = async (label, value) => {
@@ -412,15 +426,29 @@ const Finanz = () => {
           ) : (
             <Grid container spacing={3} alignItems="flex-start">
               <Grid item xs={12} md={3}>
-                <Paper sx={{ borderRadius: 2, overflow: "hidden", position: { md: "sticky" }, top: { md: 24 } }}>
-                  <Box sx={{ p: 2.5, bgcolor: "grey.900", color: "common.white" }}>
-                    <Typography variant="h6" fontWeight={700}>Finance menu</Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.75 }}>Administrator workspace</Typography>
+                <Paper sx={{ borderRadius: 3, overflow: "hidden", position: { md: "sticky" }, top: { md: 24 }, border: "1px solid", borderColor: "divider", boxShadow: "0 16px 40px rgba(30,41,59,.10)" }}>
+                  <Box sx={{ p: 2.5, color: "common.white", background: "linear-gradient(135deg, #172554, #1d4ed8)" }}>
+                    <Typography variant="overline" sx={{ opacity: 0.7, letterSpacing: 1.5 }}>Church accounts</Typography>
+                    <Typography variant="h6" fontWeight={800}>Finance workspace</Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.75, mt: 0.5 }}>Record, review and reconcile</Typography>
                   </Box>
-                  <List disablePadding>
-                    {[["income", "Income", <TrendingUpIcon />], ["expense", "Expenses", <TrendingDownIcon />], ["report", "Report", <AssessmentOutlinedIcon />], ["documents", "Documents", <FolderOutlinedIcon />]].map(([key, label, icon]) => (
-                      <ListItemButton key={key} selected={activeSection === key} onClick={() => selectSection(key)}>
-                        <ListItemIcon>{icon}</ListItemIcon><ListItemText primary={label} />
+                  <List sx={{ p: 1.25, display: { xs: "flex", md: "block" }, gap: 0.75, overflowX: { xs: "auto", md: "visible" } }}>
+                    {[
+                      ["overview", "Overview", "Financial dashboard", <DashboardOutlinedIcon />],
+                      ["income", "Weekly income", "Record offerings and giving", <TrendingUpIcon />],
+                      ["expense", "Weekly expenses", "Record church spending", <TrendingDownIcon />],
+                      ["balance", "Balance", "Review available funds", <AccountBalanceWalletOutlinedIcon />],
+                      ["report", "Reports", "Compare weekly totals", <AssessmentOutlinedIcon />],
+                      ["documents", "Documents", "Receipts and statements", <FolderOutlinedIcon />],
+                    ].map(([key, label, description, icon]) => (
+                      <ListItemButton
+                        key={key}
+                        selected={activeSection === key}
+                        onClick={() => selectSection(key)}
+                        sx={{ minWidth: { xs: 175, md: 0 }, borderRadius: 2, mb: { md: 0.5 }, alignItems: "flex-start", "&.Mui-selected": { bgcolor: "primary.50", color: "primary.dark", "&:hover": { bgcolor: "primary.100" } } }}
+                      >
+                        <ListItemIcon sx={{ minWidth: 38, mt: 0.25, color: "inherit" }}>{icon}</ListItemIcon>
+                        <ListItemText primary={label} secondary={description} primaryTypographyProps={{ fontWeight: 750 }} secondaryTypographyProps={{ sx: { display: { xs: "none", md: "block" }, lineHeight: 1.35 } }} />
                       </ListItemButton>
                     ))}
                   </List>
@@ -428,6 +456,39 @@ const Finanz = () => {
               </Grid>
               <Grid item xs={12} md={9}>
             <Stack spacing={3}>
+              {activeSection === "overview" && <>
+                <Box>
+                  <Typography variant="overline" color="primary" fontWeight={800}>Administrator dashboard</Typography>
+                  <Typography variant="h4" fontWeight={850}>Financial overview</Typography>
+                  <Typography color="text.secondary">A current view of the church's recorded income, spending, and available balance.</Typography>
+                </Box>
+                <Grid container spacing={2}>
+                  {[
+                    ["Total income", allTimeTotals.income, "success.main", <TrendingUpIcon />],
+                    ["Total expenses", allTimeTotals.expense, "error.main", <TrendingDownIcon />],
+                    ["Current balance", allTimeTotals.income - allTimeTotals.expense, "primary.main", <AccountBalanceWalletOutlinedIcon />],
+                  ].map(([label, value, color, icon]) => (
+                    <Grid item xs={12} sm={4} key={label}>
+                      <Paper sx={{ p: 3, height: "100%", borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                        <Box sx={{ width: 44, height: 44, display: "grid", placeItems: "center", borderRadius: 2, bgcolor: `${color.split(".")[0]}.50`, color, mb: 2 }}>{icon}</Box>
+                        <Typography color="text.secondary" fontWeight={650}>{label}</Typography>
+                        <Typography variant="h4" fontWeight={900} color={color} sx={{ mt: 0.5 }}>{money.format(value)}</Typography>
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
+                <Paper sx={{ p: { xs: 2.5, md: 3 }, borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
+                  <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ sm: "center" }} spacing={2}>
+                    <Box><Typography variant="h6" fontWeight={800}>This week's position</Typography><Typography color="text.secondary">Week beginning {displayDate(selectedWeek)}</Typography></Box>
+                    <TextField label="Week starting" type="date" size="small" value={selectedWeek} onChange={(event) => setSelectedWeek(event.target.value)} InputLabelProps={{ shrink: true }} />
+                  </Stack>
+                  <Divider sx={{ my: 2.5 }} />
+                  <Grid container spacing={2}>
+                    {[["Income", totals.income, "success.main"], ["Expenses", totals.expense, "error.main"], ["Balance", totals.income - totals.expense, "primary.main"]].map(([label, value, color]) => <Grid item xs={12} sm={4} key={label}><Typography variant="body2" color="text.secondary">{label}</Typography><Typography variant="h6" fontWeight={850} color={color}>{money.format(value)}</Typography></Grid>)}
+                  </Grid>
+                </Paper>
+              </>}
+
               {(activeSection === "income" || activeSection === "expense") && <>
               <TextField
                 label="Week starting"
@@ -526,6 +587,17 @@ const Finanz = () => {
                   {editingId && <Button onClick={resetForm}>Cancel</Button>}
                 </Stack>
               </Paper>
+              </>}
+
+              {activeSection === "balance" && <>
+                <Box><Typography variant="h5" fontWeight={800}>Balance and reconciliation</Typography><Typography color="text.secondary">Review income minus expenses before closing the selected week.</Typography></Box>
+                <TextField label="Week starting" type="date" value={selectedWeek} onChange={(event) => setSelectedWeek(event.target.value)} InputLabelProps={{ shrink: true }} sx={{ maxWidth: 240 }} />
+                <Paper sx={{ p: { xs: 3, md: 4 }, borderRadius: 3, color: "common.white", background: totals.income - totals.expense < 0 ? "linear-gradient(135deg, #991b1b, #dc2626)" : "linear-gradient(135deg, #1e3a8a, #2563eb)" }}>
+                  <Typography sx={{ opacity: 0.75 }}>Closing balance for this week</Typography>
+                  <Typography variant="h3" fontWeight={900} sx={{ my: 1 }}>{money.format(totals.income - totals.expense)}</Typography>
+                  <Typography sx={{ opacity: 0.85 }}>{money.format(totals.income)} income − {money.format(totals.expense)} expenses</Typography>
+                </Paper>
+                <Alert severity={totals.income - totals.expense < 0 ? "warning" : "info"}>Confirm that all offerings, donations, invoices, reimbursements, and receipts for this week have been entered before reconciliation.</Alert>
               </>}
 
               {activeSection === "report" && <>
