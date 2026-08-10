@@ -284,6 +284,28 @@ export const signOut = (accessToken) =>
 export const requestPasswordReset = (email) =>
   auth.post(`/recover?redirect_to=${encodeURIComponent(`${window.location.origin}/auth`)}`, { email });
 
+export const resendConfirmation = (email) =>
+  auth.post(`/resend?redirect_to=${encodeURIComponent(`${window.location.origin}/auth`)}`, {
+    type: "signup",
+    email: email.trim().toLowerCase(),
+  });
+
+export const completeAuthRedirect = async (accessToken, refreshToken) => {
+  const userResponse = await auth.get("/user", {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  return {
+    ...userResponse,
+    data: authData({
+      data: {
+        user: userResponse.data,
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      },
+    }),
+  };
+};
+
 export const updatePassword = (accessToken, password) =>
   auth.put("/user", { password }, {
     headers: { Authorization: `Bearer ${accessToken}` },
@@ -306,10 +328,13 @@ export const signUp = async (formData) => {
     throw error;
   }
 
-  const response = await auth.post("/signup", {
-    email,
-    password,
-    data: { full_name: `${firstName} ${lastName}`.trim() },
-  });
+  const response = await auth.post(
+    `/signup?redirect_to=${encodeURIComponent(`${window.location.origin}/auth`)}`,
+    {
+      email,
+      password,
+      data: { full_name: `${firstName} ${lastName}`.trim() },
+    }
+  );
   return { ...response, data: authData(response) };
 };

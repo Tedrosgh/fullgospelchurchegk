@@ -6,7 +6,12 @@ import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import Input from "./Input";
 import { signin, signup } from "../../actions/auth";
-import { requestPasswordReset, updatePassword } from "../../api/api";
+import {
+  completeAuthRedirect,
+  requestPasswordReset,
+  resendConfirmation,
+  updatePassword,
+} from "../../api/api";
 
 const initialState = { firstName: "", lastName: "", email: "", password: "", confirmPassword: "" };
 
@@ -24,12 +29,29 @@ const Auth = () => {
   useEffect(() => {
     const params = new URLSearchParams(window.location.hash.slice(1));
     const token = params.get("access_token");
-    if (params.get("type") === "recovery" && token) {
+    const refreshToken = params.get("refresh_token");
+    const redirectType = params.get("type");
+    if (redirectType === "recovery" && token) {
       setRecoveryToken(token);
       setFeedback({ severity: "info", message: "Enter your new password." });
       history.replace("/auth");
+    } else if (token) {
+      setSubmitting(true);
+      completeAuthRedirect(token, refreshToken)
+        .then(({ data }) => {
+          dispatch({ type: "AUTH", data });
+          history.replace("/");
+        })
+        .catch((requestError) => {
+          history.replace("/auth");
+          setFeedback({
+            severity: "error",
+            message: requestError.response?.data?.msg || "The confirmation link could not be completed.",
+          });
+        })
+        .finally(() => setSubmitting(false));
     }
-  }, [history]);
+  }, [dispatch, history]);
 
   const changeField = (event) => {
     setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
@@ -118,6 +140,28 @@ const Auth = () => {
     }
   };
 
+  const handleResendConfirmation = async (event) => {
+    const email = String(
+      new FormData(event.currentTarget.form).get("email") || formData.email
+    ).trim();
+    if (!email) {
+      setFeedback({ severity: "warning", message: "Enter your email address first." });
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await resendConfirmation(email);
+      setFeedback({ severity: "success", message: "A new confirmation email was sent." });
+    } catch (requestError) {
+      setFeedback({
+        severity: "error",
+        message: requestError.response?.data?.msg || requestError.message || "Unable to resend confirmation.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <Container component="main" maxWidth="xs" sx={{ py: 6 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: 3 }}>
@@ -143,6 +187,7 @@ const Auth = () => {
             {submitting ? "Please wait…" : recoveryToken ? "Update password" : isSignup ? "Sign up" : "Sign in"}
           </Button>
           {!isSignup && !recoveryToken && <Button fullWidth onClick={handleForgotPassword} disabled={submitting}>Forgot password?</Button>}
+          {!isSignup && !recoveryToken && <Button fullWidth onClick={handleResendConfirmation} disabled={submitting}>Resend confirmation email</Button>}
           {!recoveryToken && <Button fullWidth onClick={switchMode} sx={{ mt: 1 }}>
             {isSignup ? "Already have an account? Sign in" : "Need an account? Sign up"}
           </Button>}
