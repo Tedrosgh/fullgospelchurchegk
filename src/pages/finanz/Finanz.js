@@ -12,6 +12,10 @@ import {
   Divider,
   Grid,
   IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
   MenuItem,
   Paper,
   Snackbar,
@@ -32,11 +36,20 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
+import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
+import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import {
   checkFinanceAdmin,
+  createFinanceDocument,
   createFinanceEntry,
+  deleteFinanceDocument,
   deleteFinanceEntry,
+  fetchFinanceDocuments,
   fetchFinanceEntries,
+  updateFinanceDocument,
   updateFinanceEntry,
 } from "../../api/api";
 
@@ -69,6 +82,21 @@ const blankEntry = (weekStart = currentWeekStart()) => ({
   amount: "",
 });
 
+const blankDocument = () => ({
+  type: "receipt",
+  title: "",
+  documentDate: localDate(new Date()),
+  fileUrl: "",
+  notes: "",
+});
+
+const documentLabels = {
+  receipt: "Receipt",
+  invoice: "Invoice",
+  bank_statement: "Bank statement",
+  other: "Other",
+};
+
 const money = new Intl.NumberFormat("de-DE", {
   style: "currency",
   currency: "EUR",
@@ -96,9 +124,13 @@ const Finanz = () => {
   const [checkingAccess, setCheckingAccess] = useState(Boolean(profile?.token));
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [activeSection, setActiveSection] = useState("income");
   const [selectedWeek, setSelectedWeek] = useState(currentWeekStart());
   const [form, setForm] = useState(blankEntry());
   const [editingId, setEditingId] = useState(null);
+  const [documentForm, setDocumentForm] = useState(blankDocument());
+  const [editingDocumentId, setEditingDocumentId] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
@@ -106,8 +138,12 @@ const Finanz = () => {
     setLoading(true);
     setError("");
     try {
-      const { data } = await fetchFinanceEntries();
-      setEntries(data);
+      const [entryResponse, documentResponse] = await Promise.all([
+        fetchFinanceEntries(),
+        fetchFinanceDocuments(),
+      ]);
+      setEntries(entryResponse.data);
+      setDocuments(documentResponse.data);
     } catch (requestError) {
       setError(
         requestError.response?.data?.message ||
@@ -141,6 +177,21 @@ const Finanz = () => {
     [entries, selectedWeek]
   );
 
+  const visibleEntries = useMemo(
+    () => weeklyEntries.filter((entry) => entry.type === activeSection),
+    [activeSection, weeklyEntries]
+  );
+
+  const weeklyReport = useMemo(() => {
+    const rows = entries.reduce((result, entry) => {
+      const row = result.get(entry.weekStart) || { weekStart: entry.weekStart, income: 0, expense: 0 };
+      row[entry.type] += entry.amount;
+      result.set(entry.weekStart, row);
+      return result;
+    }, new Map());
+    return Array.from(rows.values()).sort((a, b) => b.weekStart.localeCompare(a.weekStart));
+  }, [entries]);
+
   const totals = useMemo(
     () =>
       weeklyEntries.reduce(
@@ -170,6 +221,14 @@ const Finanz = () => {
   const resetForm = () => {
     setEditingId(null);
     setForm(blankEntry(selectedWeek));
+  };
+
+  const selectSection = (section) => {
+    setActiveSection(section);
+    if (section === "income" || section === "expense") {
+      setEditingId(null);
+      setForm({ ...blankEntry(selectedWeek), type: section });
+    }
   };
 
   const submit = async (event) => {
@@ -220,6 +279,60 @@ const Finanz = () => {
       await loadEntries();
     } catch (requestError) {
       setError(requestError.response?.data?.message || "The entry could not be deleted.");
+      setLoading(false);
+    }
+  };
+
+  const changeDocumentForm = (event) => {
+    const { name, value } = event.target;
+    setDocumentForm((current) => ({ ...current, [name]: value }));
+  };
+
+  const resetDocumentForm = () => {
+    setEditingDocumentId(null);
+    setDocumentForm(blankDocument());
+  };
+
+  const submitDocument = async (event) => {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      if (editingDocumentId) {
+        await updateFinanceDocument(editingDocumentId, documentForm);
+        setNotice("Document updated.");
+      } else {
+        await createFinanceDocument(documentForm);
+        setNotice("Document added.");
+      }
+      resetDocumentForm();
+      await loadEntries();
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "The document could not be saved.");
+      setLoading(false);
+    }
+  };
+
+  const editDocument = (document) => {
+    setEditingDocumentId(document.id);
+    setDocumentForm({
+      type: document.type,
+      title: document.title,
+      documentDate: document.documentDate,
+      fileUrl: document.fileUrl,
+      notes: document.notes,
+    });
+  };
+
+  const removeDocument = async (document) => {
+    if (!window.confirm(`Delete ${document.title}?`)) return;
+    setLoading(true);
+    try {
+      await deleteFinanceDocument(document.id);
+      setNotice("Document deleted.");
+      await loadEntries();
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || "The document could not be deleted.");
       setLoading(false);
     }
   };
@@ -299,7 +412,25 @@ const Finanz = () => {
           ) : !isAdmin ? (
             <Alert severity="warning">Finance records are restricted to designated church administrators.</Alert>
           ) : (
+            <Grid container spacing={3} alignItems="flex-start">
+              <Grid item xs={12} md={3}>
+                <Paper sx={{ borderRadius: 2, overflow: "hidden", position: { md: "sticky" }, top: { md: 24 } }}>
+                  <Box sx={{ p: 2.5, bgcolor: "grey.900", color: "common.white" }}>
+                    <Typography variant="h6" fontWeight={700}>Finance menu</Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.75 }}>Administrator workspace</Typography>
+                  </Box>
+                  <List disablePadding>
+                    {[["income", "Income", <TrendingUpIcon />], ["expense", "Expenses", <TrendingDownIcon />], ["report", "Report", <AssessmentOutlinedIcon />], ["documents", "Documents", <FolderOutlinedIcon />]].map(([key, label, icon]) => (
+                      <ListItemButton key={key} selected={activeSection === key} onClick={() => selectSection(key)}>
+                        <ListItemIcon>{icon}</ListItemIcon><ListItemText primary={label} />
+                      </ListItemButton>
+                    ))}
+                  </List>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={9}>
             <Stack spacing={3}>
+              {(activeSection === "income" || activeSection === "expense") && <>
               <TextField
                 label="Week starting"
                 type="date"
@@ -337,7 +468,7 @@ const Finanz = () => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {weeklyEntries.map((entry) => (
+                    {visibleEntries.map((entry) => (
                       <TableRow key={entry.id} hover>
                         <TableCell>{displayDate(entry.weekStart)}</TableCell>
                         <TableCell>
@@ -356,8 +487,8 @@ const Finanz = () => {
                         </TableCell>
                       </TableRow>
                     ))}
-                    {!loading && !weeklyEntries.length && (
-                      <TableRow><TableCell colSpan={6} align="center">No entries recorded for this week.</TableCell></TableRow>
+                    {!loading && !visibleEntries.length && (
+                      <TableRow><TableCell colSpan={6} align="center">No {activeSection} recorded for this week.</TableCell></TableRow>
                     )}
                     {loading && (
                       <TableRow><TableCell colSpan={6} align="center"><CircularProgress size={28} /></TableCell></TableRow>
@@ -375,7 +506,7 @@ const Finanz = () => {
                     <TextField fullWidth required name="weekStart" label="Week starting" type="date" value={form.weekStart} onChange={changeForm} InputLabelProps={{ shrink: true }} />
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
-                    <TextField fullWidth select required name="type" label="Type" value={form.type} onChange={changeForm}>
+                    <TextField fullWidth select disabled required name="type" label="Type" value={form.type} onChange={changeForm}>
                       <MenuItem value="income">Income</MenuItem>
                       <MenuItem value="expense">Expense</MenuItem>
                     </TextField>
@@ -397,7 +528,51 @@ const Finanz = () => {
                   {editingId && <Button onClick={resetForm}>Cancel</Button>}
                 </Stack>
               </Paper>
+              </>}
+
+              {activeSection === "report" && <>
+                <Typography variant="h5" fontWeight={750}>Weekly report</Typography>
+                <TextField label="Week starting" type="date" value={selectedWeek} onChange={(event) => setSelectedWeek(event.target.value)} InputLabelProps={{ shrink: true }} sx={{ maxWidth: 240 }} />
+                <Grid container spacing={2}>
+                  {[["Income", totals.income, "success.main"], ["Expenses", totals.expense, "error.main"], ["Balance", totals.income - totals.expense, "primary.main"]].map(([label, value, color]) => <Grid item xs={12} sm={4} key={label}><Paper sx={{ p: 2.5, borderRadius: 2 }}><Typography color="text.secondary">{label}</Typography><Typography variant="h5" fontWeight={800} color={color}>{money.format(value)}</Typography></Paper></Grid>)}
+                </Grid>
+                <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+                  <Table aria-label="Weekly finance report">
+                    <TableHead><TableRow><TableCell>Week</TableCell><TableCell align="right">Income</TableCell><TableCell align="right">Expenses</TableCell><TableCell align="right">Balance</TableCell></TableRow></TableHead>
+                    <TableBody>
+                      {weeklyReport.map((row) => <TableRow key={row.weekStart} hover><TableCell>{displayDate(row.weekStart)}</TableCell><TableCell align="right">{money.format(row.income)}</TableCell><TableCell align="right">{money.format(row.expense)}</TableCell><TableCell align="right" sx={{ color: row.income - row.expense < 0 ? "error.main" : "success.main", fontWeight: 700 }}>{money.format(row.income - row.expense)}</TableCell></TableRow>)}
+                      {!weeklyReport.length && <TableRow><TableCell colSpan={4} align="center">No finance data is available.</TableCell></TableRow>}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </>}
+
+              {activeSection === "documents" && <>
+                <Box><Typography variant="h5" fontWeight={750}>Documents</Typography><Typography color="text.secondary">Receipts, invoices, bank statements, and related document links.</Typography></Box>
+                <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+                  <Table aria-label="Finance documents">
+                    <TableHead><TableRow><TableCell>Date</TableCell><TableCell>Type</TableCell><TableCell>Title</TableCell><TableCell>Document</TableCell><TableCell align="right">Actions</TableCell></TableRow></TableHead>
+                    <TableBody>
+                      {documents.map((document) => <TableRow key={document.id} hover><TableCell>{displayDate(document.documentDate)}</TableCell><TableCell><Chip size="small" label={documentLabels[document.type]} /></TableCell><TableCell><Typography fontWeight={600}>{document.title}</Typography><Typography variant="body2" color="text.secondary">{document.notes}</Typography></TableCell><TableCell>{document.fileUrl ? <Button href={document.fileUrl} target="_blank" rel="noopener noreferrer" endIcon={<OpenInNewIcon />}>Open</Button> : "—"}</TableCell><TableCell align="right"><Tooltip title="Edit"><IconButton onClick={() => editDocument(document)} aria-label="Edit document"><EditOutlinedIcon /></IconButton></Tooltip><Tooltip title="Delete"><IconButton color="error" onClick={() => removeDocument(document)} aria-label="Delete document"><DeleteOutlineIcon /></IconButton></Tooltip></TableCell></TableRow>)}
+                      {!loading && !documents.length && <TableRow><TableCell colSpan={5} align="center">No receipts or invoices have been registered.</TableCell></TableRow>}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Paper component="form" onSubmit={submitDocument} sx={{ p: { xs: 2, md: 3 }, borderRadius: 2 }}>
+                  <Typography variant="h6" fontWeight={700} gutterBottom>{editingDocumentId ? "Modify document" : "Add document"}</Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}><TextField fullWidth select required name="type" label="Document type" value={documentForm.type} onChange={changeDocumentForm}>{Object.entries(documentLabels).map(([value, label]) => <MenuItem key={value} value={value}>{label}</MenuItem>)}</TextField></Grid>
+                    <Grid item xs={12} sm={6}><TextField fullWidth required name="documentDate" label="Document date" type="date" value={documentForm.documentDate} onChange={changeDocumentForm} InputLabelProps={{ shrink: true }} /></Grid>
+                    <Grid item xs={12}><TextField fullWidth required name="title" label="Title" value={documentForm.title} onChange={changeDocumentForm} inputProps={{ maxLength: 160 }} /></Grid>
+                    <Grid item xs={12}><TextField fullWidth name="fileUrl" label="Secure document URL (optional)" type="url" value={documentForm.fileUrl} onChange={changeDocumentForm} helperText="Use a protected document link. Never enter bank credentials." /></Grid>
+                    <Grid item xs={12}><TextField fullWidth name="notes" label="Notes (optional)" value={documentForm.notes} onChange={changeDocumentForm} multiline minRows={2} /></Grid>
+                  </Grid>
+                  <Stack direction="row" spacing={1.5} sx={{ mt: 2 }}><Button type="submit" variant="contained" startIcon={<AddIcon />} disabled={loading}>{editingDocumentId ? "Save changes" : "Add document"}</Button>{editingDocumentId && <Button onClick={resetDocumentForm}>Cancel</Button>}</Stack>
+                </Paper>
+              </>}
             </Stack>
+              </Grid>
+            </Grid>
           )}
         </Box>
       </Stack>

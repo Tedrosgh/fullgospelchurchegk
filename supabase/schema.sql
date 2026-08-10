@@ -92,11 +92,25 @@ create table if not exists public.finance_entries (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.finance_documents (
+  id uuid primary key default gen_random_uuid(),
+  document_type text not null check (document_type in ('receipt', 'invoice', 'bank_statement', 'other')),
+  title text not null check (char_length(title) between 1 and 160),
+  document_date date not null,
+  file_url text,
+  notes text not null default '',
+  uploaded_by uuid not null references auth.users(id) on delete restrict,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists finance_entries_week_start_idx
   on public.finance_entries (week_start desc);
+create index if not exists finance_documents_date_idx
+  on public.finance_documents (document_date desc);
 
 alter table public.church_admins enable row level security;
 alter table public.finance_entries enable row level security;
+alter table public.finance_documents enable row level security;
 
 create or replace function public.is_church_admin()
 returns boolean
@@ -138,4 +152,25 @@ create policy "Admins update finance entries"
 drop policy if exists "Admins delete finance entries" on public.finance_entries;
 create policy "Admins delete finance entries"
   on public.finance_entries for delete to authenticated
+  using (public.is_church_admin());
+
+drop policy if exists "Admins view finance documents" on public.finance_documents;
+create policy "Admins view finance documents"
+  on public.finance_documents for select to authenticated
+  using (public.is_church_admin());
+
+drop policy if exists "Admins create finance documents" on public.finance_documents;
+create policy "Admins create finance documents"
+  on public.finance_documents for insert to authenticated
+  with check (public.is_church_admin() and uploaded_by = auth.uid());
+
+drop policy if exists "Admins update finance documents" on public.finance_documents;
+create policy "Admins update finance documents"
+  on public.finance_documents for update to authenticated
+  using (public.is_church_admin())
+  with check (public.is_church_admin());
+
+drop policy if exists "Admins delete finance documents" on public.finance_documents;
+create policy "Admins delete finance documents"
+  on public.finance_documents for delete to authenticated
   using (public.is_church_admin());

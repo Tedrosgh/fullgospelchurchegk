@@ -204,6 +204,52 @@ export const updateFinanceEntry = async (id, entry) =>
 export const deleteFinanceEntry = (id) =>
   rest.delete(`/finance_entries?id=eq.${encodeURIComponent(id)}`);
 
+const mapFinanceDocument = (document) => ({
+  id: document.id,
+  type: document.document_type,
+  title: document.title,
+  documentDate: document.document_date,
+  fileUrl: document.file_url || "",
+  notes: document.notes,
+  createdAt: document.created_at,
+});
+
+const financeDocumentPayload = (document, includeUploader = true) => ({
+  document_type: document.type,
+  title: document.title.trim(),
+  document_date: document.documentDate,
+  file_url: document.fileUrl.trim() || null,
+  notes: document.notes.trim(),
+  ...(includeUploader ? { uploaded_by: getProfile()?.result?._id } : {}),
+});
+
+export const fetchFinanceDocuments = async () =>
+  mappedResponse(
+    await rest.get("/finance_documents?select=*&order=document_date.desc,created_at.desc"),
+    mapFinanceDocument
+  );
+
+export const createFinanceDocument = async (document) =>
+  firstMappedResponse(
+    await rest.post("/finance_documents", financeDocumentPayload(document), {
+      headers: { Prefer: "return=representation" },
+    }),
+    mapFinanceDocument
+  );
+
+export const updateFinanceDocument = async (id, document) =>
+  firstMappedResponse(
+    await rest.patch(
+      `/finance_documents?id=eq.${encodeURIComponent(id)}`,
+      financeDocumentPayload(document, false),
+      { headers: { Prefer: "return=representation" } }
+    ),
+    mapFinanceDocument
+  );
+
+export const deleteFinanceDocument = (id) =>
+  rest.delete(`/finance_documents?id=eq.${encodeURIComponent(id)}`);
+
 const authData = (response) => {
   const user = response.data.user;
   const metadata = user.user_metadata || {};
