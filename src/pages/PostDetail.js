@@ -35,13 +35,16 @@ const PostDetail = () => {
   if (!post) return <Box sx={{ display: "grid", placeItems: "center", py: 8 }}><CircularProgress /></Box>;
 
   return (
-    <Box sx={{ maxWidth: 850, mx: "auto", py: 4 }}>
-      <Button startIcon={<ArrowBackIcon />} onClick={() => history.goBack()} sx={{ mb: 3 }}>Back</Button>
-      <Card>
+    <Box sx={{ maxWidth: 900, mx: "auto", py: { xs: 2, md: 4 }, pb: 7 }}>
+      <Box sx={{ p: { xs: 3, md: 4 }, mb: 3, borderRadius: 4, color: "common.white", background: "linear-gradient(120deg, #311b92, #1565c0 65%, #00897b)", boxShadow: "0 20px 50px rgba(49,27,146,.2)" }}>
+        <Button color="inherit" startIcon={<ArrowBackIcon />} onClick={() => history.goBack()} sx={{ mb: 2 }}>Back to announcements</Button>
+        <Typography variant="overline" sx={{ opacity: .75, letterSpacing: 2, fontWeight: 800 }}>Community update</Typography>
+        <Typography component="h1" variant="h3" fontWeight={850}>{post.title}</Typography>
+        <Typography sx={{ mt: 1, opacity: .78 }}>{post.name}</Typography>
+      </Box>
+      <Card elevation={4} sx={{ borderRadius: 4, overflow: "hidden", borderTop: "5px solid #ffca28" }}>
         {post.selectedFile && <CardMedia component="img" image={post.selectedFile} alt={post.title || "Church post"} sx={{ maxHeight: 520, objectFit: "cover" }} />}
         <CardContent sx={{ p: { xs: 2, sm: 4 } }}>
-          <Typography component="h1" variant="h3" gutterBottom>{post.title}</Typography>
-          <Typography color="text.secondary" gutterBottom>{post.name}</Typography>
           <Typography sx={{ whiteSpace: "pre-wrap", my: 3 }}>{post.message}</Typography>
           {!!post.tags?.length && (
             <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">

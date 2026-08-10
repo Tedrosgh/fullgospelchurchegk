@@ -340,17 +340,15 @@ const Finanz = () => {
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 6 } }}>
       <Stack spacing={4}>
-        <Box>
-          <Typography variant="h3" component="h1" fontWeight={800} gutterBottom>
-            Church Finance
-          </Typography>
-          <Typography color="text.secondary">
-            Donation bank details and secure weekly accounting for authorized church administrators.
-          </Typography>
-        </Box>
+        <Paper sx={{ p: { xs: 3.5, sm: 5, md: 6 }, borderRadius: 4, color: "common.white", background: "linear-gradient(120deg, #311b92 0%, #1565c0 55%, #00897b 100%)", boxShadow: "0 24px 65px rgba(49,27,146,.22)" }}>
+          <Box sx={{ width: 64, height: 64, borderRadius: 2.5, display: "grid", placeItems: "center", bgcolor: "#ffca28", color: "#24164f", mb: 2 }}><AccountBalanceIcon fontSize="large" /></Box>
+          <Typography variant="overline" sx={{ color: "rgba(255,255,255,.72)", letterSpacing: 2, fontWeight: 800 }}>Stewardship and giving</Typography>
+          <Typography variant="h3" component="h1" fontWeight={900} gutterBottom>Church Finance</Typography>
+          <Typography variant="h6" sx={{ color: "rgba(255,255,255,.84)", maxWidth: 720 }}>Donation bank details and secure weekly accounting for authorized church administrators.</Typography>
+        </Paper>
 
         <Card elevation={3} sx={{ borderRadius: 3, overflow: "hidden" }}>
-          <Box sx={{ bgcolor: "primary.main", color: "primary.contrastText", p: 2.5 }}>
+          <Box sx={{ background: "linear-gradient(90deg, #311b92, #1565c0, #00897b)", color: "common.white", p: 2.5 }}>
             <Stack direction="row" spacing={1.5} alignItems="center">
               <AccountBalanceIcon />
               <Typography variant="h5" fontWeight={700}>Donation bank account</Typography>

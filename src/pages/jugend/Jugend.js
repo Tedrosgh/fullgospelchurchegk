@@ -1,28 +1,12 @@
-const Jugend = () => {
-    return (
-        <>
-       <div style={{margin: "5px", padding: "5px", border: "2px solid green"}}>
-        <iframe width="560" height="315" 
-       src="https://www.youtube.com/embed/1iG_QZHw4bk?si=jcAzpN4-AMrskXzO" 
-       title="YouTube video player" frameborder="0" 
-       allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
-       gyroscope;  picture-in-picture; web-share" allowfullscreen>
-       </iframe>
-       <iframe width="560" height="315" 
-       src="https://www.youtube.com/embed/t6BUFIMZXsY?si=JdKZKreMVPSMieVP" 
-       title="YouTube video player" frameborder="0" allow="accelerometer; 
-       autoplay; clipboard-write; encrypted-media; gyroscope; 
-       picture-in-picture; web-share" allowfullscreen> 
-       </iframe>
-       <iframe width="560" height="315" 
-       src="https://www.youtube.com/embed/N7jVNqEyUTs?si=Mcndk1fLaTTvlCDl" 
-       title="YouTube video player" frameborder="0" allow="accelerometer; 
-       autoplay; clipboard-write; encrypted-media; gyroscope; 
-       picture-in-picture; web-share" allowfullscreen>
-       </iframe>
-       </div>
-    </>
-    )
-};
+import MediaPage from "../../components/MediaPage/MediaPage";
+import youthImage from "../../images/medrek.jpg";
+
+const videos = [
+  { url: "https://www.youtube.com/embed/1iG_QZHw4bk", title: "Youth worship and fellowship" },
+  { url: "https://www.youtube.com/embed/t6BUFIMZXsY", title: "Growing together in faith" },
+  { url: "https://www.youtube.com/embed/N7jVNqEyUTs", title: "Young people in our community" },
+];
+
+const Jugend = () => <MediaPage eyebrow="Next generation" title="Jugend" description="A place for young people to belong, build friendships, worship, and grow confidently in their faith." image={youthImage} videos={videos} accent="#26c6da" />;
 
 export default Jugend;

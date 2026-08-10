@@ -1,48 +1,13 @@
-import "./kinder.css";
+import MediaPage from "../../components/MediaPage/MediaPage";
+import childrenImage from "../../images/hixanat.jpg";
 
-const Kinder = () => {
-    return (<>
-    <div className="page">
-        <div style={{display: "flex", flexDirection: "column", flexGrow: "1"}}>
-        <iframe width="100%" margin="auto" height="400px" 
-        src="https://www.youtube.com/embed/0XrDNM6iKzY?si=W2ojglAj_y0rPAZp" 
-        title="YouTube video player" frameborder="0" allow="accelerometer; 
-        autoplay; clipboard-write; encrypted-media; gyroscope; 
-        picture-in-picture; web-share" allowfullscreen>
-        </iframe>
-        <h4>Worship to God</h4> <p style={{color: "yellow", marginLeft: "4px"}}>@Meznur Elta</p>
-        </div>
-        <div style={{display: "flex", flexDirection: "column", flexGrow: "1"}}>
-        <iframe width="100%" height="400px" margin="auto" 
-        src="https://www.youtube.com/embed/VQq8GCm69w4?si=ChIvXiEmjOHtY-LW" 
-        title="YouTube video player" frameborder="0" 
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
-        gyroscope; picture-in-picture; web-share" allowfullscreen>
+const videos = [
+  { url: "https://www.youtube.com/embed/0XrDNM6iKzY", title: "Children worshipping God", subtitle: "Mezmur Elta" },
+  { url: "https://www.youtube.com/embed/VQq8GCm69w4", title: "Full Gospel Church Kids", subtitle: "1 January 2018" },
+  { url: "https://www.youtube.com/embed/W_d0GpqGkMI", title: "Children's church celebration", subtitle: "18 December 2017" },
+  { url: "https://www.youtube.com/embed/pltGchsf1kI", title: "Children growing in faith", subtitle: "5 November 2017" },
+];
 
-        </iframe>
-        <h4>full gospel church kids on 1st Januar 2018</h4> <p style={{color: "yellow", marginLeft: "4px"}}>@Eri Wongel</p>
-        </div>
-        <div style={{display: "flex", flexDirection: "column", flexGrow: "1"}}>
-        <iframe Width="100%" margin="auto" height="400px" 
-        src="https://www.youtube.com/embed/W_d0GpqGkMI?si=Uwv3xh7cAjOCieei" 
-        title="YouTube video player" frameborder="0" allow="accelerometer; 
-        autoplay; clipboard-write; encrypted-media; gyroscope; 
-        picture-in-picture; web-share" allowfullscreen> 
-        </iframe>
-        <h4>full gospel church kids on 18th December 2017</h4> <p style={{color: "yellow", marginLeft: "4px"}}>@Eri Wongel</p>
-        </div>
-        <div style={{display: "flex", flexDirection: "column", flexGrow: "1"}}>
-        <iframe Width="100%" margin="auto" height="400px" 
-        src="https://www.youtube.com/embed/pltGchsf1kI?si=BZl-JFYe_Oywh-8J" 
-        title="YouTube video player" frameborder="0" allow="accelerometer; 
-        autoplay; clipboard-write; encrypted-media; gyroscope; 
-        picture-in-picture; web-share" allowfullscreen> 
-        </iframe>
-        <h4>full gospel church kids on 5th November 2017</h4> <p style={{color: "yellow", marginLeft: "4px"}}>@Eri Wongel</p>
-        </div>
-    </div>
-    <p style={{color: "yellow"}}>ምሳሌ 22 - 6 ንቘልዓ እታ ኪኸደላ ዚግብኦ መገዲ ኣላምዶ እሞ ምስ ኣረገ ኻብኣ ኣይኬልግስን እዩ።</p>
-        </>)
-};
+const Kinder = () => <MediaPage eyebrow="Faith starts young" title="Kinder" description="A joyful and caring environment where children learn about Jesus, worship together, and know they are loved." image={childrenImage} videos={videos} accent="#ffca28" />;
 
 export default Kinder;
