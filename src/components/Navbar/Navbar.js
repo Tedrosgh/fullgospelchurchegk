@@ -1,27 +1,7 @@
 import React, { useEffect, useState } from "react";
-import {
-  AppBar,
-  Avatar,
-  Box,
-  Button,
-  Divider,
-  Drawer,
-  IconButton,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Stack,
-  Toolbar,
-  Tooltip,
-  Typography,
-} from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import { AppBar, Avatar, Box, Button, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import decode from "jwt-decode";
@@ -50,7 +30,6 @@ const readProfile = () => {
 
 const Navbar = () => {
   const [user, setUser] = useState(readProfile());
-  const [open, setOpen] = useState(false);
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
@@ -62,13 +41,12 @@ const Navbar = () => {
     const accessToken = user?.token;
     dispatch({ type: "LOGOUT" });
     setUser(null);
-    setOpen(false);
     history.push("/");
     if (accessToken) {
       try {
         await signOut(accessToken);
       } catch {
-        // The local session is cleared even if the server session expired.
+        // The browser session is already cleared if the server token expired.
       }
     }
   };
@@ -117,101 +95,85 @@ const Navbar = () => {
   const userName = user?.result?.name || user?.result?.email || "Member";
 
   return (
-    <>
-      <AppBar
-        position="sticky"
-        elevation={4}
-        sx={{
-          mt: { xs: 1.5, md: 2.5 },
-          mb: 3,
-          borderRadius: 3,
-          overflow: "hidden",
-          color: "common.white",
-          background: "linear-gradient(100deg, #102a43 0%, #0d47a1 60%, #00695c 100%)",
-        }}
-      >
-        <Toolbar sx={{ minHeight: { xs: 72, md: 82 }, px: { xs: 1.5, md: 2.5 } }}>
-          <Box
-            component={Link}
-            to="/"
-            sx={{ display: "flex", alignItems: "center", gap: 1.25, color: "inherit", textDecoration: "none", flexShrink: 0 }}
-          >
-            <Box component="img" src={logo} alt="Church logo" sx={{ width: { xs: 48, md: 58 }, height: { xs: 48, md: 58 }, borderRadius: "50%", objectFit: "cover", border: "3px solid rgba(255,255,255,.7)" }} />
-            <Box sx={{ display: { xs: "none", sm: "block" } }}>
-              <Typography fontWeight={800} lineHeight={1.15}>Eritrean Full Gospel</Typography>
-              <Typography variant="caption" sx={{ opacity: 0.8 }}>Church Cologne</Typography>
-            </Box>
+    <AppBar
+      position="sticky"
+      elevation={0}
+      sx={{
+        mt: { xs: 1, md: 2 },
+        mb: 3,
+        borderRadius: { xs: 2.5, md: 3.5 },
+        overflow: "hidden",
+        color: "common.white",
+        border: "1px solid rgba(255,255,255,.2)",
+        background: "linear-gradient(110deg, #311b92 0%, #1565c0 38%, #00897b 72%, #f57c00 125%)",
+        boxShadow: "0 18px 45px rgba(28,45,110,.24)",
+      }}
+    >
+      <Toolbar sx={{ minHeight: { xs: 70, md: 84 }, px: { xs: 1.5, sm: 2.5 } }}>
+        <Box component={Link} to="/" sx={{ display: "flex", alignItems: "center", gap: 1.25, color: "inherit", textDecoration: "none", minWidth: 0 }}>
+          <Box component="img" src={logo} alt="Church logo" sx={{ width: { xs: 48, md: 58 }, height: { xs: 48, md: 58 }, borderRadius: "50%", objectFit: "cover", border: "3px solid rgba(255,255,255,.85)", boxShadow: "0 5px 18px rgba(0,0,0,.22)" }} />
+          <Box sx={{ minWidth: 0 }}>
+            <Typography fontWeight={900} lineHeight={1.1} noWrap sx={{ fontSize: { xs: ".95rem", sm: "1.15rem" } }}>Eritrean Full Gospel</Typography>
+            <Typography variant="caption" noWrap sx={{ opacity: 0.82 }}>Church Cologne</Typography>
           </Box>
-
-          <Stack direction="row" spacing={0.25} sx={{ ml: "auto", display: { xs: "none", lg: "flex" } }}>
-            {pages.map((page) => (
-              <Button
-                key={page.path}
-                component={Link}
-                to={page.path}
-                color="inherit"
-                sx={{
-                  px: 1.25,
-                  borderRadius: 2,
-                  fontWeight: isActive(page.path) ? 800 : 600,
-                  bgcolor: isActive(page.path) ? "rgba(255,255,255,.18)" : "transparent",
-                  "&:hover": { bgcolor: "rgba(255,255,255,.14)" },
-                }}
-              >
-                {page.label}
-              </Button>
-            ))}
-          </Stack>
-
-          <Box sx={{ ml: { xs: "auto", lg: 1.5 }, display: { xs: "none", md: "flex", lg: "flex" }, alignItems: "center", gap: 1 }}>
-            {user ? (
-              <>
-                <Tooltip title={userName}><Avatar sx={{ width: 36, height: 36, bgcolor: "secondary.main" }}>{userName.charAt(0).toUpperCase()}</Avatar></Tooltip>
-                <Button color="inherit" variant="outlined" startIcon={<LogoutOutlinedIcon />} onClick={logout}>Logout</Button>
-              </>
-            ) : (
-              <Button component={Link} to="/auth" color="inherit" variant="outlined" startIcon={<LoginOutlinedIcon />}>Sign in</Button>
-            )}
-          </Box>
-
-          <IconButton color="inherit" onClick={() => setOpen(true)} aria-label="Open navigation menu" sx={{ ml: { xs: "auto", md: 1 }, display: { lg: "none" } }}>
-            <MenuIcon />
-          </IconButton>
-        </Toolbar>
-      </AppBar>
-
-      <Drawer anchor="right" open={open} onClose={() => setOpen(false)} PaperProps={{ sx: { width: { xs: 290, sm: 340 } } }}>
-        <Box sx={{ p: 2.5, color: "common.white", background: "linear-gradient(135deg, #102a43, #0d47a1)" }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Stack direction="row" spacing={1.25} alignItems="center">
-              <Box component="img" src={logo} alt="Church logo" sx={{ width: 48, height: 48, borderRadius: "50%", objectFit: "cover" }} />
-              <Box><Typography fontWeight={800}>Church Cologne</Typography><Typography variant="caption" sx={{ opacity: 0.8 }}>Navigation</Typography></Box>
-            </Stack>
-            <IconButton color="inherit" onClick={() => setOpen(false)} aria-label="Close navigation menu"><CloseIcon /></IconButton>
-          </Stack>
         </Box>
 
-        <List sx={{ py: 1 }}>
-          {pages.map((page) => (
-            <ListItemButton key={page.path} component={Link} to={page.path} selected={isActive(page.path)} onClick={() => setOpen(false)}>
-              <ListItemIcon>{page.path === "/" ? <HomeOutlinedIcon /> : <ArrowForwardIcon />}</ListItemIcon>
-              <ListItemText primary={page.label} primaryTypographyProps={{ fontWeight: isActive(page.path) ? 800 : 600 }} />
-            </ListItemButton>
-          ))}
-        </List>
-        <Divider />
-        <Box sx={{ p: 2.5 }}>
+        <Box sx={{ ml: "auto", pl: 1 }}>
           {user ? (
-            <Stack spacing={2}>
-              <Stack direction="row" spacing={1.5} alignItems="center"><Avatar sx={{ bgcolor: "secondary.main" }}>{userName.charAt(0).toUpperCase()}</Avatar><Box sx={{ minWidth: 0 }}><Typography fontWeight={700} noWrap>{userName}</Typography><Typography variant="caption" color="text.secondary">Signed in</Typography></Box></Stack>
-              <Button fullWidth variant="outlined" color="error" startIcon={<LogoutOutlinedIcon />} onClick={logout}>Logout</Button>
+            <Stack direction="row" spacing={1} alignItems="center">
+              <Tooltip title={userName}><Avatar sx={{ width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 }, bgcolor: "#ffb300", color: "#17213a", fontWeight: 900 }}>{userName.charAt(0).toUpperCase()}</Avatar></Tooltip>
+              <Button color="inherit" variant="outlined" startIcon={<LogoutOutlinedIcon />} onClick={logout} sx={{ display: { xs: "none", sm: "inline-flex" }, borderColor: "rgba(255,255,255,.55)", borderRadius: 99 }}>Logout</Button>
+              <Button color="inherit" onClick={logout} sx={{ display: { xs: "inline-flex", sm: "none" }, minWidth: 0, px: 1 }}>Out</Button>
             </Stack>
           ) : (
-            <Button fullWidth component={Link} to="/auth" variant="contained" startIcon={<LoginOutlinedIcon />} onClick={() => setOpen(false)}>Sign in</Button>
+            <Button component={Link} to="/auth" color="inherit" variant="contained" startIcon={<LoginOutlinedIcon />} sx={{ bgcolor: "rgba(255,255,255,.16)", backdropFilter: "blur(8px)", borderRadius: 99, "&:hover": { bgcolor: "rgba(255,255,255,.25)" } }}>Sign in</Button>
           )}
         </Box>
-      </Drawer>
-    </>
+      </Toolbar>
+
+      <Box
+        component="nav"
+        aria-label="Main navigation"
+        sx={{
+          display: "flex",
+          gap: { xs: 0.5, md: 0.75 },
+          overflowX: "auto",
+          px: { xs: 1.25, md: 2.25 },
+          py: 1.15,
+          bgcolor: "rgba(4,15,38,.3)",
+          borderTop: "1px solid rgba(255,255,255,.15)",
+          scrollbarWidth: "thin",
+          scrollbarColor: "rgba(255,255,255,.45) transparent",
+          "&::-webkit-scrollbar": { height: 4 },
+          "&::-webkit-scrollbar-thumb": { bgcolor: "rgba(255,255,255,.45)", borderRadius: 4 },
+        }}
+      >
+        {pages.map((page) => (
+          <Button
+            key={page.path}
+            component={Link}
+            to={page.path}
+            color="inherit"
+            aria-current={isActive(page.path) ? "page" : undefined}
+            sx={{
+              flex: { md: 1 },
+              flexShrink: 0,
+              minWidth: "max-content",
+              px: { xs: 2, md: 1.5 },
+              py: 1,
+              borderRadius: 99,
+              fontWeight: isActive(page.path) ? 900 : 650,
+              color: isActive(page.path) ? "#17213a" : "rgba(255,255,255,.9)",
+              bgcolor: isActive(page.path) ? "#ffca28" : "transparent",
+              boxShadow: isActive(page.path) ? "0 6px 18px rgba(0,0,0,.18)" : "none",
+              "&:hover": { bgcolor: isActive(page.path) ? "#ffd54f" : "rgba(255,255,255,.14)" },
+            }}
+          >
+            {page.label}
+          </Button>
+        ))}
+      </Box>
+    </AppBar>
   );
 };
 
