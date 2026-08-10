@@ -155,6 +155,55 @@ export const updateMezmur = async (id, mezmur) =>
 export const deleteMezmur = (id) =>
   rest.delete(`/mezmurs?id=eq.${encodeURIComponent(id)}`);
 
+const mapFinanceEntry = (entry) => ({
+  id: entry.id,
+  weekStart: entry.week_start,
+  type: entry.entry_type,
+  category: entry.category,
+  description: entry.description,
+  amount: Number(entry.amount),
+  createdAt: entry.created_at,
+});
+
+const financePayload = (entry, includeRecorder = true) => ({
+  week_start: entry.weekStart,
+  entry_type: entry.type,
+  category: entry.category.trim(),
+  description: entry.description.trim(),
+  amount: Number(entry.amount),
+  ...(includeRecorder ? { recorded_by: getProfile()?.result?._id } : {}),
+});
+
+export const checkFinanceAdmin = async () => {
+  const response = await rest.post("/rpc/is_church_admin", {});
+  return { ...response, data: Boolean(response.data) };
+};
+
+export const fetchFinanceEntries = async () =>
+  mappedResponse(
+    await rest.get("/finance_entries?select=*&order=week_start.desc,created_at.desc"),
+    mapFinanceEntry
+  );
+
+export const createFinanceEntry = async (entry) =>
+  firstMappedResponse(
+    await rest.post("/finance_entries", financePayload(entry), {
+      headers: { Prefer: "return=representation" },
+    }),
+    mapFinanceEntry
+  );
+
+export const updateFinanceEntry = async (id, entry) =>
+  firstMappedResponse(
+    await rest.patch(`/finance_entries?id=eq.${encodeURIComponent(id)}`, financePayload(entry, false), {
+      headers: { Prefer: "return=representation" },
+    }),
+    mapFinanceEntry
+  );
+
+export const deleteFinanceEntry = (id) =>
+  rest.delete(`/finance_entries?id=eq.${encodeURIComponent(id)}`);
+
 const authData = (response) => {
   const user = response.data.user;
   const metadata = user.user_metadata || {};

@@ -75,3 +75,67 @@ $$;
 
 grant execute on function public.toggle_post_like(uuid) to authenticated;
 revoke execute on function public.toggle_post_like(uuid) from anon;
+
+create table if not exists public.church_admins (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists public.finance_entries (
+  id uuid primary key default gen_random_uuid(),
+  week_start date not null,
+  entry_type text not null check (entry_type in ('income', 'expense')),
+  category text not null check (char_length(category) between 1 and 100),
+  description text not null default '',
+  amount numeric(12, 2) not null check (amount > 0),
+  recorded_by uuid not null references auth.users(id) on delete restrict,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists finance_entries_week_start_idx
+  on public.finance_entries (week_start desc);
+
+alter table public.church_admins enable row level security;
+alter table public.finance_entries enable row level security;
+
+create or replace function public.is_church_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.church_admins where user_id = auth.uid()
+  );
+$$;
+
+revoke execute on function public.is_church_admin() from public;
+grant execute on function public.is_church_admin() to authenticated;
+revoke execute on function public.is_church_admin() from anon;
+
+drop policy if exists "Admins can view their admin record" on public.church_admins;
+create policy "Admins can view their admin record"
+  on public.church_admins for select to authenticated
+  using (user_id = auth.uid());
+
+drop policy if exists "Admins view finance entries" on public.finance_entries;
+create policy "Admins view finance entries"
+  on public.finance_entries for select to authenticated
+  using (public.is_church_admin());
+
+drop policy if exists "Admins create finance entries" on public.finance_entries;
+create policy "Admins create finance entries"
+  on public.finance_entries for insert to authenticated
+  with check (public.is_church_admin() and recorded_by = auth.uid());
+
+drop policy if exists "Admins update finance entries" on public.finance_entries;
+create policy "Admins update finance entries"
+  on public.finance_entries for update to authenticated
+  using (public.is_church_admin())
+  with check (public.is_church_admin());
+
+drop policy if exists "Admins delete finance entries" on public.finance_entries;
+create policy "Admins delete finance entries"
+  on public.finance_entries for delete to authenticated
+  using (public.is_church_admin());
