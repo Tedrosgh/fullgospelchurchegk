@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { AppBar, Avatar, Box, Button, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
+import { AppBar, Avatar, Box, Button, Collapse, IconButton, Stack, Toolbar, Tooltip, Typography } from "@mui/material";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import decode from "jwt-decode";
@@ -30,6 +32,7 @@ const readProfile = () => {
 
 const Navbar = () => {
   const [user, setUser] = useState(readProfile());
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
@@ -94,6 +97,10 @@ const Navbar = () => {
 
   const userName = user?.result?.name || user?.result?.email || "Member";
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <AppBar
       position="sticky"
@@ -118,24 +125,66 @@ const Navbar = () => {
           </Box>
         </Box>
 
-        <Box sx={{ ml: "auto", pl: 1 }}>
+        <Box sx={{ ml: "auto", pl: 1, display: "flex", alignItems: "center", gap: 0.5 }}>
           {user ? (
-            <Stack direction="row" spacing={1} alignItems="center">
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ display: { xs: "none", md: "flex" } }}>
               <Tooltip title={userName}><Avatar sx={{ width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 }, bgcolor: "#ffb300", color: "#17213a", fontWeight: 900 }}>{userName.charAt(0).toUpperCase()}</Avatar></Tooltip>
-              <Button color="inherit" variant="outlined" startIcon={<LogoutOutlinedIcon />} onClick={logout} sx={{ display: { xs: "none", sm: "inline-flex" }, borderColor: "rgba(255,255,255,.55)", borderRadius: 99 }}>Logout</Button>
-              <Button color="inherit" onClick={logout} sx={{ display: { xs: "inline-flex", sm: "none" }, minWidth: 0, px: 1 }}>Out</Button>
+              <Button color="inherit" variant="outlined" startIcon={<LogoutOutlinedIcon />} onClick={logout} sx={{ borderColor: "rgba(255,255,255,.55)", borderRadius: 99 }}>Logout</Button>
             </Stack>
           ) : (
-            <Button component={Link} to="/auth" color="inherit" variant="contained" startIcon={<LoginOutlinedIcon />} sx={{ bgcolor: "rgba(255,255,255,.16)", backdropFilter: "blur(8px)", borderRadius: 99, "&:hover": { bgcolor: "rgba(255,255,255,.25)" } }}>Sign in</Button>
+            <Button component={Link} to="/auth" color="inherit" variant="contained" startIcon={<LoginOutlinedIcon />} sx={{ display: { xs: "none", md: "inline-flex" }, bgcolor: "rgba(255,255,255,.16)", backdropFilter: "blur(8px)", borderRadius: 99, "&:hover": { bgcolor: "rgba(255,255,255,.25)" } }}>Sign in</Button>
           )}
+          <IconButton
+            color="inherit"
+            aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-controls="mobile-navigation"
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            sx={{ display: { xs: "inline-flex", md: "none" }, bgcolor: "rgba(255,255,255,.14)", "&:hover": { bgcolor: "rgba(255,255,255,.24)" } }}
+          >
+            {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
+          </IconButton>
         </Box>
       </Toolbar>
+
+      <Collapse in={mobileMenuOpen} timeout="auto" unmountOnExit sx={{ display: { md: "none" } }}>
+        <Box
+          id="mobile-navigation"
+          component="nav"
+          aria-label="Mobile navigation"
+          sx={{ display: "grid", gap: 0.75, p: 1.25, bgcolor: "rgba(4,15,38,.3)", borderTop: "1px solid rgba(255,255,255,.15)" }}
+        >
+          {pages.map((page) => (
+            <Button
+              key={page.path}
+              component={Link}
+              to={page.path}
+              color="inherit"
+              aria-current={isActive(page.path) ? "page" : undefined}
+              onClick={() => setMobileMenuOpen(false)}
+              sx={{ justifyContent: "flex-start", px: 2, py: 1.1, borderRadius: 2, fontWeight: isActive(page.path) ? 900 : 650, color: isActive(page.path) ? "#17213a" : "rgba(255,255,255,.9)", bgcolor: isActive(page.path) ? "#ffca28" : "transparent", "&:hover": { bgcolor: isActive(page.path) ? "#ffd54f" : "rgba(255,255,255,.14)" } }}
+            >
+              {page.label}
+            </Button>
+          ))}
+          {!user && (
+            <Button component={Link} to="/auth" color="inherit" startIcon={<LoginOutlinedIcon />} onClick={() => setMobileMenuOpen(false)} sx={{ justifyContent: "flex-start", px: 2, py: 1.1, borderRadius: 2 }}>
+              Sign in
+            </Button>
+          )}
+          {user && (
+            <Button color="inherit" startIcon={<LogoutOutlinedIcon />} onClick={logout} sx={{ justifyContent: "flex-start", px: 2, py: 1.1, borderRadius: 2 }}>
+              Logout {userName}
+            </Button>
+          )}
+        </Box>
+      </Collapse>
 
       <Box
         component="nav"
         aria-label="Main navigation"
         sx={{
-          display: "flex",
+          display: { xs: "none", md: "flex" },
           gap: { xs: 0.5, md: 0.75 },
           overflowX: "auto",
           px: { xs: 1.25, md: 2.25 },
