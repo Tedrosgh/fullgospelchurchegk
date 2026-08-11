@@ -18,6 +18,12 @@ const auth = axios.create({
   headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
 });
 
+const functions = axios.create({
+  baseURL: `${SUPABASE_URL}/functions/v1`,
+  timeout: 20000,
+  headers: { apikey: SUPABASE_KEY, "Content-Type": "application/json" },
+});
+
 const getProfile = () => {
   try {
     return JSON.parse(localStorage.getItem("profile"));
@@ -178,6 +184,23 @@ export const checkFinanceAdmin = async () => {
   const response = await rest.post("/rpc/is_church_admin", {});
   return { ...response, data: Boolean(response.data) };
 };
+
+export const checkPortalAdmin = async () => {
+  const response = await rest.post("/rpc/is_portal_admin", {});
+  return { ...response, data: Boolean(response.data) };
+};
+
+const adminUserRequest = (method, data) =>
+  functions.request({
+    url: "/admin-users",
+    method,
+    data,
+    headers: { Authorization: `Bearer ${getProfile()?.token}` },
+  });
+
+export const fetchAdminUsers = () => adminUserRequest("get");
+export const createAdminUser = (user) => adminUserRequest("post", user);
+export const updateAdminUserAccess = (user) => adminUserRequest("patch", user);
 
 export const fetchFinanceEntries = async () =>
   mappedResponse(

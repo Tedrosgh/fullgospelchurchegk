@@ -134,43 +134,132 @@ create policy "Admins can view their admin record"
   using (user_id = auth.uid());
 
 drop policy if exists "Admins view finance entries" on public.finance_entries;
+drop policy if exists "Finance users view entries" on public.finance_entries;
 create policy "Admins view finance entries"
   on public.finance_entries for select to authenticated
   using (public.is_church_admin());
 
 drop policy if exists "Admins create finance entries" on public.finance_entries;
+drop policy if exists "Finance users create entries" on public.finance_entries;
 create policy "Admins create finance entries"
   on public.finance_entries for insert to authenticated
   with check (public.is_church_admin() and recorded_by = auth.uid());
 
 drop policy if exists "Admins update finance entries" on public.finance_entries;
+drop policy if exists "Finance users update entries" on public.finance_entries;
 create policy "Admins update finance entries"
   on public.finance_entries for update to authenticated
   using (public.is_church_admin())
   with check (public.is_church_admin());
 
 drop policy if exists "Admins delete finance entries" on public.finance_entries;
+drop policy if exists "Finance users delete entries" on public.finance_entries;
 create policy "Admins delete finance entries"
   on public.finance_entries for delete to authenticated
   using (public.is_church_admin());
 
 drop policy if exists "Admins view finance documents" on public.finance_documents;
+drop policy if exists "Finance users view documents" on public.finance_documents;
 create policy "Admins view finance documents"
   on public.finance_documents for select to authenticated
   using (public.is_church_admin());
 
 drop policy if exists "Admins create finance documents" on public.finance_documents;
+drop policy if exists "Finance users create documents" on public.finance_documents;
 create policy "Admins create finance documents"
   on public.finance_documents for insert to authenticated
   with check (public.is_church_admin() and uploaded_by = auth.uid());
 
 drop policy if exists "Admins update finance documents" on public.finance_documents;
+drop policy if exists "Finance users update documents" on public.finance_documents;
 create policy "Admins update finance documents"
   on public.finance_documents for update to authenticated
   using (public.is_church_admin())
   with check (public.is_church_admin());
 
 drop policy if exists "Admins delete finance documents" on public.finance_documents;
+drop policy if exists "Finance users delete documents" on public.finance_documents;
 create policy "Admins delete finance documents"
   on public.finance_documents for delete to authenticated
   using (public.is_church_admin());
+
+-- Application roles managed from the administrator portal. The service-role
+-- key used to create Auth users belongs only in the admin-users Edge Function.
+create table if not exists public.user_access (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  email text not null,
+  full_name text not null default '',
+  app_role text not null default 'member' check (app_role in ('member', 'editor', 'admin')),
+  finance_access boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.user_access enable row level security;
+
+create or replace function public.is_portal_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (select 1 from public.church_admins where user_id = auth.uid())
+    or exists (select 1 from public.user_access where user_id = auth.uid() and app_role = 'admin');
+$$;
+
+create or replace function public.can_access_finance()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select public.is_portal_admin()
+    or exists (select 1 from public.user_access where user_id = auth.uid() and finance_access);
+$$;
+
+revoke execute on function public.is_portal_admin() from public;
+revoke execute on function public.can_access_finance() from public;
+grant execute on function public.is_portal_admin() to authenticated;
+grant execute on function public.can_access_finance() to authenticated;
+
+drop policy if exists "Portal admins view user access" on public.user_access;
+create policy "Portal admins view user access" on public.user_access
+  for select to authenticated using ((select public.is_portal_admin()));
+
+drop policy if exists "Users view own access" on public.user_access;
+create policy "Users view own access" on public.user_access
+  for select to authenticated using ((select auth.uid()) = user_id);
+
+-- Replace finance policies so assigned finance users and portal admins are
+-- authorized by RLS even if requests bypass the UI.
+drop policy if exists "Admins view finance entries" on public.finance_entries;
+create policy "Finance users view entries" on public.finance_entries
+  for select to authenticated using ((select public.can_access_finance()));
+drop policy if exists "Admins create finance entries" on public.finance_entries;
+create policy "Finance users create entries" on public.finance_entries
+  for insert to authenticated with check ((select public.can_access_finance()) and recorded_by = (select auth.uid()));
+drop policy if exists "Admins update finance entries" on public.finance_entries;
+create policy "Finance users update entries" on public.finance_entries
+  for update to authenticated using ((select public.can_access_finance())) with check ((select public.can_access_finance()));
+drop policy if exists "Admins delete finance entries" on public.finance_entries;
+create policy "Finance users delete entries" on public.finance_entries
+  for delete to authenticated using ((select public.can_access_finance()));
+
+drop policy if exists "Admins view finance documents" on public.finance_documents;
+create policy "Finance users view documents" on public.finance_documents
+  for select to authenticated using ((select public.can_access_finance()));
+drop policy if exists "Admins create finance documents" on public.finance_documents;
+create policy "Finance users create documents" on public.finance_documents
+  for insert to authenticated with check ((select public.can_access_finance()) and uploaded_by = (select auth.uid()));
+drop policy if exists "Admins update finance documents" on public.finance_documents;
+create policy "Finance users update documents" on public.finance_documents
+  for update to authenticated using ((select public.can_access_finance())) with check ((select public.can_access_finance()));
+drop policy if exists "Admins delete finance documents" on public.finance_documents;
+create policy "Finance users delete documents" on public.finance_documents
+  for delete to authenticated using ((select public.can_access_finance()));
+
+create or replace function public.is_church_admin()
+returns boolean language sql stable security definer set search_path = public
+as $$ select public.can_access_finance(); $$;

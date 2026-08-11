@@ -13,6 +13,19 @@ REACT_APP_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
 
 4. In Supabase Authentication URL Configuration, set the Site URL to the production Vercel URL and add the same URL to Redirect URLs.
 
+## Administrator user management
+
+The Finanz administrator workspace includes a **Users** menu for portal administrators. It creates Supabase Auth users and assigns application roles and finance access enforced by RLS.
+
+After pulling this feature:
+
+1. Run the complete `supabase/schema.sql` in the Supabase SQL Editor.
+2. Deploy the protected function with `supabase functions deploy admin-users`.
+3. Keep `SUPABASE_SERVICE_ROLE_KEY` only in Supabase Edge Function secrets. Never add it to React or Vercel.
+4. Add the first administrator's Auth user ID to `public.church_admins` in the Supabase Table Editor. That bootstrap administrator can then manage other users in the portal.
+
+The browser can assign predefined access levels but cannot edit database policy SQL.
+
 To import the existing public Render data, use a Supabase secret key locally. Never add the secret key to Vercel or commit it:
 
 ```powershell

@@ -43,8 +43,11 @@ import FolderOutlinedIcon from "@mui/icons-material/FolderOutlined";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
+import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import UserManagement from "./UserManagement";
 import {
   checkFinanceAdmin,
+  checkPortalAdmin,
   createFinanceDocument,
   createFinanceEntry,
   deleteFinanceDocument,
@@ -123,6 +126,7 @@ const Finanz = () => {
   const history = useHistory();
   const profile = getProfile();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isPortalAdmin, setIsPortalAdmin] = useState(false);
   const [checkingAccess, setCheckingAccess] = useState(Boolean(profile?.token));
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState([]);
@@ -160,11 +164,12 @@ const Finanz = () => {
     if (!profile?.token) return;
 
     let active = true;
-    checkFinanceAdmin()
-      .then(({ data }) => {
+    Promise.all([checkFinanceAdmin(), checkPortalAdmin()])
+      .then(([financeResponse, portalResponse]) => {
         if (!active) return;
-        setIsAdmin(data);
-        if (data) loadEntries();
+        setIsAdmin(financeResponse.data);
+        setIsPortalAdmin(portalResponse.data);
+        if (financeResponse.data) loadEntries();
       })
       .catch(() => active && setError("Your finance access could not be verified."))
       .finally(() => active && setCheckingAccess(false));
@@ -366,6 +371,7 @@ const Finanz = () => {
           ["balance", "Balance", "Review available funds", <AccountBalanceWalletOutlinedIcon />],
           ["report", "Reports", "Compare weekly totals", <AssessmentOutlinedIcon />],
           ["documents", "Documents", "Receipts and statements", <FolderOutlinedIcon />],
+          ...(isPortalAdmin ? [["users", "Users", "Roles and RLS access", <PeopleAltOutlinedIcon />]] : []),
         ].map(([key, label, description, icon]) => (
           <ListItemButton
             key={key}
@@ -646,6 +652,7 @@ const Finanz = () => {
                   <Stack direction="row" spacing={1.5} sx={{ mt: 2 }}><Button type="submit" variant="contained" startIcon={<AddIcon />} disabled={loading}>{editingDocumentId ? "Save changes" : "Add document"}</Button>{editingDocumentId && <Button onClick={resetDocumentForm}>Cancel</Button>}</Stack>
                 </Paper>
               </>}
+              {activeSection === "users" && isPortalAdmin && <UserManagement />}
             </Stack>
               </Grid>
             </Grid>
