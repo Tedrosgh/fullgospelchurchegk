@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import useStyles from "./stylesAllPosts";
 import { Alert, Box, CircularProgress, Grid, Typography } from "@mui/material";
 
-const AllPosts = ({ setCurrentId }) => {
+const AllPosts = ({ setCurrentId, adminMode = false, canDelete = false, onMoveUp, onMoveDown }) => {
   const classes = useStyles(); //classes.container
 
   const { items: posts, loading, error } = useSelector(
@@ -27,9 +27,9 @@ const AllPosts = ({ setCurrentId }) => {
       alignItems="stretch"
       spacing={3}
     >
-      {posts.map((post) => (
-        <Grid key={post._id} item xs={12} sm={6} md={6}>
-          <Post post={post} setCurrentId={setCurrentId} />
+      {posts.map((post, index) => (
+        <Grid key={post._id} item xs={12} sm={6} md={adminMode ? 6 : 4}>
+          <Post post={post} setCurrentId={setCurrentId} adminMode={adminMode} canDelete={canDelete} onMoveUp={() => onMoveUp?.(index)} onMoveDown={() => onMoveDown?.(index)} disableMoveUp={index === 0} disableMoveDown={index === posts.length - 1} />
         </Grid>
       ))}
     </Grid>

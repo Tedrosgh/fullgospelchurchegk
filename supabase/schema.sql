@@ -13,6 +13,8 @@ create table if not exists public.posts (
   created_at timestamptz not null default now()
 );
 
+alter table public.posts add column if not exists display_order integer not null default 0;
+
 create table if not exists public.mezmurs (
   id uuid primary key default gen_random_uuid(),
   legacy_id text unique,
@@ -370,3 +372,17 @@ as $$
 $$;
 revoke execute on function public.get_my_portal_access() from public;
 grant execute on function public.get_my_portal_access() to authenticated;
+
+-- Announcements are public to read and managed by Content & News staff.
+drop policy if exists "Authenticated users create posts" on public.posts;
+drop policy if exists "Owners update posts" on public.posts;
+drop policy if exists "Owners delete posts" on public.posts;
+drop policy if exists "Content team creates announcements" on public.posts;
+create policy "Content team creates announcements" on public.posts for insert to authenticated
+  with check ((select public.can_edit_team('content')) and creator = (select auth.uid()));
+drop policy if exists "Content team updates announcements" on public.posts;
+create policy "Content team updates announcements" on public.posts for update to authenticated
+  using ((select public.can_edit_team('content'))) with check ((select public.can_edit_team('content')));
+drop policy if exists "Content managers delete announcements" on public.posts;
+create policy "Content managers delete announcements" on public.posts for delete to authenticated
+  using ((select public.can_manage_team('content')));

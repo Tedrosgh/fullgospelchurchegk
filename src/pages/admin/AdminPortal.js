@@ -14,11 +14,13 @@ import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
 import { fetchMyPortalAccess } from "../../api/api";
 import Finanz from "../finanz/Finanz";
 import UserManagement from "../finanz/UserManagement";
 import Mezmur from "../mezmur/Mezmur";
 import AddNewMezmur from "../mezmur/Add_new_mezmur";
+import AnnouncementManagement from "./AnnouncementManagement";
 
 const financeSections = [
   ["overview", "Overview", <DashboardOutlinedIcon />],
@@ -51,13 +53,17 @@ const AdminPortal = () => {
   useEffect(() => {
     fetchMyPortalAccess().then(({ data }) => {
       setAccess(data);
-      if (location.pathname === "/admin" && !data.isAdmin && !data.teams?.finance && data.teams?.worship) setSection("mezmur-list");
+      if (location.pathname === "/admin" && !data.isAdmin && !data.teams?.finance) {
+        if (["editor", "manager"].includes(data.teams?.content)) setSection("announcements");
+        else if (data.teams?.worship) setSection("mezmur-list");
+      }
     }).catch(() => setAccess({ isAdmin: false, teams: {} })).finally(() => setLoading(false));
   }, [location.pathname]);
 
   const canUseFinance = access.isAdmin || Boolean(access.teams?.finance);
   const canManageMezmur = access.isAdmin || ["editor", "manager"].includes(access.teams?.worship);
-  const allowed = access.isAdmin || canUseFinance || canManageMezmur;
+  const canManageAnnouncements = access.isAdmin || ["editor", "manager"].includes(access.teams?.content);
+  const allowed = access.isAdmin || canUseFinance || canManageMezmur || canManageAnnouncements;
 
   return <Container maxWidth="xl" sx={{ py: { xs: 3, md: 5 } }}>
     <Paper sx={{ p: { xs: 3, md: 4 }, mb: 3, borderRadius: 4, color: "common.white", background: "linear-gradient(120deg, #111827, #1e3a8a 60%, #0f766e)" }}>
@@ -92,12 +98,13 @@ const AdminPortal = () => {
                 </Collapse>
                 <Divider sx={{ my: 1 }} />
               </>}
+              {canManageAnnouncements && <><ListItemButton selected={section === "announcements"} onClick={() => selectSection("announcements")} sx={{ borderRadius: 2 }}><ListItemIcon sx={{ color: "inherit" }}><CampaignOutlinedIcon /></ListItemIcon><ListItemText primary="Announcements" secondary="Home page updates" primaryTypographyProps={{ fontWeight: 800 }} /></ListItemButton><Divider sx={{ my: 1 }} /></>}
               {access.isAdmin && <ListItemButton selected={section === "users"} onClick={() => selectSection("users")} sx={{ borderRadius: 2 }}><ListItemIcon sx={{ color: "inherit" }}><PeopleAltOutlinedIcon /></ListItemIcon><ListItemText primary="Users & RLS" secondary="Teams and roles" primaryTypographyProps={{ fontWeight: 800 }} /></ListItemButton>}
             </List>
           </Paper>
         </Grid>
         <Grid item xs={12} md={9} lg={9.5}>
-          {section === "users" ? (access.isAdmin ? <UserManagement /> : <Alert severity="error">Administrator access is required.</Alert>) : section === "mezmur-list" ? (canManageMezmur ? <Mezmur adminMode embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : section === "mezmur-form" ? (canManageMezmur ? <AddNewMezmur embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : canUseFinance ? <Finanz embedded initialSection={section} /> : <Alert severity="error">Finance team access is required.</Alert>}
+          {section === "users" ? (access.isAdmin ? <UserManagement /> : <Alert severity="error">Administrator access is required.</Alert>) : section === "announcements" ? (canManageAnnouncements ? <AnnouncementManagement canDelete={access.isAdmin || access.teams?.content === "manager"} /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "mezmur-list" ? (canManageMezmur ? <Mezmur adminMode embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : section === "mezmur-form" ? (canManageMezmur ? <AddNewMezmur embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : canUseFinance ? <Finanz embedded initialSection={section} /> : <Alert severity="error">Finance team access is required.</Alert>}
         </Grid>
       </Grid>}
   </Container>;

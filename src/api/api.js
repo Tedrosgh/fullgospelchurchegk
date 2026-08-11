@@ -48,6 +48,7 @@ const mapPost = (post) => ({
   creator: post.creator,
   likes: post.likes || [],
   createdAt: post.created_at,
+  displayOrder: post.display_order || 0,
 });
 
 const postPayload = (post) => ({
@@ -59,6 +60,7 @@ const postPayload = (post) => ({
   selected_file: post.selectedFile || null,
   name: post.name || "",
   creator: getProfile()?.result?._id,
+  display_order: Number(post.displayOrder) || 0,
 });
 
 const mapMezmur = (mezmur) => ({
@@ -95,7 +97,10 @@ const mapFirst = (records, mapper) =>
   records.length ? mapper(records[0]) : null;
 
 export const fetchPosts = async () =>
-  mappedResponse(await rest.get("/posts?select=*&order=created_at.desc"), mapPost);
+  mappedResponse(await rest.get("/posts?select=*&order=display_order.asc,created_at.desc"), mapPost);
+
+export const updateAnnouncementOrder = (orderedIds) =>
+  Promise.all(orderedIds.map((id, index) => rest.patch(`/posts?id=eq.${encodeURIComponent(id)}`, { display_order: index })));
 
 export const fetchSinglePost = async (id) => {
   const response = await rest.get(`/posts?id=eq.${encodeURIComponent(id)}&select=*&limit=1`);

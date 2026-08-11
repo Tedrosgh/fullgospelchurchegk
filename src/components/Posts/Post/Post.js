@@ -13,6 +13,8 @@ import {
 import ThumbUpAltIcon from "@material-ui/icons/ThumbUpAlt";
 import DeleteIcon from "@material-ui/icons/Delete";
 import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
+import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
+import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
 import moment from "moment";
 import {
   deletePostAction,
@@ -21,7 +23,7 @@ import {
 
 import ThumbUpAltOutlined from "@material-ui/icons/ThumbUpAltOutlined";
 
-const Post = ({ post, setCurrentId }) => {
+const Post = ({ post, setCurrentId, adminMode = false, canDelete = false, onMoveUp, onMoveDown, disableMoveUp, disableMoveDown }) => {
   const classes = useStyles();
   const dispatch = useDispatch();
   const history = useHistory();
@@ -78,7 +80,7 @@ const Post = ({ post, setCurrentId }) => {
           history.push(`/posts/${post._id}`);
         }
       }}
-      style={{ cursor: "pointer", backgroundColor: palette.background, color: palette.text }}
+      style={{ cursor: "pointer", backgroundColor: palette.background, color: palette.text, minHeight: 455, overflow: "hidden" }}
     >
       <CardMedia
         className={classes.media}
@@ -94,8 +96,7 @@ const Post = ({ post, setCurrentId }) => {
       </div>
 
       <div className={classes.overlay2}>
-        {(user?.result?.googleId === post?.creator ||
-          user?.result?._id === post?.creator) && (
+        {adminMode && (
           <Button
             style={{ color: "white" }}
             size="small"
@@ -121,13 +122,13 @@ const Post = ({ post, setCurrentId }) => {
         gutterBottom
         variant="h5"
         component="h2"
-        style={{ color: palette.text, fontWeight: 700 }}
+        style={{ color: palette.text, fontWeight: 700, minHeight: 58, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
       >
         {post.title}
       </Typography>
 
       <CardContent>
-        <Typography variant="body2" component="p" style={{ color: palette.text, lineHeight: 1.6 }}>
+        <Typography variant="body2" component="p" style={{ color: palette.text, lineHeight: 1.6, height: 68, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {post.message}
         </Typography>
       </CardContent>
@@ -147,9 +148,10 @@ const Post = ({ post, setCurrentId }) => {
           <Likes />
         </Button>
 
-        {(user?.result?.googleId === post?.creator ||
-          user?.result?._id === post?.creator) && (
-          <Button
+        {adminMode && (<>
+          <Button size="small" style={{ color: palette.accent, minWidth: 32 }} disabled={disableMoveUp} onClick={(event) => { event.stopPropagation(); onMoveUp?.(); }} aria-label="Move announcement up"><ArrowUpwardIcon fontSize="small" /></Button>
+          <Button size="small" style={{ color: palette.accent, minWidth: 32 }} disabled={disableMoveDown} onClick={(event) => { event.stopPropagation(); onMoveDown?.(); }} aria-label="Move announcement down"><ArrowDownwardIcon fontSize="small" /></Button>
+          {canDelete && <Button
             size="small"
             color="primary"
             style={{ color: palette.accent }}
@@ -163,8 +165,8 @@ const Post = ({ post, setCurrentId }) => {
           >
             <DeleteIcon fontSize="small" />
             Delete
-          </Button>
-        )}
+          </Button>}
+        </>)}
       </CardActions>
     </Card>
   );

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Box,
   Button,
@@ -21,7 +21,6 @@ import VolunteerActivismOutlinedIcon from "@mui/icons-material/VolunteerActivism
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import AllPosts from "../../components/Posts/AllPosts";
-import Form from "../../components/Form/Form";
 import { getPosts } from "../../actions/postsActions";
 import heroImage from "../../images/pasAbr.jpg";
 
@@ -53,7 +52,6 @@ const pathways = [
 ];
 
 const Home = () => {
-  const [currentId, setCurrentId] = useState(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -136,10 +134,7 @@ const Home = () => {
           <Typography variant="overline" color="primary" fontWeight={800} letterSpacing={2}>Community updates</Typography>
           <Typography variant="h3" component="h2" fontWeight={850} sx={{ fontSize: { xs: "2rem", md: "2.7rem" } }}>Latest announcements</Typography>
         </Box>
-        <Grid container spacing={4} alignItems="flex-start">
-          <Grid item xs={12} md={8}><AllPosts setCurrentId={setCurrentId} /></Grid>
-          <Grid item xs={12} md={4} sx={{ position: { md: "sticky" }, top: { md: 110 } }}><Form currentId={currentId} setCurrentId={setCurrentId} /></Grid>
-        </Grid>
+        <AllPosts />
       </Container>
     </Box>
   );
