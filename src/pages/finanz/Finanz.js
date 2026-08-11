@@ -351,6 +351,36 @@ const Finanz = () => {
     }
   };
 
+  const financeNavigation = (
+    <Paper sx={{ borderRadius: 3, overflow: "hidden", position: { md: "sticky" }, top: { md: 24 }, border: "1px solid", borderColor: "divider", boxShadow: "0 16px 40px rgba(30,41,59,.10)" }}>
+      <Box sx={{ p: 2.5, color: "common.white", background: "linear-gradient(135deg, #172554, #1d4ed8)" }}>
+        <Typography variant="overline" sx={{ opacity: 0.7, letterSpacing: 1.5 }}>Church accounts</Typography>
+        <Typography variant="h6" fontWeight={800}>Finance workspace</Typography>
+        <Typography variant="body2" sx={{ opacity: 0.75, mt: 0.5 }}>Record, review and reconcile</Typography>
+      </Box>
+      <List sx={{ p: 1.25, display: { xs: "flex", md: "block" }, gap: 0.75, overflowX: { xs: "auto", md: "visible" } }}>
+        {[
+          ["overview", "Overview", "Financial dashboard", <DashboardOutlinedIcon />],
+          ["income", "Weekly income", "Record offerings and giving", <TrendingUpIcon />],
+          ["expense", "Weekly expenses", "Record church spending", <TrendingDownIcon />],
+          ["balance", "Balance", "Review available funds", <AccountBalanceWalletOutlinedIcon />],
+          ["report", "Reports", "Compare weekly totals", <AssessmentOutlinedIcon />],
+          ["documents", "Documents", "Receipts and statements", <FolderOutlinedIcon />],
+        ].map(([key, label, description, icon]) => (
+          <ListItemButton
+            key={key}
+            selected={activeSection === key}
+            onClick={() => selectSection(key)}
+            sx={{ minWidth: { xs: 175, md: 0 }, borderRadius: 2, mb: { md: 0.5 }, alignItems: "flex-start", "&.Mui-selected": { bgcolor: "primary.50", color: "primary.dark", "&:hover": { bgcolor: "primary.100" } } }}
+          >
+            <ListItemIcon sx={{ minWidth: 38, mt: 0.25, color: "inherit" }}>{icon}</ListItemIcon>
+            <ListItemText primary={label} secondary={description} primaryTypographyProps={{ fontWeight: 750 }} secondaryTypographyProps={{ sx: { display: { xs: "none", md: "block" }, lineHeight: 1.35 } }} />
+          </ListItemButton>
+        ))}
+      </List>
+    </Paper>
+  );
+
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 3, md: 6 } }}>
       <Stack spacing={4}>
@@ -412,48 +442,24 @@ const Finanz = () => {
         <Box>
           <Typography variant="h4" fontWeight={700} gutterBottom>Weekly income and expenses</Typography>
           {error && <Alert severity="error" onClose={() => setError("")} sx={{ mb: 2 }}>{error}</Alert>}
-          {!profile?.token ? (
-            <Alert
-              severity="info"
-              action={<Button color="inherit" onClick={() => history.push("/auth")}>Sign in</Button>}
-            >
-              Sign in with an authorized administrator account to access church finance records.
-            </Alert>
-          ) : checkingAccess ? (
-            <Box sx={{ display: "flex", justifyContent: "center", py: 5 }}><CircularProgress /></Box>
-          ) : !isAdmin ? (
-            <Alert severity="warning">Finance records are restricted to designated church administrators.</Alert>
+          {!isAdmin || checkingAccess ? (
+            <Grid container spacing={3} alignItems="flex-start">
+              <Grid item xs={12} md={3}>{financeNavigation}</Grid>
+              <Grid item xs={12} md={9}>
+                {!profile?.token ? (
+                  <Alert severity="info" action={<Button color="inherit" onClick={() => history.push("/auth")}>Sign in</Button>}>
+                    The finance workspace is visible, but church records and entry forms require an authorized administrator account.
+                  </Alert>
+                ) : checkingAccess ? (
+                  <Paper sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2, py: 5, borderRadius: 3 }}><CircularProgress size={28} /><Typography>Checking finance access…</Typography></Paper>
+                ) : (
+                  <Alert severity="warning">The finance navigation is available for reference. Financial records remain restricted to designated church administrators.</Alert>
+                )}
+              </Grid>
+            </Grid>
           ) : (
             <Grid container spacing={3} alignItems="flex-start">
-              <Grid item xs={12} md={3}>
-                <Paper sx={{ borderRadius: 3, overflow: "hidden", position: { md: "sticky" }, top: { md: 24 }, border: "1px solid", borderColor: "divider", boxShadow: "0 16px 40px rgba(30,41,59,.10)" }}>
-                  <Box sx={{ p: 2.5, color: "common.white", background: "linear-gradient(135deg, #172554, #1d4ed8)" }}>
-                    <Typography variant="overline" sx={{ opacity: 0.7, letterSpacing: 1.5 }}>Church accounts</Typography>
-                    <Typography variant="h6" fontWeight={800}>Finance workspace</Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.75, mt: 0.5 }}>Record, review and reconcile</Typography>
-                  </Box>
-                  <List sx={{ p: 1.25, display: { xs: "flex", md: "block" }, gap: 0.75, overflowX: { xs: "auto", md: "visible" } }}>
-                    {[
-                      ["overview", "Overview", "Financial dashboard", <DashboardOutlinedIcon />],
-                      ["income", "Weekly income", "Record offerings and giving", <TrendingUpIcon />],
-                      ["expense", "Weekly expenses", "Record church spending", <TrendingDownIcon />],
-                      ["balance", "Balance", "Review available funds", <AccountBalanceWalletOutlinedIcon />],
-                      ["report", "Reports", "Compare weekly totals", <AssessmentOutlinedIcon />],
-                      ["documents", "Documents", "Receipts and statements", <FolderOutlinedIcon />],
-                    ].map(([key, label, description, icon]) => (
-                      <ListItemButton
-                        key={key}
-                        selected={activeSection === key}
-                        onClick={() => selectSection(key)}
-                        sx={{ minWidth: { xs: 175, md: 0 }, borderRadius: 2, mb: { md: 0.5 }, alignItems: "flex-start", "&.Mui-selected": { bgcolor: "primary.50", color: "primary.dark", "&:hover": { bgcolor: "primary.100" } } }}
-                      >
-                        <ListItemIcon sx={{ minWidth: 38, mt: 0.25, color: "inherit" }}>{icon}</ListItemIcon>
-                        <ListItemText primary={label} secondary={description} primaryTypographyProps={{ fontWeight: 750 }} secondaryTypographyProps={{ sx: { display: { xs: "none", md: "block" }, lineHeight: 1.35 } }} />
-                      </ListItemButton>
-                    ))}
-                  </List>
-                </Paper>
-              </Grid>
+              <Grid item xs={12} md={3}>{financeNavigation}</Grid>
               <Grid item xs={12} md={9}>
             <Stack spacing={3}>
               {activeSection === "overview" && <>
