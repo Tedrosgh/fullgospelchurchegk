@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { Alert, Box, Button, CircularProgress, Container, Divider, Grid, List, ListItemButton, ListItemIcon, ListItemText, Paper, Typography } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, Collapse, Container, Divider, Grid, List, ListItemButton, ListItemIcon, ListItemText, Paper, Typography } from "@mui/material";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
@@ -12,6 +12,8 @@ import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { fetchMyPortalAccess } from "../../api/api";
 import Finanz from "../finanz/Finanz";
 import UserManagement from "../finanz/UserManagement";
@@ -33,6 +35,8 @@ const AdminPortal = () => {
   const [loading, setLoading] = useState(true);
   const [access, setAccess] = useState({ isAdmin: false, teams: {} });
   const [section, setSection] = useState(location.pathname.includes("/admin/mezmur/") ? "mezmur-form" : "overview");
+  const [financeOpen, setFinanceOpen] = useState(!location.pathname.includes("/admin/mezmur/"));
+  const [mezmurOpen, setMezmurOpen] = useState(location.pathname.includes("/admin/mezmur/"));
 
   const selectSection = (nextSection) => {
     if (nextSection === "mezmur-form") {
@@ -70,8 +74,24 @@ const AdminPortal = () => {
           <Paper sx={{ borderRadius: 3, overflow: "hidden", position: { md: "sticky" }, top: { md: 24 }, border: "1px solid", borderColor: "divider" }}>
             <Box sx={{ p: 2.5, bgcolor: "grey.900", color: "common.white" }}><Typography fontWeight={800}>Administration</Typography><Typography variant="body2" sx={{ opacity: 0.7 }}>Portal navigation</Typography></Box>
             <List sx={{ p: 1 }}>
-              {canUseFinance && <><Typography variant="overline" color="text.secondary" sx={{ display: "block", px: 2, pt: 1, fontWeight: 800 }}>Finanz</Typography>{financeSections.map(([key, label, icon]) => <ListItemButton key={key} selected={section === key} onClick={() => selectSection(key)} sx={{ borderRadius: 2, pl: 2 }}><ListItemIcon sx={{ minWidth: 38, color: "inherit" }}>{icon}</ListItemIcon><ListItemText primary={label} primaryTypographyProps={{ fontWeight: section === key ? 800 : 600 }} /></ListItemButton>)}<Divider sx={{ my: 1 }} /></>}
-              {canManageMezmur && <><Typography variant="overline" color="text.secondary" sx={{ display: "block", px: 2, pt: 1, fontWeight: 800 }}>Mezmur</Typography><ListItemButton selected={section === "mezmur-list"} onClick={() => selectSection("mezmur-list")} sx={{ borderRadius: 2 }}><ListItemIcon sx={{ color: "inherit" }}><MusicNoteOutlinedIcon /></ListItemIcon><ListItemText primary="Manage Mezmur" /></ListItemButton><ListItemButton selected={section === "mezmur-form"} onClick={() => selectSection("mezmur-form")} sx={{ borderRadius: 2 }}><ListItemIcon sx={{ color: "inherit" }}><AddCircleOutlineIcon /></ListItemIcon><ListItemText primary="Add Mezmur" /></ListItemButton><Divider sx={{ my: 1 }} /></>}
+              {canUseFinance && <>
+                <ListItemButton onClick={() => setFinanceOpen((open) => !open)} sx={{ borderRadius: 2, bgcolor: financeSections.some(([key]) => key === section) ? "primary.50" : "transparent" }} aria-expanded={financeOpen}>
+                  <ListItemIcon sx={{ color: "inherit" }}><AccountBalanceWalletOutlinedIcon /></ListItemIcon><ListItemText primary="Finanz" primaryTypographyProps={{ fontWeight: 850 }} />{financeOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </ListItemButton>
+                <Collapse in={financeOpen} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding>{financeSections.map(([key, label, icon]) => <ListItemButton key={key} selected={section === key} onClick={() => selectSection(key)} sx={{ borderRadius: 2, pl: 4 }}><ListItemIcon sx={{ minWidth: 38, color: "inherit" }}>{icon}</ListItemIcon><ListItemText primary={label} primaryTypographyProps={{ fontWeight: section === key ? 800 : 600 }} /></ListItemButton>)}</List>
+                </Collapse>
+                <Divider sx={{ my: 1 }} />
+              </>}
+              {canManageMezmur && <>
+                <ListItemButton onClick={() => setMezmurOpen((open) => !open)} sx={{ borderRadius: 2, bgcolor: section.startsWith("mezmur-") ? "primary.50" : "transparent" }} aria-expanded={mezmurOpen}>
+                  <ListItemIcon sx={{ color: "inherit" }}><MusicNoteOutlinedIcon /></ListItemIcon><ListItemText primary="Mezmur" primaryTypographyProps={{ fontWeight: 850 }} />{mezmurOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </ListItemButton>
+                <Collapse in={mezmurOpen} timeout="auto" unmountOnExit>
+                  <List component="div" disablePadding><ListItemButton selected={section === "mezmur-list"} onClick={() => selectSection("mezmur-list")} sx={{ borderRadius: 2, pl: 4 }}><ListItemIcon sx={{ color: "inherit" }}><MusicNoteOutlinedIcon /></ListItemIcon><ListItemText primary="Manage Mezmur" /></ListItemButton><ListItemButton selected={section === "mezmur-form"} onClick={() => selectSection("mezmur-form")} sx={{ borderRadius: 2, pl: 4 }}><ListItemIcon sx={{ color: "inherit" }}><AddCircleOutlineIcon /></ListItemIcon><ListItemText primary="Add Mezmur" /></ListItemButton></List>
+                </Collapse>
+                <Divider sx={{ my: 1 }} />
+              </>}
               {access.isAdmin && <ListItemButton selected={section === "users"} onClick={() => selectSection("users")} sx={{ borderRadius: 2 }}><ListItemIcon sx={{ color: "inherit" }}><PeopleAltOutlinedIcon /></ListItemIcon><ListItemText primary="Users & RLS" secondary="Teams and roles" primaryTypographyProps={{ fontWeight: 800 }} /></ListItemButton>}
             </List>
           </Paper>
