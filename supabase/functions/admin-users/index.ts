@@ -36,15 +36,22 @@ Deno.serve(async (request) => {
     if (request.method === "GET") {
       const { data: authPage, error } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 });
       if (error) throw error;
-      const { data: accessRows, error: accessError } = await adminClient.from("user_access").select("*");
+      const [{ data: accessRows, error: accessError }, { data: teamRows, error: teamError }] = await Promise.all([
+        adminClient.from("user_access").select("*"),
+        adminClient.from("user_team_roles").select("user_id, team, access_level"),
+      ]);
       if (accessError) throw accessError;
+      if (teamError) throw teamError;
       const access = new Map((accessRows || []).map((row) => [row.user_id, row]));
+      const teams = new Map<string, Record<string, string>>();
+      for (const row of teamRows || []) teams.set(row.user_id, { ...(teams.get(row.user_id) || {}), [row.team]: row.access_level });
       return json({ users: authPage.users.map((user) => ({
         id: user.id,
         email: user.email,
         fullName: access.get(user.id)?.full_name || user.user_metadata?.full_name || "",
         role: access.get(user.id)?.app_role || "member",
         financeAccess: Boolean(access.get(user.id)?.finance_access),
+        teamRoles: teams.get(user.id) || {},
         confirmed: Boolean(user.email_confirmed_at),
         createdAt: user.created_at,
       })) });
@@ -72,6 +79,10 @@ Deno.serve(async (request) => {
         updated_at: new Date().toISOString(),
       });
       if (accessError) throw accessError;
+      if (body.team && body.teamRole) {
+        const { error: teamError } = await adminClient.from("user_team_roles").upsert({ user_id: data.user.id, team: body.team, access_level: body.teamRole, updated_at: new Date().toISOString() });
+        if (teamError) throw teamError;
+      }
       return json({ message: "User created.", id: data.user.id }, 201);
     }
 
@@ -86,6 +97,14 @@ Deno.serve(async (request) => {
         updated_at: new Date().toISOString(),
       });
       if (error) throw error;
+      const teamRoles = body.teamRoles || {};
+      const { error: deleteError } = await adminClient.from("user_team_roles").delete().eq("user_id", body.id);
+      if (deleteError) throw deleteError;
+      const assignments = Object.entries(teamRoles).filter(([, level]) => ["viewer", "editor", "manager"].includes(String(level))).map(([team, access_level]) => ({ user_id: body.id, team, access_level, updated_at: new Date().toISOString() }));
+      if (assignments.length) {
+        const { error: teamError } = await adminClient.from("user_team_roles").insert(assignments);
+        if (teamError) throw teamError;
+      }
       return json({ message: "User permissions updated." });
     }
 

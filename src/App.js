@@ -17,6 +17,7 @@ import Help from "./pages/help/Help";
 import NotFound from "./pages/NotFound";
 import PostDetail from "./pages/PostDetail";
 import MezmurPrint from "./pages/mezmur/MezmurPrint";
+import AdminPortal from "./pages/admin/AdminPortal";
 
 const AppContent = () => (
   <Switch>
@@ -35,6 +36,7 @@ const AppContent = () => (
           <Route path="/jugend" exact component={Jugend} />
           <Route path="/kinder" exact component={Kinder} />
           <Route path="/help" exact component={Help} />
+          <Route path="/admin" exact component={AdminPortal} />
           <Route path="/mezmur/addmezmur" exact component={Add_new_mezmur} />
           <Route path="/mezmur/:id/edit" exact component={Add_new_mezmur} />
           <Route path="/mezmur/list" exact component={MezmurList} />

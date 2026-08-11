@@ -135,18 +135,21 @@ create policy "Admins can view their admin record"
 
 drop policy if exists "Admins view finance entries" on public.finance_entries;
 drop policy if exists "Finance users view entries" on public.finance_entries;
+drop policy if exists "Finance team views entries" on public.finance_entries;
 create policy "Admins view finance entries"
   on public.finance_entries for select to authenticated
   using (public.is_church_admin());
 
 drop policy if exists "Admins create finance entries" on public.finance_entries;
 drop policy if exists "Finance users create entries" on public.finance_entries;
+drop policy if exists "Finance team creates entries" on public.finance_entries;
 create policy "Admins create finance entries"
   on public.finance_entries for insert to authenticated
   with check (public.is_church_admin() and recorded_by = auth.uid());
 
 drop policy if exists "Admins update finance entries" on public.finance_entries;
 drop policy if exists "Finance users update entries" on public.finance_entries;
+drop policy if exists "Finance team updates entries" on public.finance_entries;
 create policy "Admins update finance entries"
   on public.finance_entries for update to authenticated
   using (public.is_church_admin())
@@ -154,24 +157,28 @@ create policy "Admins update finance entries"
 
 drop policy if exists "Admins delete finance entries" on public.finance_entries;
 drop policy if exists "Finance users delete entries" on public.finance_entries;
+drop policy if exists "Finance managers delete entries" on public.finance_entries;
 create policy "Admins delete finance entries"
   on public.finance_entries for delete to authenticated
   using (public.is_church_admin());
 
 drop policy if exists "Admins view finance documents" on public.finance_documents;
 drop policy if exists "Finance users view documents" on public.finance_documents;
+drop policy if exists "Finance team views documents" on public.finance_documents;
 create policy "Admins view finance documents"
   on public.finance_documents for select to authenticated
   using (public.is_church_admin());
 
 drop policy if exists "Admins create finance documents" on public.finance_documents;
 drop policy if exists "Finance users create documents" on public.finance_documents;
+drop policy if exists "Finance team creates documents" on public.finance_documents;
 create policy "Admins create finance documents"
   on public.finance_documents for insert to authenticated
   with check (public.is_church_admin() and uploaded_by = auth.uid());
 
 drop policy if exists "Admins update finance documents" on public.finance_documents;
 drop policy if exists "Finance users update documents" on public.finance_documents;
+drop policy if exists "Finance team updates documents" on public.finance_documents;
 create policy "Admins update finance documents"
   on public.finance_documents for update to authenticated
   using (public.is_church_admin())
@@ -179,6 +186,7 @@ create policy "Admins update finance documents"
 
 drop policy if exists "Admins delete finance documents" on public.finance_documents;
 drop policy if exists "Finance users delete documents" on public.finance_documents;
+drop policy if exists "Finance managers delete documents" on public.finance_documents;
 create policy "Admins delete finance documents"
   on public.finance_documents for delete to authenticated
   using (public.is_church_admin());
@@ -263,3 +271,76 @@ create policy "Finance users delete documents" on public.finance_documents
 create or replace function public.is_church_admin()
 returns boolean language sql stable security definer set search_path = public
 as $$ select public.can_access_finance(); $$;
+
+-- Functional-team authorization used by the dedicated admin portal.
+create table if not exists public.user_team_roles (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  team text not null check (team in ('finance', 'content', 'worship', 'programs', 'youth', 'children')),
+  access_level text not null check (access_level in ('viewer', 'editor', 'manager')),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  primary key (user_id, team)
+);
+
+alter table public.user_team_roles enable row level security;
+
+create or replace function public.team_access_level(requested_team text)
+returns text language sql stable security definer set search_path = public
+as $$
+  select case when public.is_portal_admin() then 'manager'
+    else (select access_level from public.user_team_roles where user_id = auth.uid() and team = requested_team)
+  end;
+$$;
+
+create or replace function public.can_view_team(requested_team text)
+returns boolean language sql stable security definer set search_path = public
+as $$ select coalesce(public.team_access_level(requested_team) in ('viewer', 'editor', 'manager'), false); $$;
+
+create or replace function public.can_edit_team(requested_team text)
+returns boolean language sql stable security definer set search_path = public
+as $$ select coalesce(public.team_access_level(requested_team) in ('editor', 'manager'), false); $$;
+
+create or replace function public.can_manage_team(requested_team text)
+returns boolean language sql stable security definer set search_path = public
+as $$ select coalesce(public.team_access_level(requested_team) = 'manager', false); $$;
+
+revoke execute on function public.team_access_level(text) from public;
+revoke execute on function public.can_view_team(text) from public;
+revoke execute on function public.can_edit_team(text) from public;
+revoke execute on function public.can_manage_team(text) from public;
+grant execute on function public.team_access_level(text), public.can_view_team(text), public.can_edit_team(text), public.can_manage_team(text) to authenticated;
+
+drop policy if exists "Admins view team roles" on public.user_team_roles;
+create policy "Admins view team roles" on public.user_team_roles for select to authenticated
+  using ((select public.is_portal_admin()) or user_id = (select auth.uid()));
+
+-- Team roles enforce finance access at the database boundary.
+drop policy if exists "Finance users view entries" on public.finance_entries;
+create policy "Finance team views entries" on public.finance_entries for select to authenticated
+  using ((select public.can_view_team('finance')));
+drop policy if exists "Finance users create entries" on public.finance_entries;
+create policy "Finance team creates entries" on public.finance_entries for insert to authenticated
+  with check ((select public.can_edit_team('finance')) and recorded_by = (select auth.uid()));
+drop policy if exists "Finance users update entries" on public.finance_entries;
+create policy "Finance team updates entries" on public.finance_entries for update to authenticated
+  using ((select public.can_edit_team('finance'))) with check ((select public.can_edit_team('finance')));
+drop policy if exists "Finance users delete entries" on public.finance_entries;
+create policy "Finance managers delete entries" on public.finance_entries for delete to authenticated
+  using ((select public.can_manage_team('finance')));
+
+drop policy if exists "Finance users view documents" on public.finance_documents;
+create policy "Finance team views documents" on public.finance_documents for select to authenticated
+  using ((select public.can_view_team('finance')));
+drop policy if exists "Finance users create documents" on public.finance_documents;
+create policy "Finance team creates documents" on public.finance_documents for insert to authenticated
+  with check ((select public.can_edit_team('finance')) and uploaded_by = (select auth.uid()));
+drop policy if exists "Finance users update documents" on public.finance_documents;
+create policy "Finance team updates documents" on public.finance_documents for update to authenticated
+  using ((select public.can_edit_team('finance'))) with check ((select public.can_edit_team('finance')));
+drop policy if exists "Finance users delete documents" on public.finance_documents;
+create policy "Finance managers delete documents" on public.finance_documents for delete to authenticated
+  using ((select public.can_manage_team('finance')));
+
+create or replace function public.is_church_admin()
+returns boolean language sql stable security definer set search_path = public
+as $$ select public.can_view_team('finance'); $$;

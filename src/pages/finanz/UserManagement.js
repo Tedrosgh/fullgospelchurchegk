@@ -8,7 +8,11 @@ import PersonAddAltOutlinedIcon from "@mui/icons-material/PersonAddAltOutlined";
 import SaveOutlinedIcon from "@mui/icons-material/SaveOutlined";
 import { createAdminUser, fetchAdminUsers, updateAdminUserAccess } from "../../api/api";
 
-const emptyForm = { email: "", fullName: "", password: "", role: "member", financeAccess: false, emailConfirmed: false };
+const teams = [
+  ["finance", "Finance"], ["content", "Content & News"], ["worship", "Worship & Music"],
+  ["programs", "Programs"], ["youth", "Youth"], ["children", "Children"],
+];
+const emptyForm = { email: "", fullName: "", password: "", role: "member", team: "content", teamRole: "viewer", emailConfirmed: false };
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -67,17 +71,19 @@ const UserManagement = () => {
         <Grid item xs={12} sm={6}><TextField fullWidth required label="Full name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} /></Grid>
         <Grid item xs={12} sm={6}><TextField fullWidth required type="email" label="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></Grid>
         <Grid item xs={12} sm={6}><TextField fullWidth required type="password" label="Temporary password" helperText="Minimum 8 characters" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} inputProps={{ minLength: 8 }} /></Grid>
-        <Grid item xs={12} sm={6}><TextField fullWidth select label="Application role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}><MenuItem value="member">Member</MenuItem><MenuItem value="editor">Content editor</MenuItem><MenuItem value="admin">Administrator</MenuItem></TextField></Grid>
-        <Grid item xs={12}><FormControlLabel control={<Checkbox checked={form.financeAccess} onChange={(e) => setForm({ ...form, financeAccess: e.target.checked })} />} label="Allow access to financial records" /><FormControlLabel control={<Checkbox checked={form.emailConfirmed} onChange={(e) => setForm({ ...form, emailConfirmed: e.target.checked })} />} label="Mark email as confirmed" /></Grid>
+        <Grid item xs={12} sm={4}><TextField fullWidth select label="Portal role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}><MenuItem value="member">Team member</MenuItem><MenuItem value="admin">Portal administrator</MenuItem></TextField></Grid>
+        <Grid item xs={12} sm={4}><TextField fullWidth select label="Functional team" value={form.team} onChange={(e) => setForm({ ...form, team: e.target.value })}>{teams.map(([value, label]) => <MenuItem key={value} value={value}>{label}</MenuItem>)}</TextField></Grid>
+        <Grid item xs={12} sm={4}><TextField fullWidth select label="Team access" value={form.teamRole} onChange={(e) => setForm({ ...form, teamRole: e.target.value })}><MenuItem value="viewer">Viewer</MenuItem><MenuItem value="editor">Editor</MenuItem><MenuItem value="manager">Manager</MenuItem></TextField></Grid>
+        <Grid item xs={12}><FormControlLabel control={<Checkbox checked={form.emailConfirmed} onChange={(e) => setForm({ ...form, emailConfirmed: e.target.checked })} />} label="Mark email as confirmed" /></Grid>
       </Grid>
       <Button type="submit" variant="contained" startIcon={<PersonAddAltOutlinedIcon />} disabled={savingId === "new"} sx={{ mt: 2 }}>{savingId === "new" ? "Creating…" : "Create user"}</Button>
     </Paper>
     <TableContainer component={Paper} sx={{ borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
-      <Table aria-label="Portal users"><TableHead><TableRow><TableCell>User</TableCell><TableCell>Status</TableCell><TableCell>Role</TableCell><TableCell>Finance RLS</TableCell><TableCell align="right">Action</TableCell></TableRow></TableHead>
+      <Table aria-label="Portal users"><TableHead><TableRow><TableCell>User</TableCell><TableCell>Status</TableCell><TableCell>Portal role</TableCell>{teams.map(([value, label]) => <TableCell key={value}>{label}</TableCell>)}<TableCell align="right">Action</TableCell></TableRow></TableHead>
         <TableBody>
-          {users.map((user) => <TableRow key={user.id} hover><TableCell><Typography fontWeight={700}>{user.fullName || "Unnamed user"}</Typography><Typography variant="body2" color="text.secondary">{user.email}</Typography></TableCell><TableCell><Chip size="small" color={user.confirmed ? "success" : "warning"} label={user.confirmed ? "Confirmed" : "Pending"} /></TableCell><TableCell><TextField select size="small" value={user.role} onChange={(e) => changeUser(user.id, "role", e.target.value)} sx={{ minWidth: 145 }}><MenuItem value="member">Member</MenuItem><MenuItem value="editor">Editor</MenuItem><MenuItem value="admin">Administrator</MenuItem></TextField></TableCell><TableCell><Checkbox checked={user.financeAccess} onChange={(e) => changeUser(user.id, "financeAccess", e.target.checked)} inputProps={{ "aria-label": `Finance access for ${user.email}` }} /></TableCell><TableCell align="right"><Button startIcon={<SaveOutlinedIcon />} onClick={() => saveAccess(user)} disabled={savingId === user.id}>{savingId === user.id ? "Saving…" : "Save"}</Button></TableCell></TableRow>)}
-          {!loading && !users.length && <TableRow><TableCell colSpan={5} align="center">No users found.</TableCell></TableRow>}
-          {loading && <TableRow><TableCell colSpan={5} align="center"><CircularProgress size={28} /></TableCell></TableRow>}
+          {users.map((user) => <TableRow key={user.id} hover><TableCell sx={{ minWidth: 190 }}><Typography fontWeight={700}>{user.fullName || "Unnamed user"}</Typography><Typography variant="body2" color="text.secondary">{user.email}</Typography></TableCell><TableCell><Chip size="small" color={user.confirmed ? "success" : "warning"} label={user.confirmed ? "Confirmed" : "Pending"} /></TableCell><TableCell><TextField select size="small" value={user.role} onChange={(e) => changeUser(user.id, "role", e.target.value)} sx={{ minWidth: 130 }}><MenuItem value="member">Member</MenuItem><MenuItem value="admin">Administrator</MenuItem></TextField></TableCell>{teams.map(([team, label]) => <TableCell key={team}><TextField select size="small" value={user.teamRoles?.[team] || "none"} onChange={(e) => changeUser(user.id, "teamRoles", { ...(user.teamRoles || {}), [team]: e.target.value })} inputProps={{ "aria-label": `${label} access for ${user.email}` }} sx={{ minWidth: 105 }}><MenuItem value="none">None</MenuItem><MenuItem value="viewer">Viewer</MenuItem><MenuItem value="editor">Editor</MenuItem><MenuItem value="manager">Manager</MenuItem></TextField></TableCell>)}<TableCell align="right"><Button startIcon={<SaveOutlinedIcon />} onClick={() => saveAccess(user)} disabled={savingId === user.id}>{savingId === user.id ? "Saving…" : "Save"}</Button></TableCell></TableRow>)}
+          {!loading && !users.length && <TableRow><TableCell colSpan={10} align="center">No users found.</TableCell></TableRow>}
+          {loading && <TableRow><TableCell colSpan={10} align="center"><CircularProgress size={28} /></TableCell></TableRow>}
         </TableBody>
       </Table>
     </TableContainer>

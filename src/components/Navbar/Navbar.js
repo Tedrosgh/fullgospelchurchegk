@@ -8,7 +8,7 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import decode from "jwt-decode";
 import logo from "../../images/logo.jpg";
-import { refreshSession, signOut } from "../../api/api";
+import { checkPortalAdmin, refreshSession, signOut } from "../../api/api";
 
 const pages = [
   { label: "Home", path: "/" },
@@ -33,6 +33,7 @@ const readProfile = () => {
 const Navbar = () => {
   const [user, setUser] = useState(readProfile());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isPortalAdmin, setIsPortalAdmin] = useState(false);
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
@@ -96,6 +97,15 @@ const Navbar = () => {
   }, [dispatch, location.pathname]);
 
   const userName = user?.result?.name || user?.result?.email || "Member";
+  const navigationPages = isPortalAdmin ? [...pages, { label: "Admin", path: "/admin" }] : pages;
+
+  useEffect(() => {
+    if (!user?.token) {
+      setIsPortalAdmin(false);
+      return;
+    }
+    checkPortalAdmin().then(({ data }) => setIsPortalAdmin(data)).catch(() => setIsPortalAdmin(false));
+  }, [user?.token]);
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -154,7 +164,7 @@ const Navbar = () => {
           aria-label="Mobile navigation"
           sx={{ display: "grid", gap: 0.75, p: 1.25, bgcolor: "rgba(4,15,38,.3)", borderTop: "1px solid rgba(255,255,255,.15)" }}
         >
-          {pages.map((page) => (
+          {navigationPages.map((page) => (
             <Button
               key={page.path}
               component={Link}
@@ -197,7 +207,7 @@ const Navbar = () => {
           "&::-webkit-scrollbar-thumb": { bgcolor: "rgba(255,255,255,.45)", borderRadius: 4 },
         }}
       >
-        {pages.map((page) => (
+        {navigationPages.map((page) => (
           <Button
             key={page.path}
             component={Link}
