@@ -70,13 +70,38 @@ const Home = () => {
           display: "flex",
           alignItems: "center",
           color: "common.white",
-          backgroundImage: `linear-gradient(90deg, rgba(5,18,35,.92) 0%, rgba(5,25,48,.72) 48%, rgba(5,18,35,.22) 100%), url(${heroImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          bgcolor: "#051223",
           boxShadow: "0 24px 70px rgba(9,30,66,.24)",
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            inset: "-5%",
+            zIndex: 0,
+            backgroundImage: `url(${heroImage})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            transform: "scale(1.02) translate3d(0, 0, 0)",
+            animation: "homeHeroMotion 24s ease-in-out infinite alternate",
+            willChange: "transform",
+          },
+          "&::after": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            zIndex: 1,
+            background: "linear-gradient(90deg, rgba(5,18,35,.92) 0%, rgba(5,25,48,.72) 48%, rgba(5,18,35,.22) 100%)",
+            pointerEvents: "none",
+          },
+          "@keyframes homeHeroMotion": {
+            "0%": { transform: "scale(1.02) translate3d(-1%, 0, 0)" },
+            "100%": { transform: "scale(1.13) translate3d(1.5%, -1.5%, 0)" },
+          },
+          "@media (prefers-reduced-motion: reduce)": {
+            "&::before": { animation: "none", transform: "scale(1.04)" },
+          },
         }}
       >
-        <Box sx={{ p: { xs: 3, sm: 6, md: 8 }, maxWidth: 760, position: "relative", zIndex: 1 }}>
+        <Box sx={{ p: { xs: 3, sm: 6, md: 8 }, maxWidth: 760, position: "relative", zIndex: 2 }}>
           <Chip label="A church family in Cologne" sx={{ mb: 2.5, bgcolor: "rgba(255,255,255,.15)", color: "white", fontWeight: 700 }} />
           <Typography component="h1" fontWeight={900} sx={{ fontSize: { xs: "2.7rem", sm: "4.2rem", md: "5rem" }, lineHeight: 0.98, letterSpacing: "-.04em" }}>
             Welcome home.
