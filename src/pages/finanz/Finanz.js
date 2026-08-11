@@ -119,7 +119,7 @@ const getProfile = () => {
   }
 };
 
-const Finanz = () => {
+const Finanz = ({ embedded = false, initialSection = "overview" }) => {
   const history = useHistory();
   const profile = getProfile();
   const [isAdmin, setIsAdmin] = useState(false);
@@ -127,7 +127,7 @@ const Finanz = () => {
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState([]);
   const [documents, setDocuments] = useState([]);
-  const [activeSection, setActiveSection] = useState("overview");
+  const [activeSection, setActiveSection] = useState(initialSection);
   const [selectedWeek, setSelectedWeek] = useState(currentWeekStart());
   const [form, setForm] = useState(blankEntry());
   const [editingId, setEditingId] = useState(null);
@@ -173,6 +173,10 @@ const Finanz = () => {
       active = false;
     };
   }, [loadEntries, profile?.token]);
+
+  useEffect(() => {
+    setActiveSection(initialSection);
+  }, [initialSection]);
 
   const weeklyEntries = useMemo(
     () => entries.filter((entry) => entry.weekStart === selectedWeek),
@@ -382,8 +386,9 @@ const Finanz = () => {
   );
 
   return (
-    <Container maxWidth="lg" sx={{ py: { xs: 3, md: 6 } }}>
+    <Container maxWidth="lg" disableGutters={embedded} sx={{ py: embedded ? 0 : { xs: 3, md: 6 } }}>
       <Stack spacing={4}>
+        {!embedded && <>
         <Paper sx={{ p: { xs: 3.5, sm: 5, md: 6 }, borderRadius: 4, color: "common.white", background: "linear-gradient(120deg, #311b92 0%, #1565c0 55%, #00897b 100%)", boxShadow: "0 24px 65px rgba(49,27,146,.22)" }}>
           <Box sx={{ width: 64, height: 64, borderRadius: 2.5, display: "grid", placeItems: "center", bgcolor: "#ffca28", color: "#24164f", mb: 2 }}><AccountBalanceIcon fontSize="large" /></Box>
           <Typography variant="overline" sx={{ color: "rgba(255,255,255,.72)", letterSpacing: 2, fontWeight: 800 }}>Stewardship and giving</Typography>
@@ -438,14 +443,15 @@ const Finanz = () => {
         </Card>
 
         <Divider />
+        </>}
 
         <Box>
-          <Typography variant="h4" fontWeight={700} gutterBottom>Weekly income and expenses</Typography>
+          {!embedded && <Typography variant="h4" fontWeight={700} gutterBottom>Weekly income and expenses</Typography>}
           {error && <Alert severity="error" onClose={() => setError("")} sx={{ mb: 2 }}>{error}</Alert>}
           {!isAdmin || checkingAccess ? (
             <Grid container spacing={3} alignItems="flex-start">
-              <Grid item xs={12} md={3}>{financeNavigation}</Grid>
-              <Grid item xs={12} md={9}>
+              {!embedded && <Grid item xs={12} md={3}>{financeNavigation}</Grid>}
+              <Grid item xs={12} md={embedded ? 12 : 9}>
                 {!profile?.token ? (
                   <Alert severity="info" action={<Button color="inherit" onClick={() => history.push("/auth")}>Sign in</Button>}>
                     The finance workspace is visible, but church records and entry forms require an authorized administrator account.
@@ -459,8 +465,8 @@ const Finanz = () => {
             </Grid>
           ) : (
             <Grid container spacing={3} alignItems="flex-start">
-              <Grid item xs={12} md={3}>{financeNavigation}</Grid>
-              <Grid item xs={12} md={9}>
+              {!embedded && <Grid item xs={12} md={3}>{financeNavigation}</Grid>}
+              <Grid item xs={12} md={embedded ? 12 : 9}>
             <Stack spacing={3}>
               {activeSection === "overview" && <>
                 <Box>

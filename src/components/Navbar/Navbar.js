@@ -4,17 +4,17 @@ import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import decode from "jwt-decode";
 import logo from "../../images/logo.jpg";
-import { checkPortalAdmin, refreshSession, signOut } from "../../api/api";
+import { refreshSession, signOut } from "../../api/api";
 
 const pages = [
   { label: "Home", path: "/" },
   { label: "Program", path: "/program" },
   { label: "Mezmur", path: "/mezmur" },
-  { label: "Finanz", path: "/finanz" },
   { label: "Predigt", path: "/predict" },
   { label: "Jugend", path: "/jugend" },
   { label: "Kinder", path: "/kinder" },
@@ -33,7 +33,6 @@ const readProfile = () => {
 const Navbar = () => {
   const [user, setUser] = useState(readProfile());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isPortalAdmin, setIsPortalAdmin] = useState(false);
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
@@ -97,15 +96,7 @@ const Navbar = () => {
   }, [dispatch, location.pathname]);
 
   const userName = user?.result?.name || user?.result?.email || "Member";
-  const navigationPages = isPortalAdmin ? [...pages, { label: "Admin", path: "/admin" }] : pages;
-
-  useEffect(() => {
-    if (!user?.token) {
-      setIsPortalAdmin(false);
-      return;
-    }
-    checkPortalAdmin().then(({ data }) => setIsPortalAdmin(data)).catch(() => setIsPortalAdmin(false));
-  }, [user?.token]);
+  const navigationPages = pages;
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -136,6 +127,9 @@ const Navbar = () => {
         </Box>
 
         <Box sx={{ ml: "auto", pl: 1, display: "flex", alignItems: "center", gap: 0.5 }}>
+          <Button component={Link} to="/admin" color="inherit" variant="outlined" startIcon={<AdminPanelSettingsOutlinedIcon />} sx={{ display: { xs: "none", md: "inline-flex" }, borderColor: "rgba(255,255,255,.55)", borderRadius: 99, whiteSpace: "nowrap" }}>
+            {user ? "Admin Portal" : "Admin Login"}
+          </Button>
           {user ? (
             <Stack direction="row" spacing={1} alignItems="center" sx={{ display: { xs: "none", md: "flex" } }}>
               <Tooltip title={userName}><Avatar sx={{ width: { xs: 34, md: 38 }, height: { xs: 34, md: 38 }, bgcolor: "#ffb300", color: "#17213a", fontWeight: 900 }}>{userName.charAt(0).toUpperCase()}</Avatar></Tooltip>
@@ -187,6 +181,9 @@ const Navbar = () => {
               Logout {userName}
             </Button>
           )}
+          <Button component={Link} to="/admin" color="inherit" startIcon={<AdminPanelSettingsOutlinedIcon />} onClick={() => setMobileMenuOpen(false)} sx={{ justifyContent: "flex-start", px: 2, py: 1.1, borderRadius: 2 }}>
+            {user ? "Admin Portal" : "Admin Login"}
+          </Button>
         </Box>
       </Collapse>
 
