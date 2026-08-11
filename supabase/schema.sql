@@ -344,3 +344,29 @@ create policy "Finance managers delete documents" on public.finance_documents fo
 create or replace function public.is_church_admin()
 returns boolean language sql stable security definer set search_path = public
 as $$ select public.can_view_team('finance'); $$;
+
+-- Public visitors can read songs. Only Worship & Music editors/managers and
+-- portal administrators can change the Mezmur catalog.
+drop policy if exists "Authenticated users create mezmurs" on public.mezmurs;
+drop policy if exists "Owners update mezmurs" on public.mezmurs;
+drop policy if exists "Owners delete mezmurs" on public.mezmurs;
+drop policy if exists "Worship team creates mezmurs" on public.mezmurs;
+create policy "Worship team creates mezmurs" on public.mezmurs for insert to authenticated
+  with check ((select public.can_edit_team('worship')) and creator = (select auth.uid()));
+drop policy if exists "Worship team updates mezmurs" on public.mezmurs;
+create policy "Worship team updates mezmurs" on public.mezmurs for update to authenticated
+  using ((select public.can_edit_team('worship'))) with check ((select public.can_edit_team('worship')));
+drop policy if exists "Worship managers delete mezmurs" on public.mezmurs;
+create policy "Worship managers delete mezmurs" on public.mezmurs for delete to authenticated
+  using ((select public.can_manage_team('worship')));
+
+create or replace function public.get_my_portal_access()
+returns jsonb language sql stable security definer set search_path = public
+as $$
+  select jsonb_build_object(
+    'isAdmin', public.is_portal_admin(),
+    'teams', coalesce((select jsonb_object_agg(team, access_level) from public.user_team_roles where user_id = auth.uid()), '{}'::jsonb)
+  );
+$$;
+revoke execute on function public.get_my_portal_access() from public;
+grant execute on function public.get_my_portal_access() to authenticated;

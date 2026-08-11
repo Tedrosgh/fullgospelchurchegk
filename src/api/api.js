@@ -190,6 +190,11 @@ export const checkPortalAdmin = async () => {
   return { ...response, data: Boolean(response.data) };
 };
 
+export const fetchMyPortalAccess = async () => {
+  const response = await rest.post("/rpc/get_my_portal_access", {});
+  return { ...response, data: response.data || { isAdmin: false, teams: {} } };
+};
+
 const adminUserRequest = (method, data) =>
   functions.request({
     url: "/admin-users",

@@ -9,7 +9,7 @@ import { fetchSingleMezmur } from "../../api/api";
 
 const initialState = { title: "", artist: "", langetext: "" };
 
-const AddNewMezmur = () => {
+const AddNewMezmur = ({ embedded = false }) => {
   const user = JSON.parse(localStorage.getItem("profile"));
   const dispatch = useDispatch();
   const history = useHistory();
@@ -62,7 +62,7 @@ const AddNewMezmur = () => {
     try {
       const payload = { ...formData, name: user.result.name };
       await dispatch(isEditing ? updateMezmur(id, payload) : addMezmur(payload));
-      history.push("/mezmur");
+      history.push("/admin");
     } catch (requestError) {
       setError(requestError.response?.data?.message || "Unable to add this song.");
       setSubmitting(false);
@@ -70,9 +70,9 @@ const AddNewMezmur = () => {
   };
 
   return (
-    <Box sx={{ maxWidth: 860, mx: "auto", my: { xs: 2, md: 4 }, pb: 6 }}>
+    <Box sx={{ maxWidth: 860, mx: "auto", my: embedded ? 0 : { xs: 2, md: 4 }, pb: embedded ? 2 : 6 }}>
     <Paper sx={{ p: { xs: 3, md: 4 }, borderRadius: "24px 24px 0 0", color: "common.white", background: "linear-gradient(120deg, #311b92, #1565c0 65%, #00897b)" }}>
-      <Button component={Link} to="/mezmur" color="inherit" startIcon={<ArrowBackIcon />} sx={{ mb: 2 }}>Back to Mezmur</Button>
+      <Button component={Link} to="/admin" color="inherit" startIcon={<ArrowBackIcon />} sx={{ mb: 2 }}>Back to Admin Portal</Button>
       <Stack direction="row" spacing={2} alignItems="center">
         <Box sx={{ width: 56, height: 56, borderRadius: 2, bgcolor: "#ffca28", color: "#24164f", display: "grid", placeItems: "center" }}><MusicNoteOutlinedIcon /></Box>
         <Box><Chip label={isEditing ? "Edit song" : "New song"} size="small" sx={{ mb: 0.75, bgcolor: "rgba(255,255,255,.16)", color: "white" }} /><Typography component="h1" variant="h4" fontWeight={850}>{isEditing ? "Modify Mezmur" : "Add a new Mezmur"}</Typography></Box>
@@ -86,7 +86,7 @@ const AddNewMezmur = () => {
         <TextField name="artist" label="Artist" value={formData.artist} onChange={handleChange} />
         <TextField required multiline minRows={12} name="langetext" label="Lyrics" value={formData.langetext} onChange={handleChange} />
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "flex-end" }}>
-          <Button component={Link} to="/mezmur">Cancel</Button>
+          <Button component={Link} to="/admin">Cancel</Button>
           <Button type="submit" variant="contained" disabled={submitting}>{submitting ? "Saving…" : isEditing ? "Save changes" : "Save song"}</Button>
         </Box>
       </Box>

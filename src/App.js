@@ -4,8 +4,6 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./components/Home/Home";
 import Auth from "./components/Auth/Auth";
-import Add_new_mezmur from "./pages/mezmur/Add_new_mezmur";
-import MezmurList from "./pages/mezmur/MezmurList";
 import SingleMezmur from "./pages/mezmur/SingleMezmur";
 import AllMezmurs from "./pages/mezmur/Mezmur.js";
 import Program from "./pages/program/Program";
@@ -34,10 +32,9 @@ const AppContent = () => (
           <Route path="/jugend" exact component={Jugend} />
           <Route path="/kinder" exact component={Kinder} />
           <Route path="/help" exact component={Help} />
+          <Route path="/admin/mezmur/add" exact component={AdminPortal} />
+          <Route path="/admin/mezmur/:id/edit" exact component={AdminPortal} />
           <Route path="/admin" exact component={AdminPortal} />
-          <Route path="/mezmur/addmezmur" exact component={Add_new_mezmur} />
-          <Route path="/mezmur/:id/edit" exact component={Add_new_mezmur} />
-          <Route path="/mezmur/list" exact component={MezmurList} />
           <Route path="/mezmur/:id" exact component={SingleMezmur} />
           <Route component={NotFound} />
         </Switch>
