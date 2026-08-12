@@ -1,7 +1,6 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
-import useStyles from "./stylesPost";
 import {
   Card,
   CardActions,
@@ -9,22 +8,21 @@ import {
   CardMedia,
   Button,
   Typography,
-} from "@material-ui/core";
-import ThumbUpAltIcon from "@material-ui/icons/ThumbUpAlt";
-import DeleteIcon from "@material-ui/icons/Delete";
-import MoreHorizIcon from "@material-ui/icons/MoreHoriz";
-import ArrowUpwardIcon from "@material-ui/icons/ArrowUpward";
-import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
+} from "@mui/material";
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt";
+import DeleteIcon from "@mui/icons-material/Delete";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import moment from "moment";
 import {
   deletePostAction,
   likePostAction,
 } from "../../../actions/postsActions";
 
-import ThumbUpAltOutlined from "@material-ui/icons/ThumbUpAltOutlined";
+import ThumbUpAltOutlined from "@mui/icons-material/ThumbUpAltOutlined";
 
 const Post = ({ post, setCurrentId, adminMode = false, canDelete = false, onMoveUp, onMoveDown, disableMoveUp, disableMoveDown }) => {
-  const classes = useStyles();
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
@@ -69,7 +67,6 @@ const Post = ({ post, setCurrentId, adminMode = false, canDelete = false, onMove
 
   return (
     <Card
-      className={classes.card}
       role="link"
       tabIndex={0}
       aria-label={`View ${post.title || "card"}`}
@@ -80,22 +77,22 @@ const Post = ({ post, setCurrentId, adminMode = false, canDelete = false, onMove
           history.push(`/posts/${post._id}`);
         }
       }}
-      style={{ cursor: "pointer", backgroundColor: palette.background, color: palette.text, minHeight: 455, overflow: "hidden" }}
+      sx={{ cursor: "pointer", bgcolor: palette.background, color: palette.text, minHeight: 455, height: "100%", overflow: "hidden", position: "relative", display: "flex", flexDirection: "column", borderRadius: 1, border: "1px solid", borderColor: "divider", boxShadow: "none", transition: "transform .2s ease, box-shadow .2s ease", "&:hover": { transform: "translateY(-5px)", boxShadow: "0 18px 45px rgba(34,35,53,.14)" } }}
     >
       <CardMedia
-        className={classes.media}
         image={post.selectedFile}
         title={post.title}
+        sx={{ height: 0, pt: "56.25%", bgcolor: "rgba(0,0,0,.5)", backgroundBlendMode: "darken" }}
       />
 
-      <div className={classes.overlay}>
+      <div style={{ position: "absolute", top: 20, left: 20, color: "white" }}>
         <Typography variant="body2">{post.name}</Typography>
         <Typography variant="body2">
           {moment(post.createdAt).fromNow()}
         </Typography>
       </div>
 
-      <div className={classes.overlay2}>
+      <div style={{ position: "absolute", top: 20, right: 20, color: "white" }}>
         {adminMode && (
           <Button
             style={{ color: "white" }}
@@ -111,29 +108,28 @@ const Post = ({ post, setCurrentId, adminMode = false, canDelete = false, onMove
         )}
       </div>
 
-      <div className={classes.details}>
+      <div style={{ display: "flex", justifyContent: "space-between", margin: 20 }}>
         <Typography variant="body2" component="h2" style={{ color: palette.accent, fontWeight: 600 }}>
           {post.tags?.map((tag) => `የሱስ ህያው እዩ! - ${tag} `)}
         </Typography>
       </div>
 
       <Typography
-        className={classes.title}
         gutterBottom
         variant="h5"
         component="h2"
-        style={{ color: palette.text, fontWeight: 700, minHeight: 58, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
+        sx={{ px: 2, color: palette.text, fontWeight: 700, minHeight: 58, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}
       >
         {post.title}
       </Typography>
 
       <CardContent>
-        <Typography variant="body2" component="p" style={{ color: palette.text, lineHeight: 1.6, height: 68, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
+        <Typography variant="body2" component="p" sx={{ color: palette.text, lineHeight: 1.6, height: 68, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
           {post.message}
         </Typography>
       </CardContent>
 
-      <CardActions className={classes.cardActions}>
+      <CardActions sx={{ px: 2, pb: 1, mt: "auto", justifyContent: "space-between" }}>
         <Button
           size="small"
           color="primary"

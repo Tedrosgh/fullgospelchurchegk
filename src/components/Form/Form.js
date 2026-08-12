@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import useStyles from "./stylesForm";
 import { TextField, Button, Typography, Paper } from "@mui/material";
 import FileBase from "react-file-base64";
 
@@ -29,8 +28,6 @@ const Form = ({ currentId, setCurrentId }) => {
       setPostData(post);
     }
   }, [post]);
-
-  const classes = useStyles();
 
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -63,7 +60,7 @@ const Form = ({ currentId, setCurrentId }) => {
   if (!user?.result?.name) {
     //Please sign in
     return (
-      <Paper className={classes.paper}>
+      <Paper sx={{ p: 2 }}>
         <Typography variant="h6" align="center">
           Please Sign In to create your own cards and like other's cards
         </Typography>
@@ -75,12 +72,12 @@ const Form = ({ currentId, setCurrentId }) => {
   }
 
   return (
-    <Paper className={classes.paper}>
+    <Paper sx={{ p: 2 }}>
       <form
         autoComplete="off"
         noValidate
-        className={`${classes.form} ${classes.root}`}
         onSubmit={handleSubmit}
+        style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16 }}
       >
         <Typography variant="h5">
           {currentId ? `Editing` : `Creating`} Image Card
@@ -124,7 +121,7 @@ const Form = ({ currentId, setCurrentId }) => {
             setPostData({ ...postData, tags: e.target.value.split(",") })
           }
         />
-        <div className={classes.fileInput}>
+        <div style={{ width: "97%", margin: "10px 0" }}>
           <FileBase
             type="file"
             multiple={false}
@@ -135,13 +132,13 @@ const Form = ({ currentId, setCurrentId }) => {
         </div>
 
         <Button
-          className={classes.buttonSubmit}
           variant="contained"
           color="primary"
           size="large"
           type="submit"
           fullWidth
           disabled={submitting}
+          sx={{ mb: 1.25 }}
         >
           {submitting ? "Saving…" : "Submit"}
         </Button>

@@ -2,12 +2,9 @@ import React from "react";
 import Post from "./Post/Post";
 import { useSelector } from "react-redux";
 
-import useStyles from "./stylesAllPosts";
 import { Alert, Box, CircularProgress, Grid, Typography } from "@mui/material";
 
 const AllPosts = ({ setCurrentId, adminMode = false, canDelete = false, onMoveUp, onMoveDown }) => {
-  const classes = useStyles(); //classes.container
-
   const { items: posts, loading, error } = useSelector(
     (state) => state.postReducer
   );
@@ -22,7 +19,6 @@ const AllPosts = ({ setCurrentId, adminMode = false, canDelete = false, onMoveUp
 
   return (
     <Grid
-      className={classes.mainContainer}
       container
       alignItems="stretch"
       spacing={3}
