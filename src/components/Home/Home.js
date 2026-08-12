@@ -7,7 +7,6 @@ import {
   Chip,
   Container,
   Grid,
-  Paper,
   Stack,
   Typography,
 } from "@mui/material";
@@ -15,6 +14,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined";
 import ChurchOutlinedIcon from "@mui/icons-material/ChurchOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
+import HeadphonesOutlinedIcon from "@mui/icons-material/HeadphonesOutlined";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import VolunteerActivismOutlinedIcon from "@mui/icons-material/VolunteerActivismOutlined";
@@ -24,30 +24,45 @@ import AllPosts from "../../components/Posts/AllPosts";
 import { getPosts } from "../../actions/postsActions";
 import heroImage from "../../images/pasAbr.jpg";
 
-const pathways = [
+const directionsUrl = "https://www.google.com/maps/search/?api=1&query=Im+Weidenbruch+4%2C+51061+K%C3%B6ln";
+
+const actions = [
+  { title: "Plan your visit", text: "Times, location, and what to expect", path: "/program", icon: <CalendarMonthOutlinedIcon /> },
+  { title: "Listen to a sermon", text: "Encouragement for your week", path: "/predict", icon: <HeadphonesOutlinedIcon /> },
+  { title: "Explore Mezmur", text: "Songs of worship and faith", path: "/mezmur", icon: <MusicNoteOutlinedIcon /> },
+  { title: "Get in touch", text: "Prayer, questions, or a conversation", path: "/help", icon: <VolunteerActivismOutlinedIcon /> },
+];
+
+const ministries = [
   {
-    title: "Worship with us",
-    text: "Join our church family for prayer, worship, and fellowship in Cologne.",
+    eyebrow: "WORSHIP",
+    title: "A place to meet God",
+    text: "Gather with us for worship, prayer, and a message rooted in God’s Word.",
     path: "/program",
-    action: "View program",
+    action: "View our program",
     icon: <ChurchOutlinedIcon fontSize="large" />,
-    color: "#0d47a1",
+    color: "#176b87",
+    wash: "#e6f5f5",
   },
   {
-    title: "Songs of faith",
-    text: "Read, learn, and share our growing collection of Eritrean worship songs.",
-    path: "/mezmur",
-    action: "Explore Mezmur",
-    icon: <MusicNoteOutlinedIcon fontSize="large" />,
-    color: "#7b1fa2",
+    eyebrow: "COMMUNITY",
+    title: "A family to belong to",
+    text: "Build meaningful friendships and grow alongside a welcoming church family.",
+    path: "/help",
+    action: "Connect with us",
+    icon: <VolunteerActivismOutlinedIcon fontSize="large" />,
+    color: "#8a4b18",
+    wash: "#fff2dc",
   },
   {
-    title: "Children & youth",
-    text: "Discover welcoming spaces where the next generation can grow in faith.",
+    eyebrow: "NEXT GENERATION",
+    title: "A faith that grows",
+    text: "Discover joyful, age-appropriate spaces for children and young people.",
     path: "/kinder",
-    action: "Learn more",
+    action: "Meet our ministries",
     icon: <GroupsOutlinedIcon fontSize="large" />,
-    color: "#00838f",
+    color: "#5f4a9a",
+    wash: "#f0ebff",
   },
 ];
 
@@ -59,87 +74,91 @@ const Home = () => {
   }, [dispatch]);
 
   return (
-    <Box sx={{ pb: 7 }}>
+    <Box sx={{ pb: { xs: 6, md: 10 } }}>
       <Box
         component="section"
         sx={{
-          minHeight: { xs: 540, md: 650 },
-          borderRadius: { xs: 3, md: 4 },
+          minHeight: { xs: 640, md: 680 },
+          borderRadius: { xs: 3, md: 5 },
           overflow: "hidden",
           position: "relative",
           display: "flex",
           alignItems: "center",
           color: "common.white",
-          bgcolor: "#051223",
-          boxShadow: "0 24px 70px rgba(9,30,66,.24)",
+          bgcolor: "#08162b",
+          isolation: "isolate",
+          boxShadow: "0 30px 80px rgba(18,35,66,.25)",
           "&::before": {
-            content: '""',
-            position: "absolute",
-            inset: "-5%",
-            zIndex: 0,
-            backgroundImage: `url(${heroImage})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            transform: "scale(1.02) translate3d(0, 0, 0)",
-            animation: "homeHeroMotion 24s ease-in-out infinite alternate",
-            willChange: "transform",
+            content: '""', position: "absolute", inset: "-5%", zIndex: -2,
+            backgroundImage: `url(${heroImage})`, backgroundSize: "cover", backgroundPosition: "center 38%",
+            animation: "homeHeroMotion 25s ease-in-out infinite alternate", willChange: "transform",
           },
           "&::after": {
-            content: '""',
-            position: "absolute",
-            inset: 0,
-            zIndex: 1,
-            background: "linear-gradient(90deg, rgba(5,18,35,.92) 0%, rgba(5,25,48,.72) 48%, rgba(5,18,35,.22) 100%)",
-            pointerEvents: "none",
+            content: '""', position: "absolute", inset: 0, zIndex: -1,
+            background: "linear-gradient(90deg, rgba(5,16,38,.96) 0%, rgba(8,31,59,.82) 48%, rgba(5,20,38,.28) 100%)",
           },
           "@keyframes homeHeroMotion": {
-            "0%": { transform: "scale(1.02) translate3d(-1%, 0, 0)" },
-            "100%": { transform: "scale(1.13) translate3d(1.5%, -1.5%, 0)" },
+            "0%": { transform: "scale(1.03) translate3d(-1%, 0, 0)" },
+            "100%": { transform: "scale(1.14) translate3d(1.5%, -1.5%, 0)" },
           },
-          "@media (prefers-reduced-motion: reduce)": {
-            "&::before": { animation: "none", transform: "scale(1.04)" },
-          },
+          "@media (prefers-reduced-motion: reduce)": { "&::before": { animation: "none", transform: "scale(1.04)" } },
         }}
       >
-        <Box sx={{ p: { xs: 3, sm: 6, md: 8 }, maxWidth: 760, position: "relative", zIndex: 2 }}>
-          <Chip label="A church family in Cologne" sx={{ mb: 2.5, bgcolor: "rgba(255,255,255,.15)", color: "white", fontWeight: 700 }} />
-          <Typography component="h1" fontWeight={900} sx={{ fontSize: { xs: "2.7rem", sm: "4.2rem", md: "5rem" }, lineHeight: 0.98, letterSpacing: "-.04em" }}>
-            Welcome home.
-            <Box component="span" sx={{ display: "block", color: "#ffca28" }}>There is a place for you.</Box>
-          </Typography>
-          <Typography variant="h6" sx={{ mt: 3, maxWidth: 620, lineHeight: 1.6, color: "rgba(255,255,255,.88)" }}>
-            Eritrean Full Gospel Church Cologne is a community growing together through worship, God’s Word, prayer, and service.
-          </Typography>
-          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 4, alignItems: { xs: "stretch", sm: "center" } }}>
-            <Button component={Link} to="/program" size="large" variant="contained" color="warning" endIcon={<ArrowForwardIcon />}>Plan your visit</Button>
-            <Button href="https://www.google.com/maps/search/?api=1&query=Im+Weidenbruch+4%2C+51061+K%C3%B6ln" target="_blank" rel="noopener noreferrer" size="large" variant="outlined" color="inherit" startIcon={<LocationOnOutlinedIcon />}>Get directions</Button>
-          </Stack>
-        </Box>
+        <Grid container alignItems="center" spacing={{ xs: 4, md: 6 }} sx={{ p: { xs: 3, sm: 5, md: 7 } }}>
+          <Grid item xs={12} md={7.5}>
+            <Chip label="EVERYONE IS WELCOME" sx={{ mb: 2.5, px: 1, bgcolor: "rgba(255,193,7,.18)", border: "1px solid rgba(255,213,79,.58)", color: "#ffe082", fontWeight: 900, letterSpacing: 1.2 }} />
+            <Typography component="h1" fontWeight={900} sx={{ fontSize: { xs: "3rem", sm: "4.5rem", md: "5.35rem" }, lineHeight: 0.96, letterSpacing: "-.055em", maxWidth: 740 }}>
+              Find faith.
+              <Box component="span" sx={{ display: "block", color: "#ffd166" }}>Find family.</Box>
+              Find home.
+            </Typography>
+            <Typography sx={{ mt: 3, maxWidth: 620, fontSize: { xs: "1.05rem", md: "1.2rem" }, lineHeight: 1.7, color: "rgba(255,255,255,.84)" }}>
+              We are an Eritrean church in Cologne growing together through worship, God’s Word, prayer, and everyday community.
+            </Typography>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 4, alignItems: { xs: "stretch", sm: "center" } }}>
+              <Button component={Link} to="/program" size="large" variant="contained" endIcon={<ArrowForwardIcon />} sx={{ bgcolor: "#ffbf47", color: "#17213a", px: 3, py: 1.35, fontWeight: 900, borderRadius: 99, "&:hover": { bgcolor: "#ffd166", transform: "translateY(-2px)" } }}>Join us this Sunday</Button>
+              <Button href={directionsUrl} target="_blank" rel="noopener noreferrer" size="large" variant="outlined" color="inherit" startIcon={<LocationOnOutlinedIcon />} sx={{ px: 3, py: 1.25, borderRadius: 99, borderColor: "rgba(255,255,255,.6)", bgcolor: "rgba(255,255,255,.06)", backdropFilter: "blur(6px)" }}>Get directions</Button>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4.5}>
+            <Box sx={{ ml: { md: "auto" }, maxWidth: 390, p: { xs: 2.5, md: 3.5 }, borderRadius: 4, bgcolor: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.26)", backdropFilter: "blur(16px)", boxShadow: "0 20px 50px rgba(0,0,0,.2)" }}>
+              <Typography variant="overline" sx={{ color: "#ffd166", fontWeight: 900, letterSpacing: 1.8 }}>THIS SUNDAY</Typography>
+              <Typography variant="h4" fontWeight={900} sx={{ mt: .5 }}>Worship with us</Typography>
+              <Stack spacing={2.2} sx={{ mt: 3 }}>
+                <Stack direction="row" spacing={1.5}><CalendarMonthOutlinedIcon sx={{ color: "#ffd166" }} /><Box><Typography fontWeight={850}>Sunday · 14:30–17:00</Typography><Typography variant="body2" sx={{ color: "rgba(255,255,255,.7)" }}>Come a little early and say hello</Typography></Box></Stack>
+                <Stack direction="row" spacing={1.5}><LocationOnOutlinedIcon sx={{ color: "#ffd166" }} /><Box><Typography fontWeight={850}>Im Weidenbruch 4</Typography><Typography variant="body2" sx={{ color: "rgba(255,255,255,.7)" }}>51061 Köln</Typography></Box></Stack>
+              </Stack>
+              <Button component={Link} to="/program" fullWidth variant="contained" sx={{ mt: 3, bgcolor: "white", color: "#102a43", fontWeight: 900, borderRadius: 99, "&:hover": { bgcolor: "#f5f7fa" } }}>What to expect</Button>
+            </Box>
+          </Grid>
+        </Grid>
       </Box>
 
-      <Paper elevation={4} sx={{ mx: { xs: 1.5, md: 6 }, mt: { xs: -2, md: -4 }, p: { xs: 2.5, md: 3 }, position: "relative", zIndex: 2, borderRadius: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4}><Stack direction="row" spacing={1.5} alignItems="center"><CalendarMonthOutlinedIcon color="primary" /><Box><Typography variant="overline" color="text.secondary">Weekly gathering</Typography><Typography fontWeight={800}>Sunday · 14:30–17:00</Typography></Box></Stack></Grid>
-          <Grid item xs={12} md={4}><Stack direction="row" spacing={1.5} alignItems="center"><LocationOnOutlinedIcon color="primary" /><Box><Typography variant="overline" color="text.secondary">Our location</Typography><Typography fontWeight={800}>Im Weidenbruch 4, Köln</Typography></Box></Stack></Grid>
-          <Grid item xs={12} md={4}><Button component={Link} to="/program" fullWidth variant="contained" size="large">See the full weekly program</Button></Grid>
-        </Grid>
-      </Paper>
+      <Box sx={{ mx: { xs: 1.5, md: 5 }, mt: { xs: -2, md: -3.5 }, position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }, bgcolor: "white", borderRadius: 3.5, boxShadow: "0 18px 55px rgba(27,47,77,.15)", overflow: "hidden" }}>
+        {actions.map((item, index) => (
+          <Box key={item.title} component={Link} to={item.path} sx={{ display: "flex", gap: 1.5, alignItems: "center", p: 2.5, color: "#16324f", textDecoration: "none", borderRight: { md: index < actions.length - 1 ? "1px solid #e7edf3" : 0 }, borderBottom: { xs: index < actions.length - 1 ? "1px solid #e7edf3" : 0, sm: index < 2 ? "1px solid #e7edf3" : 0, md: 0 }, transition: "background .2s ease, color .2s ease", "&:hover": { bgcolor: "#eef8f7", color: "#087f8c" } }}>
+            <Box sx={{ flex: "0 0 auto", width: 46, height: 46, display: "grid", placeItems: "center", borderRadius: "50%", bgcolor: "#e7f4f4", color: "#087f8c" }}>{item.icon}</Box>
+            <Box><Typography fontWeight={900}>{item.title}</Typography><Typography variant="body2" color="text.secondary">{item.text}</Typography></Box>
+          </Box>
+        ))}
+      </Box>
 
-      <Container maxWidth="lg" sx={{ mt: { xs: 7, md: 10 } }}>
-        <Box sx={{ textAlign: "center", maxWidth: 720, mx: "auto", mb: 4 }}>
-          <Typography variant="overline" color="primary" fontWeight={800} letterSpacing={2}>Connect and grow</Typography>
-          <Typography variant="h3" component="h2" fontWeight={850} sx={{ mt: 0.5, fontSize: { xs: "2rem", md: "3rem" } }}>Take your next step</Typography>
-          <Typography color="text.secondary" sx={{ mt: 1.5, fontSize: "1.05rem" }}>Whether this is your first visit or your church home, there is a meaningful way to participate.</Typography>
+      <Container maxWidth="lg" sx={{ mt: { xs: 8, md: 12 } }}>
+        <Box sx={{ textAlign: "center", maxWidth: 760, mx: "auto", mb: 5 }}>
+          <Typography variant="overline" sx={{ color: "#087f8c", fontWeight: 900, letterSpacing: 2 }}>THERE IS A PLACE FOR YOU</Typography>
+          <Typography variant="h2" component="h2" fontWeight={900} sx={{ mt: .75, fontSize: { xs: "2.2rem", md: "3.5rem" }, letterSpacing: "-.035em" }}>Come as you are. Grow with us.</Typography>
+          <Typography color="text.secondary" sx={{ mt: 1.5, fontSize: "1.08rem", lineHeight: 1.75 }}>Church is more than a Sunday service. It is a community where every generation can discover faith, friendship, and purpose.</Typography>
         </Box>
         <Grid container spacing={3}>
-          {pathways.map((item) => (
+          {ministries.map((item) => (
             <Grid item xs={12} md={4} key={item.title}>
-              <Card elevation={0} sx={{ height: "100%", borderRadius: 3, border: "1px solid", borderColor: "divider", transition: "transform .2s ease, box-shadow .2s ease", "&:hover": { transform: "translateY(-6px)", boxShadow: 8 } }}>
-                <CardContent sx={{ p: 3.5 }}>
-                  <Box sx={{ width: 62, height: 62, display: "grid", placeItems: "center", borderRadius: 2.5, color: item.color, bgcolor: `${item.color}14`, mb: 2.5 }}>{item.icon}</Box>
-                  <Typography variant="h5" fontWeight={800}>{item.title}</Typography>
-                  <Typography color="text.secondary" sx={{ my: 1.5, lineHeight: 1.7 }}>{item.text}</Typography>
-                  <Button component={Link} to={item.path} endIcon={<ArrowForwardIcon />} sx={{ px: 0 }}>{item.action}</Button>
+              <Card elevation={0} sx={{ height: "100%", borderRadius: 4, border: "1px solid #e3eaf0", bgcolor: "rgba(255,255,255,.86)", transition: "transform .25s ease, box-shadow .25s ease", "&:hover": { transform: "translateY(-8px)", boxShadow: "0 22px 50px rgba(29,51,79,.13)" } }}>
+                <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                  <Box sx={{ width: 64, height: 64, display: "grid", placeItems: "center", borderRadius: 3, color: item.color, bgcolor: item.wash, mb: 3 }}>{item.icon}</Box>
+                  <Typography variant="overline" sx={{ color: item.color, fontWeight: 900, letterSpacing: 1.5 }}>{item.eyebrow}</Typography>
+                  <Typography variant="h5" fontWeight={900} sx={{ mt: .5 }}>{item.title}</Typography>
+                  <Typography color="text.secondary" sx={{ my: 1.75, lineHeight: 1.75, minHeight: { md: 84 } }}>{item.text}</Typography>
+                  <Button component={Link} to={item.path} endIcon={<ArrowForwardIcon />} sx={{ px: 0, color: item.color, fontWeight: 850 }}>{item.action}</Button>
                 </CardContent>
               </Card>
             </Grid>
@@ -147,18 +166,22 @@ const Home = () => {
         </Grid>
       </Container>
 
-      <Box component="section" sx={{ mt: { xs: 7, md: 10 }, py: { xs: 6, md: 8 }, px: { xs: 2, md: 5 }, borderRadius: 4, bgcolor: "#102a43", color: "common.white", textAlign: "center" }}>
-        <VolunteerActivismOutlinedIcon sx={{ fontSize: 48, color: "#ffca28" }} />
-        <Typography variant="h3" fontWeight={850} sx={{ mt: 1, fontSize: { xs: "2rem", md: "3rem" } }}>Faith grows in community.</Typography>
-        <Typography sx={{ mt: 1.5, mx: "auto", maxWidth: 700, color: "rgba(255,255,255,.76)", fontSize: "1.08rem" }}>Come as you are. Worship with us, meet the community, and discover a place where your family can belong.</Typography>
-        <Button component={Link} to="/help" variant="contained" color="warning" size="large" sx={{ mt: 3 }}>Contact our church</Button>
+      <Box component="section" sx={{ mt: { xs: 8, md: 12 }, py: { xs: 6, md: 8 }, px: { xs: 3, md: 7 }, borderRadius: 5, position: "relative", overflow: "hidden", background: "linear-gradient(120deg, #14213d 0%, #155e75 65%, #087f8c 130%)", color: "common.white", "&::after": { content: '""', position: "absolute", width: 320, height: 320, borderRadius: "50%", right: -100, top: -160, bgcolor: "rgba(255,193,7,.16)" } }}>
+        <Grid container spacing={4} alignItems="center" sx={{ position: "relative", zIndex: 1 }}>
+          <Grid item xs={12} md={8}>
+            <Typography variant="overline" sx={{ color: "#ffd166", fontWeight: 900, letterSpacing: 2 }}>NEW HERE?</Typography>
+            <Typography variant="h3" fontWeight={900} sx={{ mt: .5, fontSize: { xs: "2.1rem", md: "3.1rem" } }}>Your first step can be simple.</Typography>
+            <Typography sx={{ mt: 1.5, maxWidth: 690, color: "rgba(255,255,255,.78)", fontSize: "1.08rem", lineHeight: 1.7 }}>Visit on Sunday, introduce yourself, and let us help you feel at home. We would love to meet you and your family.</Typography>
+          </Grid>
+          <Grid item xs={12} md={4}><Stack spacing={1.5}><Button component={Link} to="/help" variant="contained" size="large" sx={{ bgcolor: "#ffbf47", color: "#17213a", fontWeight: 900, borderRadius: 99, "&:hover": { bgcolor: "#ffd166" } }}>I’m new here</Button><Button href={directionsUrl} target="_blank" rel="noopener noreferrer" color="inherit" startIcon={<LocationOnOutlinedIcon />}>Open in Google Maps</Button></Stack></Grid>
+        </Grid>
       </Box>
 
-      <Container maxWidth="lg" sx={{ mt: { xs: 7, md: 10 } }}>
-        <Box sx={{ mb: 3 }}>
-          <Typography variant="overline" color="primary" fontWeight={800} letterSpacing={2}>Community updates</Typography>
-          <Typography variant="h3" component="h2" fontWeight={850} sx={{ fontSize: { xs: "2rem", md: "2.7rem" } }}>Latest announcements</Typography>
-        </Box>
+      <Container maxWidth="lg" sx={{ mt: { xs: 8, md: 12 } }}>
+        <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", sm: "flex-end" }} spacing={2} sx={{ mb: 4 }}>
+          <Box><Typography variant="overline" sx={{ color: "#087f8c", fontWeight: 900, letterSpacing: 2 }}>WHAT’S HAPPENING</Typography><Typography variant="h3" component="h2" fontWeight={900} sx={{ mt: .25, fontSize: { xs: "2.1rem", md: "3rem" }, letterSpacing: "-.03em" }}>Latest announcements</Typography><Typography color="text.secondary" sx={{ mt: 1 }}>News, gatherings, and life in our church community.</Typography></Box>
+          <Button component={Link} to="/program" endIcon={<ArrowForwardIcon />} sx={{ fontWeight: 850 }}>View church program</Button>
+        </Stack>
         <AllPosts />
       </Container>
     </Box>
