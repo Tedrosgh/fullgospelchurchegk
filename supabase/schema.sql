@@ -386,3 +386,57 @@ create policy "Content team updates announcements" on public.posts for update to
 drop policy if exists "Content managers delete announcements" on public.posts;
 create policy "Content managers delete announcements" on public.posts for delete to authenticated
   using ((select public.can_manage_team('content')));
+
+-- Public Profile gallery and social links managed from the Content workspace.
+create table if not exists public.profile_photos (
+  id uuid primary key default gen_random_uuid(),
+  title text not null check (char_length(title) between 1 and 160),
+  category text not null default 'Community' check (char_length(category) between 1 and 80),
+  alt_text text not null default '' check (char_length(alt_text) <= 240),
+  image_url text not null,
+  display_order integer not null default 0,
+  is_visible boolean not null default true,
+  created_by uuid not null references auth.users(id) on delete restrict,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.social_links (
+  platform text primary key check (platform in ('facebook', 'instagram', 'youtube', 'tiktok')),
+  url text not null check (url ~* '^https?://'),
+  is_visible boolean not null default true,
+  updated_by uuid not null references auth.users(id) on delete restrict,
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists profile_photos_display_order_idx
+  on public.profile_photos (display_order asc, created_at desc);
+
+alter table public.profile_photos enable row level security;
+alter table public.social_links enable row level security;
+
+drop policy if exists "Profile photos are publicly readable" on public.profile_photos;
+create policy "Profile photos are publicly readable" on public.profile_photos
+  for select using (true);
+drop policy if exists "Content team creates profile photos" on public.profile_photos;
+create policy "Content team creates profile photos" on public.profile_photos for insert to authenticated
+  with check ((select public.can_edit_team('content')) and created_by = (select auth.uid()));
+drop policy if exists "Content team updates profile photos" on public.profile_photos;
+create policy "Content team updates profile photos" on public.profile_photos for update to authenticated
+  using ((select public.can_edit_team('content'))) with check ((select public.can_edit_team('content')));
+drop policy if exists "Content managers delete profile photos" on public.profile_photos;
+create policy "Content managers delete profile photos" on public.profile_photos for delete to authenticated
+  using ((select public.can_manage_team('content')));
+
+drop policy if exists "Social links are publicly readable" on public.social_links;
+create policy "Social links are publicly readable" on public.social_links
+  for select using (true);
+drop policy if exists "Content team creates social links" on public.social_links;
+create policy "Content team creates social links" on public.social_links for insert to authenticated
+  with check ((select public.can_edit_team('content')) and updated_by = (select auth.uid()));
+drop policy if exists "Content team updates social links" on public.social_links;
+create policy "Content team updates social links" on public.social_links for update to authenticated
+  using ((select public.can_edit_team('content'))) with check ((select public.can_edit_team('content')));
+drop policy if exists "Content managers delete social links" on public.social_links;
+create policy "Content managers delete social links" on public.social_links for delete to authenticated
+  using ((select public.can_manage_team('content')));

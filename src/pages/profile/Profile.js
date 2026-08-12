@@ -1,18 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, Grid, Stack, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import AutoStoriesOutlinedIcon from "@mui/icons-material/AutoStoriesOutlined";
 import ChurchOutlinedIcon from "@mui/icons-material/ChurchOutlined";
 import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import VolunteerActivismOutlinedIcon from "@mui/icons-material/VolunteerActivismOutlined";
+import YouTubeIcon from "@mui/icons-material/YouTube";
+import MusicVideoOutlinedIcon from "@mui/icons-material/MusicVideoOutlined";
 import { Link } from "react-router-dom";
 import worshipImage from "../../images/mezemran.jpg";
 import choirImage from "../../images/mezmur1.jpg";
 import youthImage from "../../images/medrek.jpg";
 import childrenImage from "../../images/hixanat.jpg";
 import pastorImage from "../../images/pasAbr.jpg";
+import { fetchProfilePhotos, fetchSocialLinks } from "../../api/api";
 
 const activities = [
   { title: "Worship together", label: "Worship", image: worshipImage, size: { xs: 12, md: 8 }, height: { xs: 300, md: 520 } },
@@ -28,7 +32,35 @@ const values = [
   { title: "Service", text: "We use our gifts to care for one another and serve our neighbours.", icon: <VolunteerActivismOutlinedIcon /> },
 ];
 
-const Profile = () => (
+const socialIcons = {
+  facebook: <FacebookIcon />,
+  instagram: <InstagramIcon />,
+  youtube: <YouTubeIcon />,
+  tiktok: <MusicVideoOutlinedIcon />,
+};
+
+const Profile = () => {
+  const [managedPhotos, setManagedPhotos] = useState([]);
+  const [socialLinks, setSocialLinks] = useState({ facebook: { url: "https://www.facebook.com/eriwongel", isVisible: true } });
+
+  useEffect(() => {
+    fetchProfilePhotos().then(({ data }) => setManagedPhotos(data)).catch(() => {});
+    fetchSocialLinks().then(({ data }) => setSocialLinks((current) => ({ ...current, ...data }))).catch(() => {});
+  }, []);
+
+  const gallery = managedPhotos.length
+    ? managedPhotos.map((photo, index) => ({
+        title: photo.title,
+        label: photo.category,
+        image: photo.imageUrl,
+        altText: photo.altText,
+        size: index % 4 === 0 ? { xs: 12, md: 8 } : index % 4 === 1 ? { xs: 12, md: 4 } : index % 4 === 2 ? { xs: 12, md: 5 } : { xs: 12, md: 7 },
+        height: index % 4 < 2 ? { xs: 300, md: 520 } : { xs: 300, md: 390 },
+      }))
+    : activities;
+  const visibleSocialLinks = Object.entries(socialLinks).filter(([, link]) => link.url && link.isVisible);
+
+  return (
   <Box sx={{ pb: { xs: 7, md: 10 } }}>
     <Box
       component="section"
@@ -75,13 +107,13 @@ const Profile = () => (
     <Box component="section" aria-labelledby="activity-gallery-title">
       <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ xs: "flex-start", sm: "flex-end" }} spacing={2} sx={{ mb: 3 }}>
         <Box><Typography variant="overline" color="secondary">LIFE TOGETHER</Typography><Typography id="activity-gallery-title" variant="h3" sx={{ mt: .5 }}>Our congregation in action</Typography></Box>
-        <Button href="https://www.facebook.com/eriwongel" target="_blank" rel="noopener noreferrer" startIcon={<FacebookIcon />} endIcon={<ArrowForwardIcon />}>Follow on Facebook</Button>
+        <Stack direction="row" spacing={1} useFlexGap flexWrap="wrap">{visibleSocialLinks.map(([platform, link]) => <Button key={platform} href={link.url} target="_blank" rel="noopener noreferrer" startIcon={socialIcons[platform]} aria-label={`Open ${platform}`} sx={{ textTransform: "capitalize" }}>{platform}</Button>)}</Stack>
       </Stack>
       <Grid container spacing={2}>
-        {activities.map((activity) => (
-          <Grid item xs={activity.size.xs} md={activity.size.md} key={activity.title}>
+        {gallery.map((activity, index) => (
+          <Grid item xs={activity.size.xs} md={activity.size.md} key={`${activity.title}-${index}`}>
             <Box sx={{ height: activity.height, position: "relative", overflow: "hidden", bgcolor: "#292a3e", "& img": { transition: "transform .7s ease" }, "&:hover img": { transform: "scale(1.045)" } }}>
-              <Box component="img" src={activity.image} alt={activity.title} loading="lazy" sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <Box component="img" src={activity.image} alt={activity.altText || activity.title} loading="lazy" sx={{ width: "100%", height: "100%", objectFit: "cover" }} />
               <Box sx={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", justifyContent: "flex-end", p: { xs: 2.5, md: 3.5 }, color: "white", background: "linear-gradient(180deg, transparent 42%, rgba(25,25,38,.82))" }}>
                 <Typography variant="overline" sx={{ opacity: .78 }}>{activity.label}</Typography>
                 <Typography variant="h5" fontWeight={850}>{activity.title}</Typography>
@@ -114,6 +146,7 @@ const Profile = () => (
       <Stack direction={{ xs: "column", sm: "row" }} justifyContent="center" spacing={1.5} sx={{ mt: 3 }}><Button component={Link} to="/program" variant="contained" color="warning">Plan your visit</Button><Button component={Link} to="/help" variant="outlined" color="inherit">Contact us</Button></Stack>
     </Box>
   </Box>
-);
+  );
+};
 
 export default Profile;

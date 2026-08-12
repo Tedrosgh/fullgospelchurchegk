@@ -212,6 +212,65 @@ export const fetchAdminUsers = () => adminUserRequest("get");
 export const createAdminUser = (user) => adminUserRequest("post", user);
 export const updateAdminUserAccess = (user) => adminUserRequest("patch", user);
 
+const mapProfilePhoto = (photo) => ({
+  id: photo.id,
+  title: photo.title,
+  category: photo.category,
+  altText: photo.alt_text || "",
+  imageUrl: photo.image_url,
+  displayOrder: photo.display_order || 0,
+  isVisible: photo.is_visible,
+});
+
+const profilePhotoPayload = (photo, includeCreator = true) => ({
+  title: photo.title.trim(),
+  category: photo.category.trim() || "Community",
+  alt_text: photo.altText.trim(),
+  image_url: photo.imageUrl,
+  display_order: Number(photo.displayOrder) || 0,
+  is_visible: Boolean(photo.isVisible),
+  ...(includeCreator ? { created_by: getProfile()?.result?._id } : {}),
+});
+
+export const fetchProfilePhotos = async (includeHidden = false) =>
+  mappedResponse(
+    await rest.get(`/profile_photos?select=*${includeHidden ? "" : "&is_visible=eq.true"}&order=display_order.asc,created_at.desc`),
+    mapProfilePhoto
+  );
+
+export const createProfilePhoto = async (photo) =>
+  firstMappedResponse(
+    await rest.post("/profile_photos", profilePhotoPayload(photo), { headers: { Prefer: "return=representation" } }),
+    mapProfilePhoto
+  );
+
+export const updateProfilePhoto = async (id, photo) =>
+  firstMappedResponse(
+    await rest.patch(`/profile_photos?id=eq.${encodeURIComponent(id)}`, profilePhotoPayload(photo, false), { headers: { Prefer: "return=representation" } }),
+    mapProfilePhoto
+  );
+
+export const deleteProfilePhoto = (id) =>
+  rest.delete(`/profile_photos?id=eq.${encodeURIComponent(id)}`);
+
+export const updateProfilePhotoOrder = (orderedIds) =>
+  Promise.all(orderedIds.map((id, index) => rest.patch(`/profile_photos?id=eq.${encodeURIComponent(id)}`, { display_order: index })));
+
+export const fetchSocialLinks = async () => {
+  const response = await rest.get("/social_links?select=*&order=platform.asc");
+  return {
+    ...response,
+    data: Object.fromEntries(response.data.map((link) => [link.platform, { url: link.url, isVisible: link.is_visible }])),
+  };
+};
+
+export const saveSocialLink = (platform, link) =>
+  rest.post(
+    `/social_links?on_conflict=platform`,
+    { platform, url: link.url.trim(), is_visible: Boolean(link.isVisible), updated_by: getProfile()?.result?._id, updated_at: new Date().toISOString() },
+    { headers: { Prefer: "resolution=merge-duplicates,return=representation" } }
+  );
+
 export const fetchFinanceEntries = async () =>
   mappedResponse(
     await rest.get("/finance_entries?select=*&order=week_start.desc,created_at.desc"),
