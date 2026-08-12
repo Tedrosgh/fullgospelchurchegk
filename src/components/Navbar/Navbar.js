@@ -109,12 +109,12 @@ const Navbar = () => {
       sx={{
         mt: { xs: 1, md: 2 },
         mb: 3,
-        borderRadius: { xs: 2.5, md: 3.5 },
+        borderRadius: { xs: 2.5, md: 1 },
         overflow: "hidden",
         color: "common.white",
-        border: "1px solid rgba(255,255,255,.2)",
-        background: "linear-gradient(110deg, #311b92 0%, #1565c0 38%, #00897b 72%, #f57c00 125%)",
-        boxShadow: "0 18px 45px rgba(28,45,110,.24)",
+        border: "1px solid rgba(255,255,255,.1)",
+        background: "linear-gradient(105deg, #27283d 0%, #343348 100%)",
+        boxShadow: "0 14px 38px rgba(30,31,51,.2)",
       }}
     >
       <Toolbar sx={{ minHeight: { xs: 70, md: 84 }, px: { xs: 1.5, sm: 2.5 } }}>

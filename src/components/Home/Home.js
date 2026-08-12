@@ -4,7 +4,6 @@ import {
   Button,
   Card,
   CardContent,
-  Chip,
   Container,
   Grid,
   Stack,
@@ -15,6 +14,7 @@ import CalendarMonthOutlinedIcon from "@mui/icons-material/CalendarMonthOutlined
 import ChurchOutlinedIcon from "@mui/icons-material/ChurchOutlined";
 import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import HeadphonesOutlinedIcon from "@mui/icons-material/HeadphonesOutlined";
+import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import VolunteerActivismOutlinedIcon from "@mui/icons-material/VolunteerActivismOutlined";
@@ -78,24 +78,24 @@ const Home = () => {
       <Box
         component="section"
         sx={{
-          minHeight: { xs: 640, md: 680 },
+          minHeight: { xs: 690, md: "calc(100vh - 150px)" },
           borderRadius: { xs: 3, md: 5 },
           overflow: "hidden",
           position: "relative",
           display: "flex",
-          alignItems: "center",
+          alignItems: "stretch",
           color: "common.white",
-          bgcolor: "#08162b",
+          bgcolor: "#242536",
           isolation: "isolate",
-          boxShadow: "0 30px 80px rgba(18,35,66,.25)",
+          boxShadow: "0 32px 85px rgba(24,25,43,.28)",
           "&::before": {
             content: '""', position: "absolute", inset: "-5%", zIndex: -2,
-            backgroundImage: `url(${heroImage})`, backgroundSize: "cover", backgroundPosition: "center 38%",
-            animation: "homeHeroMotion 25s ease-in-out infinite alternate", willChange: "transform",
+            backgroundImage: `url(${heroImage})`, backgroundSize: "cover", backgroundPosition: "center 35%",
+            filter: "saturate(.72)", animation: "homeHeroMotion 26s ease-in-out infinite alternate", willChange: "transform",
           },
           "&::after": {
             content: '""', position: "absolute", inset: 0, zIndex: -1,
-            background: "linear-gradient(90deg, rgba(5,16,38,.96) 0%, rgba(8,31,59,.82) 48%, rgba(5,20,38,.28) 100%)",
+            background: "linear-gradient(180deg, rgba(32,32,50,.38) 0%, rgba(38,31,49,.48) 48%, rgba(19,23,38,.68) 100%)",
           },
           "@keyframes homeHeroMotion": {
             "0%": { transform: "scale(1.03) translate3d(-1%, 0, 0)" },
@@ -104,37 +104,28 @@ const Home = () => {
           "@media (prefers-reduced-motion: reduce)": { "&::before": { animation: "none", transform: "scale(1.04)" } },
         }}
       >
-        <Grid container alignItems="center" spacing={{ xs: 4, md: 6 }} sx={{ p: { xs: 3, sm: 5, md: 7 } }}>
-          <Grid item xs={12} md={7.5}>
-            <Chip label="EVERYONE IS WELCOME" sx={{ mb: 2.5, px: 1, bgcolor: "rgba(255,193,7,.18)", border: "1px solid rgba(255,213,79,.58)", color: "#ffe082", fontWeight: 900, letterSpacing: 1.2 }} />
-            <Typography component="h1" fontWeight={900} sx={{ fontSize: { xs: "3rem", sm: "4.5rem", md: "5.35rem" }, lineHeight: 0.96, letterSpacing: "-.055em", maxWidth: 740 }}>
-              Find faith.
-              <Box component="span" sx={{ display: "block", color: "#ffd166" }}>Find family.</Box>
-              Find home.
-            </Typography>
-            <Typography sx={{ mt: 3, maxWidth: 620, fontSize: { xs: "1.05rem", md: "1.2rem" }, lineHeight: 1.7, color: "rgba(255,255,255,.84)" }}>
-              We are an Eritrean church in Cologne growing together through worship, God’s Word, prayer, and everyday community.
-            </Typography>
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 4, alignItems: { xs: "stretch", sm: "center" } }}>
-              <Button component={Link} to="/program" size="large" variant="contained" endIcon={<ArrowForwardIcon />} sx={{ bgcolor: "#ffbf47", color: "#17213a", px: 3, py: 1.35, fontWeight: 900, borderRadius: 99, "&:hover": { bgcolor: "#ffd166", transform: "translateY(-2px)" } }}>Join us this Sunday</Button>
-              <Button href={directionsUrl} target="_blank" rel="noopener noreferrer" size="large" variant="outlined" color="inherit" startIcon={<LocationOnOutlinedIcon />} sx={{ px: 3, py: 1.25, borderRadius: 99, borderColor: "rgba(255,255,255,.6)", bgcolor: "rgba(255,255,255,.06)", backdropFilter: "blur(6px)" }}>Get directions</Button>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={4.5}>
-            <Box sx={{ ml: { md: "auto" }, maxWidth: 390, p: { xs: 2.5, md: 3.5 }, borderRadius: 4, bgcolor: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.26)", backdropFilter: "blur(16px)", boxShadow: "0 20px 50px rgba(0,0,0,.2)" }}>
-              <Typography variant="overline" sx={{ color: "#ffd166", fontWeight: 900, letterSpacing: 1.8 }}>THIS SUNDAY</Typography>
-              <Typography variant="h4" fontWeight={900} sx={{ mt: .5 }}>Worship with us</Typography>
-              <Stack spacing={2.2} sx={{ mt: 3 }}>
-                <Stack direction="row" spacing={1.5}><CalendarMonthOutlinedIcon sx={{ color: "#ffd166" }} /><Box><Typography fontWeight={850}>Sunday · 14:30–17:00</Typography><Typography variant="body2" sx={{ color: "rgba(255,255,255,.7)" }}>Come a little early and say hello</Typography></Box></Stack>
-                <Stack direction="row" spacing={1.5}><LocationOnOutlinedIcon sx={{ color: "#ffd166" }} /><Box><Typography fontWeight={850}>Im Weidenbruch 4</Typography><Typography variant="body2" sx={{ color: "rgba(255,255,255,.7)" }}>51061 Köln</Typography></Box></Stack>
-              </Stack>
-              <Button component={Link} to="/program" fullWidth variant="contained" sx={{ mt: 3, bgcolor: "white", color: "#102a43", fontWeight: 900, borderRadius: 99, "&:hover": { bgcolor: "#f5f7fa" } }}>What to expect</Button>
-            </Box>
-          </Grid>
-        </Grid>
+        <Box sx={{ width: "100%", minHeight: "inherit", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", px: { xs: 2.5, sm: 5 }, py: { xs: 7, md: 9 }, position: "relative" }}>
+          <Typography variant="overline" sx={{ mb: 2, fontSize: { xs: ".78rem", md: "1rem" }, color: "rgba(255,255,255,.92)", fontWeight: 800, letterSpacing: { xs: 4, md: 7 } }}>WELCOME TO</Typography>
+          <Typography component="h1" fontWeight={900} sx={{ maxWidth: 1000, fontSize: { xs: "2.8rem", sm: "4.5rem", md: "6.2rem" }, lineHeight: .92, letterSpacing: { xs: "-.035em", md: "-.055em" }, textTransform: "uppercase", textShadow: "0 8px 35px rgba(0,0,0,.28)" }}>
+            Eritrean Full Gospel
+            <Box component="span" sx={{ display: "block" }}>Church Cologne</Box>
+          </Typography>
+          <Typography sx={{ mt: 3, maxWidth: 650, fontSize: { xs: "1rem", md: "1.15rem" }, lineHeight: 1.7, color: "rgba(255,255,255,.84)" }}>
+            A welcoming community growing together through worship, God’s Word, prayer, and everyday life.
+          </Typography>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 3.5, alignItems: { xs: "stretch", sm: "center" }, width: { xs: "100%", sm: "auto" } }}>
+            <Button component={Link} to="/program" size="large" variant="contained" endIcon={<ArrowForwardIcon />} sx={{ bgcolor: "white", color: "#292a3e", px: 3.5, py: 1.25, fontWeight: 900, borderRadius: 0, "&:hover": { bgcolor: "#f3eee9", transform: "translateY(-2px)" } }}>Join us this Sunday</Button>
+            <Button href={directionsUrl} target="_blank" rel="noopener noreferrer" size="large" variant="outlined" color="inherit" startIcon={<LocationOnOutlinedIcon />} sx={{ px: 3.5, py: 1.15, borderRadius: 0, borderColor: "rgba(255,255,255,.7)", bgcolor: "rgba(30,30,45,.14)", backdropFilter: "blur(5px)" }}>Get directions</Button>
+          </Stack>
+          <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: .5, sm: 3 }} sx={{ mt: 3, color: "rgba(255,255,255,.78)" }}>
+            <Typography variant="body2" fontWeight={700}>Sunday · 14:30–17:00</Typography>
+            <Typography variant="body2" fontWeight={700}>Im Weidenbruch 4 · 51061 Köln</Typography>
+          </Stack>
+          <Box component="a" href="#home-actions" aria-label="Explore the website" sx={{ position: "absolute", bottom: { xs: 18, md: 24 }, color: "white", height: 46, display: "grid", placeItems: "center", animation: "scrollCue 1.8s ease-in-out infinite", "@keyframes scrollCue": { "0%, 100%": { transform: "translateY(0)", opacity: .65 }, "50%": { transform: "translateY(7px)", opacity: 1 } }, "@media (prefers-reduced-motion: reduce)": { animation: "none" } }}><KeyboardArrowDownRoundedIcon sx={{ fontSize: 42 }} /></Box>
+        </Box>
       </Box>
 
-      <Box sx={{ mx: { xs: 1.5, md: 5 }, mt: { xs: -2, md: -3.5 }, position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }, bgcolor: "white", borderRadius: 3.5, boxShadow: "0 18px 55px rgba(27,47,77,.15)", overflow: "hidden" }}>
+      <Box id="home-actions" sx={{ mx: { xs: 1.5, md: 5 }, mt: { xs: -2, md: -3.5 }, position: "relative", zIndex: 2, display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }, bgcolor: "white", borderRadius: 1, boxShadow: "0 18px 55px rgba(27,47,77,.15)", overflow: "hidden", scrollMarginTop: 120 }}>
         {actions.map((item, index) => (
           <Box key={item.title} component={Link} to={item.path} sx={{ display: "flex", gap: 1.5, alignItems: "center", p: 2.5, color: "#16324f", textDecoration: "none", borderRight: { md: index < actions.length - 1 ? "1px solid #e7edf3" : 0 }, borderBottom: { xs: index < actions.length - 1 ? "1px solid #e7edf3" : 0, sm: index < 2 ? "1px solid #e7edf3" : 0, md: 0 }, transition: "background .2s ease, color .2s ease", "&:hover": { bgcolor: "#eef8f7", color: "#087f8c" } }}>
             <Box sx={{ flex: "0 0 auto", width: 46, height: 46, display: "grid", placeItems: "center", borderRadius: "50%", bgcolor: "#e7f4f4", color: "#087f8c" }}>{item.icon}</Box>
