@@ -12,6 +12,7 @@ import {
   resendConfirmation,
   updatePassword,
 } from "../../api/api";
+import { editorialShadow } from "../../theme";
 
 const initialState = { firstName: "", lastName: "", email: "", password: "", confirmPassword: "" };
 
@@ -164,9 +165,9 @@ const Auth = () => {
 
   return (
     <Container component="main" maxWidth="xs" sx={{ py: { xs: 3, md: 6 } }}>
-      <Paper elevation={6} sx={{ p: { xs: 3, sm: 4 }, borderRadius: 4, borderTop: "6px solid #ffca28", boxShadow: "0 24px 60px rgba(49,27,146,.18)" }}>
+      <Paper elevation={0} sx={{ p: { xs: 3, sm: 4 }, borderRadius: 1, border: "1px solid", borderColor: "divider", borderTop: "5px solid #d7a44a", boxShadow: editorialShadow }}>
         <Button startIcon={<ArrowBackIcon />} onClick={() => (history.length > 1 ? history.goBack() : history.push("/"))} sx={{ mb: 2 }}>Back</Button>
-        <Avatar sx={{ mx: "auto", mb: 2, width: 64, height: 64, background: "linear-gradient(135deg, #311b92, #1565c0, #00897b)" }}><LockOutlinedIcon /></Avatar>
+        <Avatar sx={{ mx: "auto", mb: 2, width: 64, height: 64, background: "linear-gradient(135deg, #292a3e, #76565b)" }}><LockOutlinedIcon /></Avatar>
         <Typography component="h1" variant="h5" align="center" gutterBottom>
           {recoveryToken ? "Reset password" : isSignup ? "Create account" : "Sign in"}
         </Typography>

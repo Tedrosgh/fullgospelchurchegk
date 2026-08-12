@@ -10,16 +10,17 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-y: scroll;
 }
 
 body {
   margin: 0;
   min-width: 320px;
-  color: #16324f;
+  color: #292a3e;
   background:
     radial-gradient(circle at 4% 6%, rgba(255, 191, 71, 0.16), transparent 25rem),
-    radial-gradient(circle at 96% 20%, rgba(8, 127, 140, 0.13), transparent 32rem),
-    linear-gradient(180deg, #fffdf9 0%, #f4f8f7 44%, #edf4f4 100%);
+    radial-gradient(circle at 96% 20%, rgba(118, 86, 91, 0.12), transparent 32rem),
+    linear-gradient(180deg, #fffdf9 0%, #f7f4f1 44%, #efefed 100%);
   background-attachment: fixed;
 }
 

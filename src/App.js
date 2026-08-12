@@ -1,6 +1,6 @@
 import React from "react";
 import { Container } from "@mui/material";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { BrowserRouter, Switch, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Home from "./components/Home/Home";
 import Auth from "./components/Auth/Auth";
@@ -15,6 +15,16 @@ import NotFound from "./pages/NotFound";
 import PostDetail from "./pages/PostDetail";
 import MezmurPrint from "./pages/mezmur/MezmurPrint";
 import AdminPortal from "./pages/admin/AdminPortal";
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+
+  return null;
+};
 
 const AppContent = () => (
   <Switch>
@@ -45,6 +55,7 @@ const AppContent = () => (
 
 const App = () => (
   <BrowserRouter>
+    <ScrollToTop />
     <AppContent />
   </BrowserRouter>
 );

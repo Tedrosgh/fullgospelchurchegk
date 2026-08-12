@@ -23,6 +23,7 @@ import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import SupportAgentOutlinedIcon from "@mui/icons-material/SupportAgentOutlined";
 import { Link } from "react-router-dom";
+import { editorialGradient, editorialShadow } from "../../theme";
 
 const questions = [
   {
@@ -60,9 +61,10 @@ const Help = () => (
         sx={{
           p: { xs: 3, sm: 5 },
           mb: 4,
-          borderRadius: 4,
+          borderRadius: 1,
           color: "common.white",
-          background: "linear-gradient(135deg, #4527a0 0%, #1565c0 60%, #00838f 100%)",
+          background: editorialGradient,
+          boxShadow: editorialShadow,
         }}
       >
         <Stack direction={{ xs: "column", sm: "row" }} spacing={3} alignItems={{ sm: "center" }}>
@@ -80,10 +82,10 @@ const Help = () => (
 
       <Grid container spacing={3} sx={{ mb: 5 }}>
         <Grid item xs={12} md={6}>
-          <Card elevation={3} sx={{ height: "100%", borderRadius: 3, borderTop: "5px solid #1565c0" }}>
+          <Card elevation={0} sx={{ height: "100%", borderRadius: 1, border: "1px solid", borderColor: "divider", borderTop: "4px solid #53536b" }}>
             <CardContent sx={{ p: 3.5 }}>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
-                <ChurchOutlinedIcon color="primary" fontSize="large" />
+                <ChurchOutlinedIcon color="secondary" fontSize="large" />
                 <Box><Typography variant="h5" fontWeight={750}>Church assistance</Typography><Typography color="text.secondary">Programs, ministry, prayer, and visits</Typography></Box>
               </Stack>
               <Typography fontWeight={650}>Pastor Abraham Z. Teweldemedhin</Typography>
@@ -97,7 +99,7 @@ const Help = () => (
         </Grid>
 
         <Grid item xs={12} md={6}>
-          <Card elevation={3} sx={{ height: "100%", borderRadius: 3, borderTop: "5px solid #7b1fa2" }}>
+          <Card elevation={0} sx={{ height: "100%", borderRadius: 1, border: "1px solid", borderColor: "divider", borderTop: "4px solid #76565b" }}>
             <CardContent sx={{ p: 3.5 }}>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
                 <SupportAgentOutlinedIcon sx={{ color: "#7b1fa2" }} fontSize="large" />
@@ -119,7 +121,7 @@ const Help = () => (
           <Typography variant="h4" component="h2" fontWeight={800} gutterBottom>Frequently asked questions</Typography>
           <Stack spacing={1.5}>
             {questions.map(({ question, answer }) => (
-              <Accordion key={question} disableGutters elevation={2} sx={{ borderRadius: "12px !important", overflow: "hidden", "&:before": { display: "none" } }}>
+              <Accordion key={question} disableGutters elevation={0} sx={{ borderRadius: "2px !important", border: "1px solid", borderColor: "divider", overflow: "hidden", "&:before": { display: "none" } }}>
                 <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                   <Typography fontWeight={700}>{question}</Typography>
                 </AccordionSummary>
@@ -130,7 +132,7 @@ const Help = () => (
         </Grid>
 
         <Grid item xs={12} md={4}>
-          <Paper elevation={3} sx={{ p: 3, borderRadius: 3 }}>
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 1, border: "1px solid", borderColor: "divider" }}>
             <Typography variant="h5" fontWeight={750}>Quick links</Typography>
             <Stack spacing={1.5} sx={{ mt: 2.5 }}>
               <Button component={Link} to="/auth" variant="outlined" startIcon={<LoginOutlinedIcon />} endIcon={<ArrowForwardIcon />}>Sign in or create account</Button>

@@ -20,6 +20,7 @@ import GroupsOutlinedIcon from "@mui/icons-material/GroupsOutlined";
 import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import PhoneInTalkOutlinedIcon from "@mui/icons-material/PhoneInTalkOutlined";
 import logo from "../../images/logo.jpg";
+import { editorialGradient, editorialShadow } from "../../theme";
 
 const programs = [
   {
@@ -29,7 +30,7 @@ const programs = [
     time: "14:30 – 17:00",
     location: "At the church",
     icon: <GroupsOutlinedIcon fontSize="large" />,
-    color: "#1565c0",
+    color: "#53536b",
   },
   {
     title: "Worship Service",
@@ -38,7 +39,7 @@ const programs = [
     time: "From 15:30",
     location: "At the church",
     icon: <ChurchOutlinedIcon fontSize="large" />,
-    color: "#7b1fa2",
+    color: "#76565b",
   },
   {
     title: "Bible Study",
@@ -47,7 +48,7 @@ const programs = [
     time: "From 20:00",
     location: "Online via Zoom",
     icon: <AutoStoriesOutlinedIcon fontSize="large" />,
-    color: "#2e7d32",
+    color: "#087f8c",
   },
   {
     title: "Training & Teaching",
@@ -56,7 +57,7 @@ const programs = [
     time: "From 20:00",
     location: "By telephone",
     icon: <PhoneInTalkOutlinedIcon fontSize="large" />,
-    color: "#ed6c02",
+    color: "#b37b34",
   },
 ];
 
@@ -66,9 +67,10 @@ const Program = () => (
       <Paper
         elevation={4}
         sx={{
-          borderRadius: 4,
+          borderRadius: 1,
           overflow: "hidden",
-          background: "linear-gradient(135deg, #102a43 0%, #1565c0 65%, #1e88e5 100%)",
+          background: editorialGradient,
+          boxShadow: editorialShadow,
           color: "common.white",
           mb: 4,
         }}
@@ -119,7 +121,7 @@ const Program = () => (
       <Grid container spacing={3}>
         {programs.map((program) => (
           <Grid item xs={12} sm={6} key={program.title}>
-            <Card elevation={3} sx={{ height: "100%", borderRadius: 3, borderTop: `5px solid ${program.color}`, transition: "transform .2s ease, box-shadow .2s ease", "&:hover": { transform: "translateY(-4px)", boxShadow: 8 } }}>
+            <Card elevation={0} sx={{ height: "100%", borderRadius: 1, border: "1px solid", borderColor: "divider", borderTop: `4px solid ${program.color}`, transition: "transform .2s ease, box-shadow .2s ease", "&:hover": { transform: "translateY(-4px)", boxShadow: editorialShadow } }}>
               <CardContent sx={{ p: 3 }}>
                 <Stack direction="row" spacing={2} alignItems="flex-start">
                   <Box sx={{ bgcolor: `${program.color}18`, color: program.color, borderRadius: 2, p: 1.5, display: "flex" }}>{program.icon}</Box>
@@ -139,7 +141,7 @@ const Program = () => (
         ))}
       </Grid>
 
-      <Paper elevation={3} sx={{ mt: 4, p: { xs: 3, md: 4 }, borderRadius: 3 }}>
+      <Paper elevation={0} sx={{ mt: 4, p: { xs: 3, md: 4 }, borderRadius: 1, border: "1px solid", borderColor: "divider" }}>
         <Grid container spacing={3} alignItems="center">
           <Grid item xs={12} md={7}>
             <Typography variant="h5" fontWeight={800}>Visit or contact us</Typography>
