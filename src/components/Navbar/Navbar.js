@@ -14,6 +14,7 @@ import { refreshSession, signOut } from "../../api/api";
 const pages = [
   { label: "Home", path: "/" },
   { label: "Program", path: "/program" },
+  { label: "Profile", path: "/profile" },
   { label: "Mezmur", path: "/mezmur" },
   { label: "Predigt", path: "/predict" },
   { label: "Jugend", path: "/jugend" },

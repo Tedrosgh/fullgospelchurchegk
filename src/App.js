@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import PostDetail from "./pages/PostDetail";
 import MezmurPrint from "./pages/mezmur/MezmurPrint";
 import AdminPortal from "./pages/admin/AdminPortal";
+import Profile from "./pages/profile/Profile";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -37,6 +38,7 @@ const AppContent = () => (
           <Route path="/auth" exact component={Auth} />
           <Route path="/posts/:id" exact component={PostDetail} />
           <Route path="/program" exact component={Program} />
+          <Route path="/profile" exact component={Profile} />
           <Route path="/mezmur" exact component={AllMezmurs} />
           <Route path="/predict" exact component={Predict} />
           <Route path="/jugend" exact component={Jugend} />
