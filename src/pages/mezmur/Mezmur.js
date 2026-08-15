@@ -16,6 +16,7 @@ import {
   TableRow,
   TextField,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
@@ -52,6 +53,7 @@ const Mezmur = ({ adminMode = false, embedded = false }) => {
   const [selectedMezmur, setSelectedMezmur] = useState(null);
   const history = useHistory();
   const dispatch = useDispatch();
+  const isMobile = useMediaQuery((theme) => theme.breakpoints.down("sm"));
   const { items, loading, error } = useSelector((state) => state.mezmurReducer);
 
   useEffect(() => {
@@ -113,12 +115,22 @@ const Mezmur = ({ adminMode = false, embedded = false }) => {
       {!loading && !error && !mezmurs.length && <Alert severity="info">No songs found.</Alert>}
 
       {!!mezmurs.length && (
-        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 1, border: "1px solid", borderColor: "divider", overflowX: "auto" }}>
-          <Table aria-label="Mezmur songs">
+        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 1, border: "1px solid", borderColor: "divider", overflowX: { xs: "hidden", sm: "auto" } }}>
+          <Table aria-label="Mezmur songs" sx={{ tableLayout: { xs: "fixed", sm: "auto" }, width: "100%" }}>
             <TableHead>
               <TableRow sx={{ background: "linear-gradient(90deg, #292a3e, #4b414e)" }}>
-                {['Title', 'Artist', 'Created at', 'Action'].map((heading) => (
-                  <TableCell key={heading} sx={{ color: "primary.contrastText", fontWeight: 700 }}>{heading}</TableCell>
+                {(isMobile ? ['Title', 'Artist', 'Action'] : ['Title', 'Artist', 'Created at', 'Action']).map((heading) => (
+                  <TableCell
+                    key={heading}
+                    sx={{
+                      color: "primary.contrastText",
+                      fontWeight: 700,
+                      px: { xs: 1, sm: 2 },
+                      width: { xs: heading === "Title" ? "44%" : heading === "Artist" ? "27%" : "29%", sm: "auto" },
+                    }}
+                  >
+                    {heading}
+                  </TableCell>
                 ))}
               </TableRow>
             </TableHead>
@@ -139,14 +151,15 @@ const Mezmur = ({ adminMode = false, embedded = false }) => {
                   }}
                   sx={{ cursor: "pointer", "&:nth-of-type(even)": { bgcolor: "rgba(21,101,192,.035)" } }}
                 >
-                  <TableCell component="th" scope="row" sx={{ fontWeight: 600 }}>{mezmur.title || "Untitled"}</TableCell>
-                  <TableCell>{mezmur.artist || "—"}</TableCell>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>{formatCreatedAt(mezmur.createdAt)}</TableCell>
-                  <TableCell>
+                  <TableCell component="th" scope="row" sx={{ fontWeight: 600, px: { xs: 1, sm: 2 }, overflowWrap: "anywhere" }}>{mezmur.title || "Untitled"}</TableCell>
+                  <TableCell sx={{ px: { xs: 1, sm: 2 }, overflowWrap: "anywhere" }}>{mezmur.artist || "—"}</TableCell>
+                  {!isMobile && <TableCell sx={{ whiteSpace: "nowrap" }}>{formatCreatedAt(mezmur.createdAt)}</TableCell>}
+                  <TableCell sx={{ px: { xs: 1, sm: 2 } }}>
                     <Button
                       size="small"
                       variant="outlined"
                       endIcon={<ArrowDropDownIcon />}
+                      sx={{ minWidth: { xs: 0, sm: 64 }, px: { xs: .75, sm: 1.25 }, fontSize: { xs: ".72rem", sm: ".8125rem" }, "& .MuiButton-endIcon": { ml: { xs: .25, sm: .5 } } }}
                       onClick={(event) => {
                         event.stopPropagation();
                         openActions(event, mezmur);

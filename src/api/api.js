@@ -96,6 +96,35 @@ const firstMappedResponse = (response, mapper) => ({
 const mapFirst = (records, mapper) =>
   records.length ? mapper(records[0]) : null;
 
+const VISITOR_NUMBER_KEY = "full-gospel-church-visitor-number";
+let visitorNumberRequest;
+
+export const registerWebsiteVisitor = () => {
+  const savedNumber = Number(localStorage.getItem(VISITOR_NUMBER_KEY));
+  if (Number.isSafeInteger(savedNumber) && savedNumber > 0) {
+    return Promise.resolve(savedNumber);
+  }
+
+  if (!visitorNumberRequest) {
+    visitorNumberRequest = rest
+      .post("/rpc/register_website_visitor", {})
+      .then(({ data }) => {
+        const visitorNumber = Number(data);
+        if (!Number.isSafeInteger(visitorNumber) || visitorNumber < 1) {
+          throw new Error("The visitor counter returned an invalid number.");
+        }
+        localStorage.setItem(VISITOR_NUMBER_KEY, String(visitorNumber));
+        return visitorNumber;
+      })
+      .catch((error) => {
+        visitorNumberRequest = undefined;
+        throw error;
+      });
+  }
+
+  return visitorNumberRequest;
+};
+
 export const fetchPosts = async () =>
   mappedResponse(await rest.get("/posts?select=*&order=display_order.asc,created_at.desc"), mapPost);
 

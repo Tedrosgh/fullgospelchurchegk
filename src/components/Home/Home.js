@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -22,6 +22,7 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import AllPosts from "../../components/Posts/AllPosts";
 import { getPosts } from "../../actions/postsActions";
+import { registerWebsiteVisitor } from "../../api/api";
 import heroImage from "../../images/pasAbr.jpg";
 
 const directionsUrl = "https://www.google.com/maps/search/?api=1&query=Im+Weidenbruch+4%2C+51061+K%C3%B6ln";
@@ -66,12 +67,36 @@ const ministries = [
   },
 ];
 
+const formatOrdinal = (number) => {
+  const lastTwoDigits = number % 100;
+  if (lastTwoDigits >= 11 && lastTwoDigits <= 13) return `${number}th`;
+
+  return `${number}${{ 1: "st", 2: "nd", 3: "rd" }[number % 10] || "th"}`;
+};
+
 const Home = () => {
   const dispatch = useDispatch();
+  const [visitorNumber, setVisitorNumber] = useState(null);
 
   useEffect(() => {
     dispatch(getPosts());
   }, [dispatch]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    registerWebsiteVisitor()
+      .then((number) => {
+        if (isMounted) setVisitorNumber(number);
+      })
+      .catch(() => {
+        // The home page remains usable if the counter is unavailable.
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
     <Box sx={{ pb: { xs: 6, md: 10 } }}>
@@ -121,6 +146,14 @@ const Home = () => {
             <Typography variant="body2" fontWeight={700}>Sunday · 14:30–17:00</Typography>
             <Typography variant="body2" fontWeight={700}>Im Weidenbruch 4 · 51061 Köln</Typography>
           </Stack>
+          {visitorNumber && (
+            <Typography
+              role="status"
+              sx={{ mt: 2, px: 2, py: .75, border: "1px solid rgba(255,255,255,.35)", borderRadius: 99, bgcolor: "rgba(20,21,38,.28)", backdropFilter: "blur(6px)", color: "rgba(255,255,255,.92)", fontSize: ".9rem", fontWeight: 700 }}
+            >
+              Welcome! You are our {formatOrdinal(visitorNumber)} website visitor.
+            </Typography>
+          )}
           <Box component="a" href="#home-actions" aria-label="Explore the website" sx={{ position: "absolute", bottom: { xs: 18, md: 24 }, color: "white", height: 46, display: "grid", placeItems: "center", animation: "scrollCue 1.8s ease-in-out infinite", "@keyframes scrollCue": { "0%, 100%": { transform: "translateY(0)", opacity: .65 }, "50%": { transform: "translateY(7px)", opacity: 1 } }, "@media (prefers-reduced-motion: reduce)": { animation: "none" } }}><KeyboardArrowDownRoundedIcon sx={{ fontSize: 42 }} /></Box>
         </Box>
       </Box>

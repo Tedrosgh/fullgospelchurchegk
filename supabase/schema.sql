@@ -1,5 +1,34 @@
 create extension if not exists pgcrypto;
 
+-- A single-row, concurrency-safe counter for the public home page. Visitors
+-- cannot read or update this table directly; they can only call the RPC below.
+create table if not exists public.website_visitor_counter (
+  counter_key text primary key check (counter_key = 'home'),
+  visitor_count bigint not null default 0 check (visitor_count >= 0),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.website_visitor_counter enable row level security;
+
+create or replace function public.register_website_visitor()
+returns bigint
+language sql
+volatile
+security definer
+set search_path = public
+as $$
+  insert into public.website_visitor_counter (counter_key, visitor_count)
+  values ('home', 1)
+  on conflict (counter_key) do update
+    set visitor_count = website_visitor_counter.visitor_count + 1,
+        updated_at = now()
+  returning visitor_count;
+$$;
+
+revoke all on table public.website_visitor_counter from public, anon, authenticated;
+revoke execute on function public.register_website_visitor() from public;
+grant execute on function public.register_website_visitor() to anon, authenticated;
+
 create table if not exists public.posts (
   id uuid primary key default gen_random_uuid(),
   legacy_id text unique,
