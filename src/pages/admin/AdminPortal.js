@@ -17,6 +17,7 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import CampaignOutlinedIcon from "@mui/icons-material/CampaignOutlined";
 import PhotoLibraryOutlinedIcon from "@mui/icons-material/PhotoLibraryOutlined";
 import ShareOutlinedIcon from "@mui/icons-material/ShareOutlined";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import { fetchMyPortalAccess } from "../../api/api";
 import Finanz from "../finanz/Finanz";
 import UserManagement from "../finanz/UserManagement";
@@ -24,6 +25,7 @@ import Mezmur from "../mezmur/Mezmur";
 import AddNewMezmur from "../mezmur/Add_new_mezmur";
 import AnnouncementManagement from "./AnnouncementManagement";
 import ProfileManagement from "./ProfileManagement";
+import HomePageManagement from "./HomePageManagement";
 
 const financeSections = [
   ["overview", "Overview", <DashboardOutlinedIcon />],
@@ -102,6 +104,7 @@ const AdminPortal = () => {
                 </Collapse>
                 <Divider sx={{ my: 1 }} />
               </>}
+              {canManageAnnouncements && <ListItemButton selected={section === "home-page"} onClick={() => selectSection("home-page")} sx={{ borderRadius: 2 }}><ListItemIcon sx={{ color: "inherit" }}><HomeOutlinedIcon /></ListItemIcon><ListItemText primary="Home page" secondary="Hero photo & writing" primaryTypographyProps={{ fontWeight: 800 }} /></ListItemButton>}
               {canManageAnnouncements && <><ListItemButton selected={section === "announcements"} onClick={() => selectSection("announcements")} sx={{ borderRadius: 2 }}><ListItemIcon sx={{ color: "inherit" }}><CampaignOutlinedIcon /></ListItemIcon><ListItemText primary="Announcements" secondary="Home page updates" primaryTypographyProps={{ fontWeight: 800 }} /></ListItemButton><Divider sx={{ my: 1 }} /></>}
               {canManageAnnouncements && <>
                 <ListItemButton onClick={() => setProfileOpen((open) => !open)} sx={{ borderRadius: 2, bgcolor: section.startsWith("profile-") ? "action.selected" : "transparent" }} aria-expanded={profileOpen}>
@@ -120,7 +123,7 @@ const AdminPortal = () => {
           </Paper>
         </Grid>
         <Grid item xs={12} md={9} lg={9.5}>
-          {section === "users" ? (access.isAdmin ? <UserManagement /> : <Alert severity="error">Administrator access is required.</Alert>) : section === "announcements" ? (canManageAnnouncements ? <AnnouncementManagement canDelete={access.isAdmin || access.teams?.content === "manager"} /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "profile-gallery" || section === "profile-social" ? (canManageAnnouncements ? <ProfileManagement tab={section === "profile-social" ? "social" : "gallery"} canDelete={access.isAdmin || access.teams?.content === "manager"} /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "mezmur-list" ? (canManageMezmur ? <Mezmur adminMode embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : section === "mezmur-form" ? (canManageMezmur ? <AddNewMezmur embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : canUseFinance ? <Finanz embedded initialSection={section} /> : <Alert severity="error">Finance team access is required.</Alert>}
+          {section === "users" ? (access.isAdmin ? <UserManagement /> : <Alert severity="error">Administrator access is required.</Alert>) : section === "home-page" ? (canManageAnnouncements ? <HomePageManagement /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "announcements" ? (canManageAnnouncements ? <AnnouncementManagement canDelete={access.isAdmin || access.teams?.content === "manager"} /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "profile-gallery" || section === "profile-social" ? (canManageAnnouncements ? <ProfileManagement tab={section === "profile-social" ? "social" : "gallery"} canDelete={access.isAdmin || access.teams?.content === "manager"} /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "mezmur-list" ? (canManageMezmur ? <Mezmur adminMode embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : section === "mezmur-form" ? (canManageMezmur ? <AddNewMezmur embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : canUseFinance ? <Finanz embedded initialSection={section} /> : <Alert severity="error">Finance team access is required.</Alert>}
         </Grid>
       </Grid>}
   </Container>;

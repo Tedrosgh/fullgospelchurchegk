@@ -22,10 +22,18 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import AllPosts from "../../components/Posts/AllPosts";
 import { getPosts } from "../../actions/postsActions";
-import { registerWebsiteVisitor } from "../../api/api";
+import { fetchHomePageContent, registerWebsiteVisitor } from "../../api/api";
 import heroImage from "../../images/pasAbr.jpg";
 
 const directionsUrl = "https://www.google.com/maps/search/?api=1&query=Im+Weidenbruch+4%2C+51061+K%C3%B6ln";
+
+const defaultHero = {
+  eyebrow: "WELCOME TO",
+  titleLineOne: "Eritrean Full Gospel",
+  titleLineTwo: "Church Cologne",
+  description: "A welcoming community growing together through worship, God’s Word, prayer, and everyday life.",
+  heroImageUrl: heroImage,
+};
 
 const actions = [
   { title: "Plan your visit", text: "Times, location, and what to expect", path: "/program", icon: <CalendarMonthOutlinedIcon /> },
@@ -77,9 +85,15 @@ const formatOrdinal = (number) => {
 const Home = () => {
   const dispatch = useDispatch();
   const [visitorNumber, setVisitorNumber] = useState(null);
+  const [hero, setHero] = useState(defaultHero);
 
   useEffect(() => {
     dispatch(getPosts());
+    fetchHomePageContent()
+      .then(({ data }) => {
+        if (data) setHero({ ...defaultHero, ...data });
+      })
+      .catch(() => {});
   }, [dispatch]);
 
   useEffect(() => {
@@ -115,7 +129,7 @@ const Home = () => {
           boxShadow: "0 32px 85px rgba(24,25,43,.28)",
           "&::before": {
             content: '""', position: "absolute", inset: "-5%", zIndex: -2,
-            backgroundImage: `url(${heroImage})`, backgroundSize: "cover", backgroundPosition: "center 35%",
+            backgroundImage: `url(${hero.heroImageUrl})`, backgroundSize: "cover", backgroundPosition: "center 35%",
             filter: "saturate(.72)", animation: "homeHeroMotion 26s ease-in-out infinite alternate", willChange: "transform",
           },
           "&::after": {
@@ -130,13 +144,13 @@ const Home = () => {
         }}
       >
         <Box sx={{ width: "100%", minHeight: "inherit", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", px: { xs: 2.5, sm: 5 }, py: { xs: 7, md: 9 }, position: "relative" }}>
-          <Typography variant="overline" sx={{ mb: 2, fontSize: { xs: ".78rem", md: "1rem" }, color: "rgba(255,255,255,.92)", fontWeight: 800, letterSpacing: { xs: 4, md: 7 } }}>WELCOME TO</Typography>
+          <Typography variant="overline" sx={{ mb: 2, fontSize: { xs: ".78rem", md: "1rem" }, color: "rgba(255,255,255,.92)", fontWeight: 800, letterSpacing: { xs: 4, md: 7 } }}>{hero.eyebrow}</Typography>
           <Typography component="h1" fontWeight={900} sx={{ maxWidth: 1000, fontSize: { xs: "2.8rem", sm: "4.5rem", md: "6.2rem" }, lineHeight: .92, letterSpacing: { xs: "-.035em", md: "-.055em" }, textTransform: "uppercase", textShadow: "0 8px 35px rgba(0,0,0,.28)" }}>
-            Eritrean Full Gospel
-            <Box component="span" sx={{ display: "block" }}>Church Cologne</Box>
+            {hero.titleLineOne}
+            {hero.titleLineTwo && <Box component="span" sx={{ display: "block" }}>{hero.titleLineTwo}</Box>}
           </Typography>
           <Typography sx={{ mt: 3, maxWidth: 650, fontSize: { xs: "1rem", md: "1.15rem" }, lineHeight: 1.7, color: "rgba(255,255,255,.84)" }}>
-            A welcoming community growing together through worship, God’s Word, prayer, and everyday life.
+            {hero.description}
           </Typography>
           <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5} sx={{ mt: 3.5, alignItems: { xs: "stretch", sm: "center" }, width: { xs: "100%", sm: "auto" } }}>
             <Button component={Link} to="/program" size="large" variant="contained" endIcon={<ArrowForwardIcon />} sx={{ bgcolor: "white", color: "#292a3e", px: 3.5, py: 1.25, fontWeight: 900, borderRadius: 0, "&:hover": { bgcolor: "#f3eee9", transform: "translateY(-2px)" } }}>Join us this Sunday</Button>

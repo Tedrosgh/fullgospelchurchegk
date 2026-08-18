@@ -125,6 +125,37 @@ export const registerWebsiteVisitor = () => {
   return visitorNumberRequest;
 };
 
+const mapHomePageContent = (content) => content ? ({
+  eyebrow: content.eyebrow,
+  titleLineOne: content.title_line_one,
+  titleLineTwo: content.title_line_two || "",
+  description: content.description || "",
+  heroImageUrl: content.hero_image_url,
+}) : null;
+
+export const fetchHomePageContent = async () => {
+  const response = await rest.get("/home_page_content?content_key=eq.hero&select=*&limit=1");
+  return { ...response, data: mapHomePageContent(response.data[0]) };
+};
+
+export const saveHomePageContent = async (content) => {
+  const response = await rest.post(
+    "/home_page_content?on_conflict=content_key",
+    {
+      content_key: "hero",
+      eyebrow: content.eyebrow.trim(),
+      title_line_one: content.titleLineOne.trim(),
+      title_line_two: content.titleLineTwo.trim(),
+      description: content.description.trim(),
+      hero_image_url: content.heroImageUrl,
+      updated_by: getProfile()?.result?._id,
+      updated_at: new Date().toISOString(),
+    },
+    { headers: { Prefer: "resolution=merge-duplicates,return=representation" } }
+  );
+  return { ...response, data: mapHomePageContent(response.data[0]) };
+};
+
 export const fetchPosts = async () =>
   mappedResponse(await rest.get("/posts?select=*&order=display_order.asc,created_at.desc"), mapPost);
 

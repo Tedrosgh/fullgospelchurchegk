@@ -29,6 +29,20 @@ revoke all on table public.website_visitor_counter from public, anon, authentica
 revoke execute on function public.register_website_visitor() from public;
 grant execute on function public.register_website_visitor() to anon, authenticated;
 
+-- Editable hero content for the public home page.
+create table if not exists public.home_page_content (
+  content_key text primary key check (content_key = 'hero'),
+  eyebrow text not null default 'WELCOME TO' check (char_length(eyebrow) between 1 and 80),
+  title_line_one text not null check (char_length(title_line_one) between 1 and 120),
+  title_line_two text not null default '' check (char_length(title_line_two) <= 120),
+  description text not null default '' check (char_length(description) <= 500),
+  hero_image_url text not null,
+  updated_by uuid not null references auth.users(id) on delete restrict,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.home_page_content enable row level security;
+
 create table if not exists public.posts (
   id uuid primary key default gen_random_uuid(),
   legacy_id text unique,
@@ -469,3 +483,14 @@ create policy "Content team updates social links" on public.social_links for upd
 drop policy if exists "Content managers delete social links" on public.social_links;
 create policy "Content managers delete social links" on public.social_links for delete to authenticated
   using ((select public.can_manage_team('content')));
+
+drop policy if exists "Home content is publicly readable" on public.home_page_content;
+create policy "Home content is publicly readable" on public.home_page_content
+  for select using (true);
+drop policy if exists "Content team creates home content" on public.home_page_content;
+create policy "Content team creates home content" on public.home_page_content for insert to authenticated
+  with check ((select public.can_edit_team('content')) and updated_by = (select auth.uid()));
+drop policy if exists "Content team updates home content" on public.home_page_content;
+create policy "Content team updates home content" on public.home_page_content for update to authenticated
+  using ((select public.can_edit_team('content')))
+  with check ((select public.can_edit_team('content')) and updated_by = (select auth.uid()));
