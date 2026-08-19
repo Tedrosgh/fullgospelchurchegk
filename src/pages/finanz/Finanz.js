@@ -225,6 +225,21 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
     [reportEntries]
   );
 
+  const esherReport = useMemo(() => {
+    const payers = entries
+      .filter((entry) => entry.type === "income" && entry.category === "Esher")
+      .reduce((result, entry) => {
+        const name = entry.payerName?.trim() || "Name not recorded";
+        const key = name.toLocaleLowerCase();
+        const payer = result.get(key) || { name, payments: 0, total: 0 };
+        payer.payments += 1;
+        payer.total += entry.amount;
+        result.set(key, payer);
+        return result;
+      }, new Map());
+    return Array.from(payers.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [entries]);
+
   const totals = useMemo(
     () =>
       weeklyEntries.reduce(
@@ -690,6 +705,16 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                     <TableBody>
                       {reportEntries.map((entry) => <TableRow key={entry.id} hover><TableCell>{displayDate(entry.weekStart)}</TableCell><TableCell>{entry.type === "income" ? "Income" : "Expense"}</TableCell><TableCell>{entry.category}</TableCell><TableCell>{entry.payerName || "—"}</TableCell><TableCell align="right">{money.format(entry.amount)}</TableCell></TableRow>)}
                       {!reportEntries.length && <TableRow><TableCell colSpan={5} align="center">No entries match this report.</TableCell></TableRow>}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Box><Typography variant="h6" fontWeight={750}>Esher report by name</Typography><Typography color="text.secondary">A separate summary of all recorded Esher payments for each person.</Typography></Box>
+                <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+                  <Table aria-label="Esher report by payer name">
+                    <TableHead><TableRow><TableCell>Name</TableCell><TableCell align="right">Number of payments</TableCell><TableCell align="right">Total Esher</TableCell></TableRow></TableHead>
+                    <TableBody>
+                      {esherReport.map((payer) => <TableRow key={payer.name} hover><TableCell>{payer.name}</TableCell><TableCell align="right">{payer.payments}</TableCell><TableCell align="right" sx={{ fontWeight: 750 }}>{money.format(payer.total)}</TableCell></TableRow>)}
+                      {!esherReport.length && <TableRow><TableCell colSpan={3} align="center">No Esher payments have been recorded.</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </TableContainer>
