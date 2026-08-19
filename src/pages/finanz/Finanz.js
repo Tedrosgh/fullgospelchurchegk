@@ -80,6 +80,7 @@ const blankEntry = (weekStart = currentWeekStart()) => ({
   weekStart,
   type: "income",
   category: "",
+  payerName: "",
   description: "",
   amount: "",
 });
@@ -279,8 +280,8 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
 
   const submit = async (event) => {
     event.preventDefault();
-    if (!form.category.trim() || !form.amount || Number(form.amount) <= 0) {
-      setError("Enter a category and an amount greater than zero.");
+    if (!form.category.trim() || !form.amount || Number(form.amount) <= 0 || (form.type === "income" && form.category === "Esher" && !form.payerName.trim())) {
+      setError(form.type === "income" && form.category === "Esher" && !form.payerName.trim() ? "Enter the name of the person who paid the Esher." : "Enter a category and an amount greater than zero.");
       return;
     }
 
@@ -310,6 +311,7 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
       weekStart: entry.weekStart,
       type: entry.type,
       category: entry.category,
+      payerName: entry.payerName || "",
       description: entry.description,
       amount: String(entry.amount),
     });
@@ -562,6 +564,7 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                       <TableCell>Week</TableCell>
                       <TableCell>Type</TableCell>
                       <TableCell>Category</TableCell>
+                      <TableCell>Name</TableCell>
                       <TableCell>Description</TableCell>
                       <TableCell align="right">Amount</TableCell>
                       <TableCell align="right">Actions</TableCell>
@@ -579,6 +582,7 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                           />
                         </TableCell>
                         <TableCell>{entry.category}</TableCell>
+                        <TableCell>{entry.payerName || "—"}</TableCell>
                         <TableCell>{entry.description || "—"}</TableCell>
                         <TableCell align="right">{money.format(entry.amount)}</TableCell>
                         <TableCell align="right">
@@ -588,10 +592,10 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                       </TableRow>
                     ))}
                     {!loading && !visibleEntries.length && (
-                      <TableRow><TableCell colSpan={6} align="center">No {activeSection} recorded for this week.</TableCell></TableRow>
+                      <TableRow><TableCell colSpan={7} align="center">No {activeSection} recorded for this week.</TableCell></TableRow>
                     )}
                     {loading && (
-                      <TableRow><TableCell colSpan={6} align="center"><CircularProgress size={28} /></TableCell></TableRow>
+                      <TableRow><TableCell colSpan={7} align="center"><CircularProgress size={28} /></TableCell></TableRow>
                     )}
                   </TableBody>
                 </Table>
@@ -615,7 +619,7 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                     {form.type === "income" ? <TextField fullWidth select required label="Category" value={incomeCategoryChoice} onChange={(event) => {
                       const choice = event.target.value;
                       setIncomeCategoryChoice(choice);
-                      setForm((current) => ({ ...current, category: choice === "another" ? "" : choice }));
+                      setForm((current) => ({ ...current, category: choice === "another" ? "" : choice, payerName: choice === "Esher" ? current.payerName : "" }));
                     }}>
                       {incomeCategoryChoices.map((category) => <MenuItem key={category} value={category}>{category}</MenuItem>)}
                       <MenuItem value="another">Another</MenuItem>
@@ -629,6 +633,9 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                   </Grid>
                   {form.type === "income" && incomeCategoryChoice === "another" && <Grid item xs={12} sm={6}>
                     <TextField fullWidth required name="category" label="Other income category" value={form.category} onChange={changeForm} inputProps={{ maxLength: 100 }} />
+                  </Grid>}
+                  {form.type === "income" && form.category === "Esher" && <Grid item xs={12} sm={6}>
+                    <TextField fullWidth required name="payerName" label="Name of person who paid Esher" value={form.payerName} onChange={changeForm} inputProps={{ maxLength: 160 }} />
                   </Grid>}
                 </Grid>
                 <Stack direction="row" spacing={1.5} sx={{ mt: 2 }}>
@@ -673,6 +680,16 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                     <TableBody>
                       {weeklyReport.map((row) => <TableRow key={row.weekStart} hover><TableCell>{displayDate(row.weekStart)}</TableCell><TableCell align="right">{money.format(row.income)}</TableCell><TableCell align="right">{money.format(row.expense)}</TableCell><TableCell align="right" sx={{ color: row.income - row.expense < 0 ? "error.main" : "success.main", fontWeight: 700 }}>{money.format(row.income - row.expense)}</TableCell></TableRow>)}
                       {!weeklyReport.length && <TableRow><TableCell colSpan={4} align="center">No finance data is available.</TableCell></TableRow>}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                <Box><Typography variant="h6" fontWeight={750}>Report details</Typography><Typography color="text.secondary">Individual entries matching the selected type and category.</Typography></Box>
+                <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+                  <Table aria-label="Finance report details">
+                    <TableHead><TableRow><TableCell>Week</TableCell><TableCell>Type</TableCell><TableCell>Category</TableCell><TableCell>Name</TableCell><TableCell align="right">Amount</TableCell></TableRow></TableHead>
+                    <TableBody>
+                      {reportEntries.map((entry) => <TableRow key={entry.id} hover><TableCell>{displayDate(entry.weekStart)}</TableCell><TableCell>{entry.type === "income" ? "Income" : "Expense"}</TableCell><TableCell>{entry.category}</TableCell><TableCell>{entry.payerName || "—"}</TableCell><TableCell align="right">{money.format(entry.amount)}</TableCell></TableRow>)}
+                      {!reportEntries.length && <TableRow><TableCell colSpan={5} align="center">No entries match this report.</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </TableContainer>

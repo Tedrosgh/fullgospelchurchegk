@@ -137,6 +137,9 @@ create table if not exists public.finance_entries (
   created_at timestamptz not null default now()
 );
 
+alter table public.finance_entries
+  add column if not exists payer_name text not null default '' check (char_length(payer_name) <= 160);
+
 create table if not exists public.finance_documents (
   id uuid primary key default gen_random_uuid(),
   document_type text not null check (document_type in ('receipt', 'invoice', 'bank_statement', 'other')),
