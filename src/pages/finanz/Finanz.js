@@ -225,11 +225,27 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
     [reportEntries]
   );
 
-  const esherReport = useMemo(
-    () => entries
+  const esherReport = useMemo(() => {
+    const payers = entries
       .filter((entry) => entry.type === "income" && entry.category === "Esher")
-      .sort((a, b) => b.weekStart.localeCompare(a.weekStart) || (a.payerName || "").localeCompare(b.payerName || "")),
-    [entries]
+      .reduce((result, entry) => {
+        const name = entry.payerName?.trim() || "Name not recorded";
+        const key = name.toLocaleLowerCase();
+        const payer = result.get(key) || { name, payments: [], total: 0 };
+        payer.payments.push(entry);
+        payer.total += entry.amount;
+        result.set(key, payer);
+        return result;
+      }, new Map());
+
+    return Array.from(payers.values())
+      .map((payer) => ({ ...payer, payments: payer.payments.sort((a, b) => b.weekStart.localeCompare(a.weekStart)) }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [entries]);
+
+  const esherGrandTotal = useMemo(
+    () => esherReport.reduce((total, payer) => total + payer.total, 0),
+    [esherReport]
   );
 
   const totals = useMemo(
@@ -700,13 +716,19 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                     </TableBody>
                   </Table>
                 </TableContainer>
-                <Box><Typography variant="h6" fontWeight={750}>Esher report by name</Typography><Typography color="text.secondary">Each recorded Esher payment with the payer, payment date, and amount.</Typography></Box>
+                <Box><Typography variant="h6" fontWeight={750}>Esher report by name</Typography><Typography color="text.secondary">Payment history and totals grouped separately for each person.</Typography></Box>
                 <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
                   <Table aria-label="Esher report by payer name">
-                    <TableHead><TableRow><TableCell>Name</TableCell><TableCell>Payment date</TableCell><TableCell align="right">Amount paid</TableCell></TableRow></TableHead>
+                    <TableHead><TableRow><TableCell>Name</TableCell><TableCell>Payment date</TableCell><TableCell align="right">Amount paid</TableCell><TableCell align="right">Total per person</TableCell></TableRow></TableHead>
                     <TableBody>
-                      {esherReport.map((entry) => <TableRow key={entry.id} hover><TableCell>{entry.payerName || "Name not recorded"}</TableCell><TableCell>{displayDate(entry.weekStart)}</TableCell><TableCell align="right" sx={{ fontWeight: 750 }}>{money.format(entry.amount)}</TableCell></TableRow>)}
-                      {!esherReport.length && <TableRow><TableCell colSpan={3} align="center">No Esher payments have been recorded.</TableCell></TableRow>}
+                      {esherReport.flatMap((payer) => payer.payments.map((payment, index) => <TableRow key={payment.id} hover>
+                        {index === 0 && <TableCell rowSpan={payer.payments.length} sx={{ fontWeight: 750, verticalAlign: "top" }}>{payer.name}</TableCell>}
+                        <TableCell>{displayDate(payment.weekStart)}</TableCell>
+                        <TableCell align="right">{money.format(payment.amount)}</TableCell>
+                        {index === 0 && <TableCell rowSpan={payer.payments.length} align="right" sx={{ fontWeight: 850, verticalAlign: "top", color: "primary.main" }}>{money.format(payer.total)}</TableCell>}
+                      </TableRow>))}
+                      {!esherReport.length && <TableRow><TableCell colSpan={4} align="center">No Esher payments have been recorded.</TableCell></TableRow>}
+                      {!!esherReport.length && <TableRow sx={{ bgcolor: "action.hover" }}><TableCell colSpan={3} sx={{ fontWeight: 900 }}>Total Esher paid</TableCell><TableCell align="right" sx={{ fontWeight: 900, color: "success.dark", fontSize: "1.05rem" }}>{money.format(esherGrandTotal)}</TableCell></TableRow>}
                     </TableBody>
                   </Table>
                 </TableContainer>
