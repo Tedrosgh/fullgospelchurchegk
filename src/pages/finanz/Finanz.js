@@ -99,6 +99,8 @@ const documentLabels = {
   other: "Other",
 };
 
+const incomeCategoryChoices = ["Mobae", "Esher"];
+
 const money = new Intl.NumberFormat("de-DE", {
   style: "currency",
   currency: "EUR",
@@ -130,6 +132,9 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
   const [activeSection, setActiveSection] = useState(initialSection);
   const [selectedWeek, setSelectedWeek] = useState(currentWeekStart());
   const [form, setForm] = useState(blankEntry());
+  const [incomeCategoryChoice, setIncomeCategoryChoice] = useState("");
+  const [reportType, setReportType] = useState("all");
+  const [reportCategory, setReportCategory] = useState("all");
   const [editingId, setEditingId] = useState(null);
   const [documentForm, setDocumentForm] = useState(blankDocument());
   const [editingDocumentId, setEditingDocumentId] = useState(null);
@@ -188,15 +193,36 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
     [activeSection, weeklyEntries]
   );
 
+  const reportCategories = useMemo(
+    () => Array.from(new Set(entries.map((entry) => entry.category).filter(Boolean))).sort((a, b) => a.localeCompare(b)),
+    [entries]
+  );
+
+  const reportEntries = useMemo(
+    () => entries.filter((entry) =>
+      (reportType === "all" || entry.type === reportType) &&
+      (reportCategory === "all" || entry.category === reportCategory)
+    ),
+    [entries, reportCategory, reportType]
+  );
+
   const weeklyReport = useMemo(() => {
-    const rows = entries.reduce((result, entry) => {
+    const rows = reportEntries.reduce((result, entry) => {
       const row = result.get(entry.weekStart) || { weekStart: entry.weekStart, income: 0, expense: 0 };
       row[entry.type] += entry.amount;
       result.set(entry.weekStart, row);
       return result;
     }, new Map());
     return Array.from(rows.values()).sort((a, b) => b.weekStart.localeCompare(a.weekStart));
-  }, [entries]);
+  }, [reportEntries]);
+
+  const reportTotals = useMemo(
+    () => reportEntries.reduce((result, entry) => ({
+      ...result,
+      [entry.type]: result[entry.type] + entry.amount,
+    }), { income: 0, expense: 0 }),
+    [reportEntries]
+  );
 
   const totals = useMemo(
     () =>
@@ -238,13 +264,15 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
 
   const resetForm = () => {
     setEditingId(null);
-    setForm(blankEntry(selectedWeek));
+    setIncomeCategoryChoice("");
+    setForm({ ...blankEntry(selectedWeek), type: activeSection === "expense" ? "expense" : "income" });
   };
 
   const selectSection = (section) => {
     setActiveSection(section);
     if (section === "income" || section === "expense") {
       setEditingId(null);
+      setIncomeCategoryChoice("");
       setForm({ ...blankEntry(selectedWeek), type: section });
     }
   };
@@ -277,6 +305,7 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
 
   const edit = (entry) => {
     setEditingId(entry.id);
+    setIncomeCategoryChoice(entry.type === "income" ? (incomeCategoryChoices.includes(entry.category) ? entry.category : "another") : "");
     setForm({
       weekStart: entry.weekStart,
       type: entry.type,
@@ -583,7 +612,14 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                     </TextField>
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
-                    <TextField fullWidth required name="category" label="Category" value={form.category} onChange={changeForm} inputProps={{ maxLength: 100 }} />
+                    {form.type === "income" ? <TextField fullWidth select required label="Category" value={incomeCategoryChoice} onChange={(event) => {
+                      const choice = event.target.value;
+                      setIncomeCategoryChoice(choice);
+                      setForm((current) => ({ ...current, category: choice === "another" ? "" : choice }));
+                    }}>
+                      {incomeCategoryChoices.map((category) => <MenuItem key={category} value={category}>{category}</MenuItem>)}
+                      <MenuItem value="another">Another</MenuItem>
+                    </TextField> : <TextField fullWidth required name="category" label="Category" value={form.category} onChange={changeForm} inputProps={{ maxLength: 100 }} />}
                   </Grid>
                   <Grid item xs={12} sm={6} md={3}>
                     <TextField fullWidth required name="amount" label="Amount (EUR)" type="number" value={form.amount} onChange={changeForm} inputProps={{ min: "0.01", step: "0.01" }} />
@@ -591,6 +627,9 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
                   <Grid item xs={12}>
                     <TextField fullWidth name="description" label="Description (optional)" value={form.description} onChange={changeForm} multiline minRows={2} />
                   </Grid>
+                  {form.type === "income" && incomeCategoryChoice === "another" && <Grid item xs={12} sm={6}>
+                    <TextField fullWidth required name="category" label="Other income category" value={form.category} onChange={changeForm} inputProps={{ maxLength: 100 }} />
+                  </Grid>}
                 </Grid>
                 <Stack direction="row" spacing={1.5} sx={{ mt: 2 }}>
                   <Button type="submit" variant="contained" startIcon={<AddIcon />} disabled={loading}>
@@ -614,9 +653,19 @@ const Finanz = ({ embedded = false, initialSection = "overview" }) => {
 
               {activeSection === "report" && <>
                 <Typography variant="h5" fontWeight={750}>Weekly report</Typography>
-                <TextField label="Week starting" type="date" value={selectedWeek} onChange={(event) => setSelectedWeek(event.target.value)} InputLabelProps={{ shrink: true }} sx={{ maxWidth: 240 }} />
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
+                  <TextField select label="Type" value={reportType} onChange={(event) => setReportType(event.target.value)} sx={{ minWidth: 180 }}>
+                    <MenuItem value="all">All types</MenuItem>
+                    <MenuItem value="income">Income</MenuItem>
+                    <MenuItem value="expense">Expense</MenuItem>
+                  </TextField>
+                  <TextField select label="Category" value={reportCategory} onChange={(event) => setReportCategory(event.target.value)} sx={{ minWidth: 220 }}>
+                    <MenuItem value="all">All categories</MenuItem>
+                    {reportCategories.map((category) => <MenuItem key={category} value={category}>{category}</MenuItem>)}
+                  </TextField>
+                </Stack>
                 <Grid container spacing={2}>
-                  {[["Income", totals.income, "success.main"], ["Expenses", totals.expense, "error.main"], ["Balance", totals.income - totals.expense, "primary.main"]].map(([label, value, color]) => <Grid item xs={12} sm={4} key={label}><Paper sx={{ p: 2.5, borderRadius: 2 }}><Typography color="text.secondary">{label}</Typography><Typography variant="h5" fontWeight={800} color={color}>{money.format(value)}</Typography></Paper></Grid>)}
+                  {[["Income", reportTotals.income, "success.main"], ["Expenses", reportTotals.expense, "error.main"], ["Balance", reportTotals.income - reportTotals.expense, "primary.main"]].map(([label, value, color]) => <Grid item xs={12} sm={4} key={label}><Paper sx={{ p: 2.5, borderRadius: 2 }}><Typography color="text.secondary">{label}</Typography><Typography variant="h5" fontWeight={800} color={color}>{money.format(value)}</Typography></Paper></Grid>)}
                 </Grid>
                 <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
                   <Table aria-label="Weekly finance report">
