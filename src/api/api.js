@@ -99,22 +99,33 @@ const mapFirst = (records, mapper) =>
 const VISITOR_NUMBER_KEY = "full-gospel-church-visitor-number";
 let visitorNumberRequest;
 
+const parseVisitorCount = (value) => {
+  const count = Number(value);
+  if (!Number.isSafeInteger(count) || count < 0) {
+    throw new Error("The visitor counter returned an invalid number.");
+  }
+  return count;
+};
+
 export const registerWebsiteVisitor = () => {
   const savedNumber = Number(localStorage.getItem(VISITOR_NUMBER_KEY));
   if (Number.isSafeInteger(savedNumber) && savedNumber > 0) {
-    return Promise.resolve(savedNumber);
+    return rest
+      .post("/rpc/get_website_visitor_count", {})
+      .then(({ data }) => ({
+        visitorNumber: savedNumber,
+        totalVisitors: Math.max(savedNumber, parseVisitorCount(data)),
+      }));
   }
 
   if (!visitorNumberRequest) {
     visitorNumberRequest = rest
       .post("/rpc/register_website_visitor", {})
       .then(({ data }) => {
-        const visitorNumber = Number(data);
-        if (!Number.isSafeInteger(visitorNumber) || visitorNumber < 1) {
-          throw new Error("The visitor counter returned an invalid number.");
-        }
+        const visitorNumber = parseVisitorCount(data);
+        if (visitorNumber < 1) throw new Error("The visitor counter did not register the visit.");
         localStorage.setItem(VISITOR_NUMBER_KEY, String(visitorNumber));
-        return visitorNumber;
+        return { visitorNumber, totalVisitors: visitorNumber };
       })
       .catch((error) => {
         visitorNumberRequest = undefined;

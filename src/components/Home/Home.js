@@ -85,6 +85,7 @@ const formatOrdinal = (number) => {
 const Home = () => {
   const dispatch = useDispatch();
   const [visitorNumber, setVisitorNumber] = useState(null);
+  const [totalVisitors, setTotalVisitors] = useState(null);
   const [hero, setHero] = useState(defaultHero);
 
   useEffect(() => {
@@ -100,8 +101,11 @@ const Home = () => {
     let isMounted = true;
 
     registerWebsiteVisitor()
-      .then((number) => {
-        if (isMounted) setVisitorNumber(number);
+      .then(({ visitorNumber: number, totalVisitors: total }) => {
+        if (isMounted) {
+          setVisitorNumber(number);
+          setTotalVisitors(total);
+        }
       })
       .catch(() => {
         // The home page remains usable if the counter is unavailable.
@@ -160,12 +164,12 @@ const Home = () => {
             <Typography variant="body2" fontWeight={700}>Sunday · 14:30–17:00</Typography>
             <Typography variant="body2" fontWeight={700}>Im Weidenbruch 4 · 51061 Köln</Typography>
           </Stack>
-          {visitorNumber && (
+          {visitorNumber && totalVisitors && (
             <Typography
               role="status"
               sx={{ mt: 2, px: 2, py: .75, border: "1px solid rgba(255,255,255,.35)", borderRadius: 99, bgcolor: "rgba(20,21,38,.28)", backdropFilter: "blur(6px)", color: "rgba(255,255,255,.92)", fontSize: ".9rem", fontWeight: 700 }}
             >
-              Welcome! You are our {formatOrdinal(visitorNumber)} website visitor.
+              Welcome! You are our {formatOrdinal(visitorNumber)} website visitor out of {totalVisitors.toLocaleString()} total {totalVisitors === 1 ? "visitor" : "visitors"}.
             </Typography>
           )}
           <Box component="a" href="#home-actions" aria-label="Explore the website" sx={{ position: "absolute", bottom: { xs: 18, md: 24 }, color: "white", height: 46, display: "grid", placeItems: "center", animation: "scrollCue 1.8s ease-in-out infinite", "@keyframes scrollCue": { "0%, 100%": { transform: "translateY(0)", opacity: .65 }, "50%": { transform: "translateY(7px)", opacity: 1 } }, "@media (prefers-reduced-motion: reduce)": { animation: "none" } }}><KeyboardArrowDownRoundedIcon sx={{ fontSize: 42 }} /></Box>

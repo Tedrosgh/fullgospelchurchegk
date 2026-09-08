@@ -29,6 +29,26 @@ revoke all on table public.website_visitor_counter from public, anon, authentica
 revoke execute on function public.register_website_visitor() from public;
 grant execute on function public.register_website_visitor() to anon, authenticated;
 
+-- Returns the latest total without registering another visit. This lets a
+-- returning browser keep its original place while still seeing the live total.
+create or replace function public.get_website_visitor_count()
+returns bigint
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select coalesce(
+    (select visitor_count
+     from public.website_visitor_counter
+     where counter_key = 'home'),
+    0
+  );
+$$;
+
+revoke execute on function public.get_website_visitor_count() from public;
+grant execute on function public.get_website_visitor_count() to anon, authenticated;
+
 -- Editable hero content for the public home page.
 create table if not exists public.home_page_content (
   content_key text primary key check (content_key = 'hero'),
