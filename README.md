@@ -10,14 +10,14 @@
 REACT_APP_SUPABASE_URL=https://epmeeuihtaubxireizng.supabase.co
 REACT_APP_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
 REACT_APP_SITE_URL=https://your-production-domain.example
-REACT_APP_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
-`REACT_APP_GA_MEASUREMENT_ID` is the GA4 web stream Measurement ID. Analytics
-loads only after a visitor accepts the analytics prompt. Route titles,
-descriptions, canonical URLs, and indexing rules are maintained centrally in
-`src/config/site.js`. Each production build generates `public/robots.txt` and
-`public/sitemap.xml` from `REACT_APP_SITE_URL`.
+Google Analytics uses the church's GA4 web stream configured in
+`src/components/Analytics/Analytics.js` and loads only after a visitor accepts
+the analytics prompt. Route titles, descriptions, canonical URLs, and indexing
+rules are maintained centrally in `src/config/site.js`. Each production build
+generates `public/robots.txt` and `public/sitemap.xml` from
+`REACT_APP_SITE_URL`.
 
 4. In Supabase Authentication URL Configuration, set the Site URL to the production Vercel URL and add the same URL to Redirect URLs.
 
