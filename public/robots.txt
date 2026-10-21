@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /auth
 
-Sitemap: https://fullgospelchurchegk.vercel.app/sitemap.xml
+Sitemap: https://eriwongelkoeln.com/sitemap.xml

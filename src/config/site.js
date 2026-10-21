@@ -3,7 +3,7 @@ export const DEFAULT_DESCRIPTION =
   "Eritrean Full Gospel Church in Cologne: worship services, community programs, youth and children’s ministries, songs, and church news.";
 
 export const getSiteUrl = () =>
-  (process.env.REACT_APP_SITE_URL || window.location.origin).replace(/\/$/, "");
+  (process.env.REACT_APP_SITE_URL || "https://eriwongelkoeln.com").replace(/\/$/, "");
 
 export const PUBLIC_ROUTES = [
   { path: "/", title: SITE_NAME, description: DEFAULT_DESCRIPTION },

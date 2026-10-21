@@ -1,6 +1,6 @@
 import { writeFile } from "node:fs/promises";
 
-const siteUrl = (process.env.REACT_APP_SITE_URL || "https://fullgospelchurchegk.vercel.app").replace(/\/$/, "");
+const siteUrl = (process.env.REACT_APP_SITE_URL || "https://eriwongelkoeln.com").replace(/\/$/, "");
 const routes = [
   ["/", "1.0"],
   ["/program", "0.9"],

@@ -3,7 +3,7 @@ import { Alert, Button, Stack } from "@mui/material";
 import { useLocation } from "react-router-dom";
 
 const CONSENT_KEY = "full-gospel-church-analytics-consent";
-const measurementId = process.env.REACT_APP_GA_MEASUREMENT_ID;
+const measurementId = process.env.REACT_APP_GA_MEASUREMENT_ID || "G-XXFGRG8VLT";
 
 const loadGoogleAnalytics = () => {
   if (!measurementId || window.gtag) return;
