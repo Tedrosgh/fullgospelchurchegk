@@ -27,6 +27,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "prebuild": "node scripts/generate-seo.mjs",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
     "migrate:supabase": "node scripts/migrate-render-to-supabase.mjs",

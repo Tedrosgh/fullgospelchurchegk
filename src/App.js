@@ -16,6 +16,8 @@ import PostDetail from "./pages/PostDetail";
 import MezmurPrint from "./pages/mezmur/MezmurPrint";
 import AdminPortal from "./pages/admin/AdminPortal";
 import Profile from "./pages/profile/Profile";
+import Seo from "./components/Seo/Seo";
+import Analytics from "./components/Analytics/Analytics";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -58,6 +60,8 @@ const AppContent = () => (
 const App = () => (
   <BrowserRouter>
     <ScrollToTop />
+    <Seo />
+    <Analytics />
     <AppContent />
   </BrowserRouter>
 );
