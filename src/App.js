@@ -16,7 +16,7 @@ import PostDetail from "./pages/PostDetail";
 import MezmurPrint from "./pages/mezmur/MezmurPrint";
 import AdminPortal from "./pages/admin/AdminPortal";
 import Profile from "./pages/profile/Profile";
-import Seo from "./components/Seo/Seo";
+import Seo, { SeoProvider } from "./components/Seo/Seo";
 import Analytics from "./components/Analytics/Analytics";
 
 const ScrollToTop = () => {
@@ -59,10 +59,12 @@ const AppContent = () => (
 
 const App = () => (
   <BrowserRouter>
+    <SeoProvider>
     <ScrollToTop />
     <Seo />
     <Analytics />
     <AppContent />
+    </SeoProvider>
   </BrowserRouter>
 );
 

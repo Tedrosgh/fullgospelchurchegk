@@ -21,6 +21,9 @@ const AddNewMezmur = ({ embedded = false }) => {
   const [loading, setLoading] = useState(isEditing);
 
   React.useEffect(() => {
+    setError("");
+    setFormData(initialState);
+    setLoading(Boolean(id));
     if (!id) return undefined;
     let active = true;
     fetchSingleMezmur(id)
@@ -46,7 +49,7 @@ const AddNewMezmur = ({ embedded = false }) => {
   if (!user?.result?.name) {
     return (
       <Alert severity="warning" sx={{ my: 4 }}>
-        Please <Link to="/auth">sign in</Link> to add a song.
+        Please <Link to="/auth">sign in</Link> to {isEditing ? "edit" : "add"} a song.
       </Alert>
     );
   }
@@ -64,7 +67,7 @@ const AddNewMezmur = ({ embedded = false }) => {
       await dispatch(isEditing ? updateMezmur(id, payload) : addMezmur(payload));
       history.push("/admin");
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Unable to add this song.");
+      setError(requestError.response?.data?.message || requestError.message || "Unable to save this song.");
       setSubmitting(false);
     }
   };

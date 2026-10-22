@@ -15,15 +15,19 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useHistory, useParams } from "react-router-dom";
 import { fetchSinglePost } from "../api/api";
 import { editorialGradient, editorialShadow } from "../theme";
+import { useContentSeo } from "../components/Seo/Seo";
 
 const PostDetail = () => {
   const { id } = useParams();
   const history = useHistory();
   const [post, setPost] = useState(null);
   const [error, setError] = useState("");
+  useContentSeo(post?.title, post?.message);
 
   useEffect(() => {
     let active = true;
+    setPost(null);
+    setError("");
     fetchSinglePost(id)
       .then(({ data }) => active && setPost(data))
       .catch((requestError) => {

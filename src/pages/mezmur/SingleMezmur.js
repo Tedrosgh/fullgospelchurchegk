@@ -5,15 +5,18 @@ import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import { useHistory, useParams } from "react-router-dom";
 import { fetchSingleMezmur } from "../../api/api";
 import { editorialGradient, editorialShadow } from "../../theme";
+import { useContentSeo } from "../../components/Seo/Seo";
 
 const SingleMezmur = () => {
   const { id } = useParams();
   const history = useHistory();
   const [mezmur, setMezmur] = useState(null);
   const [error, setError] = useState("");
+  useContentSeo(mezmur?.title, mezmur ? [mezmur.artist, mezmur.langetext].filter(Boolean).join(" — ") : "");
 
   useEffect(() => {
     let active = true;
+    setMezmur(null);
     setError("");
     fetchSingleMezmur(id)
       .then(({ data }) => active && setMezmur(data))

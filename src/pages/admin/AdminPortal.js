@@ -46,6 +46,13 @@ const AdminPortal = () => {
   const [mezmurOpen, setMezmurOpen] = useState(location.pathname.includes("/admin/mezmur/"));
   const [profileOpen, setProfileOpen] = useState(false);
 
+  useEffect(() => {
+    if (location.pathname.startsWith("/admin/mezmur/")) {
+      setSection("mezmur-form");
+      setMezmurOpen(true);
+    }
+  }, [location.pathname]);
+
   const selectSection = (nextSection) => {
     if (nextSection === "mezmur-form") {
       history.push("/admin/mezmur/add");
@@ -123,7 +130,7 @@ const AdminPortal = () => {
           </Paper>
         </Grid>
         <Grid item xs={12} md={9} lg={9.5}>
-          {section === "users" ? (access.isAdmin ? <UserManagement /> : <Alert severity="error">Administrator access is required.</Alert>) : section === "home-page" ? (canManageAnnouncements ? <HomePageManagement /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "announcements" ? (canManageAnnouncements ? <AnnouncementManagement canDelete={access.isAdmin || access.teams?.content === "manager"} /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "profile-gallery" || section === "profile-social" ? (canManageAnnouncements ? <ProfileManagement tab={section === "profile-social" ? "social" : "gallery"} canDelete={access.isAdmin || access.teams?.content === "manager"} /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "mezmur-list" ? (canManageMezmur ? <Mezmur adminMode embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : section === "mezmur-form" ? (canManageMezmur ? <AddNewMezmur embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : canUseFinance ? <Finanz embedded initialSection={section} /> : <Alert severity="error">Finance team access is required.</Alert>}
+          {section === "users" ? (access.isAdmin ? <UserManagement /> : <Alert severity="error">Administrator access is required.</Alert>) : section === "home-page" ? (canManageAnnouncements ? <HomePageManagement /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "announcements" ? (canManageAnnouncements ? <AnnouncementManagement canDelete={access.isAdmin || access.teams?.content === "manager"} /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "profile-gallery" || section === "profile-social" ? (canManageAnnouncements ? <ProfileManagement tab={section === "profile-social" ? "social" : "gallery"} canDelete={access.isAdmin || access.teams?.content === "manager"} /> : <Alert severity="error">Content & News editor access is required.</Alert>) : section === "mezmur-list" ? (canManageMezmur ? <Mezmur adminMode embedded canDelete={access.isAdmin || access.teams?.worship === "manager"} /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : section === "mezmur-form" ? (canManageMezmur ? <AddNewMezmur embedded /> : <Alert severity="error">Worship & Music editor access is required.</Alert>) : canUseFinance ? <Finanz embedded initialSection={section} /> : <Alert severity="error">Finance team access is required.</Alert>}
         </Grid>
       </Grid>}
   </Container>;

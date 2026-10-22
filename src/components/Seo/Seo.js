@@ -1,6 +1,25 @@
-import { useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { DEFAULT_DESCRIPTION, findRouteSeo, getSiteUrl, SITE_NAME } from "../../config/site";
+
+const ContentSeoContext = createContext(null);
+
+export const SeoProvider = ({ children }) => {
+  const [content, setContent] = useState(null);
+  return <ContentSeoContext.Provider value={{ content, setContent }}>{children}</ContentSeoContext.Provider>;
+};
+
+// Keep fetched content tied to its route so it cannot leak into another page.
+export const useContentSeo = (title, text) => {
+  const { pathname } = useLocation();
+  const { setContent } = useContext(ContentSeoContext);
+  useEffect(() => {
+    if (!title) return undefined;
+    const description = String(text || "").replace(/\s+/g, " ").trim();
+    setContent({ pathname, title, description: description.length > 160 ? `${description.slice(0, 157).trimEnd()}...` : description || DEFAULT_DESCRIPTION });
+    return () => setContent(null);
+  }, [pathname, title, text, setContent]);
+};
 
 const setMeta = (selector, attributes) => {
   let element = document.head.querySelector(selector);
@@ -13,9 +32,14 @@ const setMeta = (selector, attributes) => {
 
 const Seo = () => {
   const { pathname } = useLocation();
+  const { content } = useContext(ContentSeoContext);
 
   useEffect(() => {
-    const { title, description = DEFAULT_DESCRIPTION, noIndex } = findRouteSeo(pathname);
+    const route = findRouteSeo(pathname);
+    const { title, description = DEFAULT_DESCRIPTION, noIndex } = {
+      ...route,
+      ...(content?.pathname === pathname ? content : {}),
+    };
     const siteUrl = getSiteUrl();
     const canonicalUrl = `${siteUrl}${pathname === "/" ? "" : pathname}`;
     const fullTitle = title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`;
@@ -39,7 +63,7 @@ const Seo = () => {
       document.head.appendChild(canonical);
     }
     canonical.setAttribute("href", canonicalUrl);
-  }, [pathname]);
+  }, [pathname, content]);
 
   return null;
 };

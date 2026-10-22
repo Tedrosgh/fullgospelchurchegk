@@ -189,7 +189,7 @@ const Home = () => {
         <Box sx={{ textAlign: "center", maxWidth: 760, mx: "auto", mb: 5 }}>
           <Typography variant="overline" sx={{ color: "#087f8c", fontWeight: 900, letterSpacing: 2 }}>THERE IS A PLACE FOR YOU</Typography>
           <Typography variant="h2" component="h2" fontWeight={900} sx={{ mt: .75, fontSize: { xs: "2.2rem", md: "3.5rem" }, letterSpacing: "-.035em" }}>Come as you are. Grow with us.</Typography>
-          <Typography color="text.secondary" sx={{ mt: 1.5, fontSize: "1.08rem", lineHeight: 1.75 }}>Church is more than a Sunday service. It is a community where every generation can discover faith, friendship, and purpose.</Typography>
+          <Typography color="text.secondary" sx={{ mt: 1.5, fontSize: "1.08rem", lineHeight: 1.75 }}>Eritrean Full Gospel Church in Cologne (Köln) welcomes you to worship, prayer, and community. Discover Eritrean gospel songs (Mezmur), church news, and ministries for children and young people.</Typography>
         </Box>
         <Grid container spacing={3}>
           {ministries.map((item) => (

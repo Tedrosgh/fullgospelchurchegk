@@ -47,7 +47,7 @@ const exportAsPdf = (mezmur) => {
   printWindow.opener = null;
 };
 
-const Mezmur = ({ adminMode = false, embedded = false }) => {
+const Mezmur = ({ adminMode = false, embedded = false, canDelete = false }) => {
   const [query, setQuery] = useState("");
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [selectedMezmur, setSelectedMezmur] = useState(null);
@@ -84,7 +84,7 @@ const Mezmur = ({ adminMode = false, embedded = false }) => {
   const removeSelectedMezmur = async () => {
     const mezmur = selectedMezmur;
     closeActions();
-    if (!mezmur || !window.confirm(`Delete “${mezmur.title}” permanently?`)) return;
+    if (!canDelete || !mezmur || !window.confirm(`Delete “${mezmur.title}” permanently?`)) return;
     try {
       await dispatch(deleteMezmurAction(mezmur._id));
     } catch (requestError) {
@@ -141,12 +141,12 @@ const Mezmur = ({ adminMode = false, embedded = false }) => {
                   hover
                   role="link"
                   tabIndex={0}
-                  aria-label={`View ${mezmur.title || "mezmur"}`}
-                  onClick={() => history.push(`/mezmur/${mezmur._id}`)}
+                  aria-label={`${adminMode ? "Edit" : "View"} ${mezmur.title || "mezmur"}`}
+                  onClick={() => history.push(adminMode ? `/admin/mezmur/${mezmur._id}/edit` : `/mezmur/${mezmur._id}`)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      history.push(`/mezmur/${mezmur._id}`);
+                      history.push(adminMode ? `/admin/mezmur/${mezmur._id}/edit` : `/mezmur/${mezmur._id}`);
                     }
                   }}
                   sx={{ cursor: "pointer", "&:nth-of-type(even)": { bgcolor: "rgba(21,101,192,.035)" } }}
@@ -178,8 +178,8 @@ const Mezmur = ({ adminMode = false, embedded = false }) => {
 
       <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={closeActions}>
         <MenuItem onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) history.push(`/mezmur/${id}`); }}>View</MenuItem>
-        {adminMode && <MenuItem onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) history.push(`/admin/mezmur/${id}/edit`); }}>Modify</MenuItem>}
-        {adminMode && <MenuItem onClick={removeSelectedMezmur}>Delete</MenuItem>}
+        {adminMode && <MenuItem onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) history.push(`/admin/mezmur/${id}/edit`); }}>Edit title & lyrics</MenuItem>}
+        {adminMode && canDelete && <MenuItem onClick={removeSelectedMezmur}>Delete</MenuItem>}
         <MenuItem onClick={() => { const mezmur = selectedMezmur; closeActions(); if (mezmur) exportAsPdf(mezmur); }}>Export as PDF</MenuItem>
       </Menu>
     </Box>
