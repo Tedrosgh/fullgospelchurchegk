@@ -41,7 +41,11 @@ const socialIcons = {
 
 const Profile = () => {
   const [managedPhotos, setManagedPhotos] = useState([]);
-  const [socialLinks, setSocialLinks] = useState({ facebook: { url: "https://www.facebook.com/eriwongel", isVisible: true } });
+  const [socialLinks, setSocialLinks] = useState({
+    facebook: { url: "https://www.facebook.com/eriwongel", isVisible: true },
+    instagram: { url: "https://www.instagram.com/eriwongel/", isVisible: true },
+    youtube: { url: "https://www.youtube.com/@wongeleri", isVisible: true },
+  });
 
   useEffect(() => {
     fetchProfilePhotos().then(({ data }) => setManagedPhotos(data)).catch(() => {});
