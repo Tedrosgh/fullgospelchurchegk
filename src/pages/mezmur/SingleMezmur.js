@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Alert, Box, Button, Chip, CircularProgress, Paper, Stack, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
+import YouTubeIcon from "@mui/icons-material/YouTube";
 import { useHistory, useParams } from "react-router-dom";
 import { fetchSingleMezmur } from "../../api/api";
 import { editorialGradient, editorialShadow } from "../../theme";
+import { getYouTubeUrl } from "../../utils/youtube";
 
 const SingleMezmur = () => {
   const { id } = useParams();
@@ -25,6 +27,7 @@ const SingleMezmur = () => {
 
   if (error) return <Alert severity="error" sx={{ my: 4 }}>{error}</Alert>;
   if (!mezmur) return <Box sx={{ display: "grid", placeItems: "center", py: 8 }}><CircularProgress /></Box>;
+  const youtubeUrl = getYouTubeUrl(mezmur.youtubeUrl);
 
   return (
     <Box component="article" sx={{ maxWidth: 900, mx: "auto", py: { xs: 2, md: 4 }, pb: 7 }}>
@@ -41,6 +44,11 @@ const SingleMezmur = () => {
       </Paper>
       <Paper elevation={0} sx={{ mt: 3, p: { xs: 3, sm: 5, md: 6 }, borderRadius: 1, border: "1px solid", borderColor: "divider", borderTop: "4px solid #d7a44a" }}>
         <Typography component="div" sx={{ whiteSpace: "pre-wrap", fontSize: { xs: 18, md: 22 }, lineHeight: 1.9, color: "#243b53" }}>{mezmur.langetext}</Typography>
+        {youtubeUrl && (
+          <Box sx={{ mt: 4, pt: 3, borderTop: "1px solid", borderColor: "divider" }}>
+            <Button href={youtubeUrl} target="_blank" rel="noopener noreferrer" variant="outlined" startIcon={<YouTubeIcon />} aria-label={`Watch ${mezmur.title} on YouTube`}>Watch on YouTube</Button>
+          </Box>
+        )}
       </Paper>
     </Box>
   );

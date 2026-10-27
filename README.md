@@ -13,6 +13,14 @@ REACT_APP_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
 
 4. In Supabase Authentication URL Configuration, set the Site URL to the production Vercel URL and add the same URL to Redirect URLs.
 
+## Mezmur YouTube links
+
+Before deploying the optional YouTube field, run
+`supabase/migrations/202610270001_mezmur_youtube_url.sql` in the Supabase SQL
+Editor. It adds an empty optional link to existing songs. The full setup schema
+also includes this column. Editors can add, replace, or clear a song's YouTube
+link in Add Mezmur or Manage Mezmur; the public song page displays it below the lyrics.
+
 ## Administrator user management
 
 The Finanz administrator workspace includes a **Users** menu for portal administrators. It creates Supabase Auth users and assigns application roles and finance access enforced by RLS.

@@ -68,6 +68,7 @@ const mapMezmur = (mezmur) => ({
   title: mezmur.title,
   artist: mezmur.artist,
   langetext: mezmur.lyrics,
+  youtubeUrl: mezmur.youtube_url || "",
   name: mezmur.name,
   creator: mezmur.creator,
   createdAt: mezmur.created_at,
@@ -77,6 +78,7 @@ const mezmurPayload = (mezmur) => ({
   title: mezmur.title,
   artist: mezmur.artist || "",
   lyrics: mezmur.langetext,
+  youtube_url: (mezmur.youtubeUrl || "").trim(),
   name: mezmur.name || "",
   creator: getProfile()?.result?._id,
 });

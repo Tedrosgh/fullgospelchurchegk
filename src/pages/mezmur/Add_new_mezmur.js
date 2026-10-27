@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Alert, Box, Button, Chip, Paper, Stack, TextField, Typography } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
@@ -6,8 +6,9 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { addMezmur, updateMezmur } from "../../actions/postsActions";
 import { fetchSingleMezmur } from "../../api/api";
+import { getYouTubeUrl } from "../../utils/youtube";
 
-const initialState = { title: "", artist: "", langetext: "" };
+const initialState = { title: "", artist: "", langetext: "", youtubeUrl: "" };
 
 const AddNewMezmur = ({ embedded = false }) => {
   const user = JSON.parse(localStorage.getItem("profile"));
@@ -17,10 +18,16 @@ const AddNewMezmur = ({ embedded = false }) => {
   const isEditing = Boolean(id);
   const [formData, setFormData] = useState(initialState);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const titleInput = useRef(null);
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(isEditing);
 
   React.useEffect(() => {
+    setError("");
+    setSuccess("");
+    setFormData(initialState);
+    setLoading(Boolean(id));
     if (!id) return undefined;
     let active = true;
     fetchSingleMezmur(id)
@@ -30,6 +37,7 @@ const AddNewMezmur = ({ embedded = false }) => {
             title: data.title || "",
             artist: data.artist || "",
             langetext: data.langetext || "",
+            youtubeUrl: data.youtubeUrl || "",
           });
           setLoading(false);
         }
@@ -52,19 +60,32 @@ const AddNewMezmur = ({ embedded = false }) => {
   }
 
   const handleChange = (event) => {
+    setSuccess("");
     setFormData((current) => ({ ...current, [event.target.name]: event.target.value }));
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError("");
+    setSuccess("");
+    if (formData.youtubeUrl.trim() && !getYouTubeUrl(formData.youtubeUrl)) {
+      setError("Enter a valid HTTPS YouTube link, or leave the YouTube field empty.");
+      return;
+    }
     setSubmitting(true);
     try {
       const payload = { ...formData, name: user.result.name };
       await dispatch(isEditing ? updateMezmur(id, payload) : addMezmur(payload));
-      history.push("/admin");
+      if (isEditing) {
+        history.push("/admin");
+      } else {
+        setFormData(initialState);
+        setSuccess("Mezmur saved. You can add the next song below.");
+        titleInput.current?.focus();
+      }
     } catch (requestError) {
-      setError(requestError.response?.data?.message || "Unable to add this song.");
+      setError(requestError.response?.data?.message || requestError.message || "Unable to save this song.");
+    } finally {
       setSubmitting(false);
     }
   };
@@ -80,11 +101,13 @@ const AddNewMezmur = ({ embedded = false }) => {
     </Paper>
     <Paper elevation={4} sx={{ p: { xs: 2.5, sm: 4 }, borderRadius: "0 0 24px 24px" }}>
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
       {loading ? <Typography>Loading song…</Typography> : (
       <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
-        <TextField required name="title" label="Title" value={formData.title} onChange={handleChange} />
+        <TextField inputRef={titleInput} required name="title" label="Title" value={formData.title} onChange={handleChange} />
         <TextField name="artist" label="Artist" value={formData.artist} onChange={handleChange} />
         <TextField required multiline minRows={12} name="langetext" label="Lyrics" value={formData.langetext} onChange={handleChange} />
+        <TextField type="url" name="youtubeUrl" label="YouTube link (optional)" placeholder="https://www.youtube.com/watch?v=..." helperText="Add a YouTube video link to display below this song's lyrics." value={formData.youtubeUrl} onChange={handleChange} />
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, justifyContent: "flex-end" }}>
           <Button component={Link} to="/admin">Cancel</Button>
           <Button type="submit" variant="contained" disabled={submitting}>{submitting ? "Saving…" : isEditing ? "Save changes" : "Save song"}</Button>
