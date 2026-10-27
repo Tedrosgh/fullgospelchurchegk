@@ -92,6 +92,8 @@ create table if not exists public.mezmurs (
 create index if not exists posts_created_at_idx on public.posts (created_at desc);
 create index if not exists mezmurs_title_idx on public.mezmurs (lower(title));
 
+alter table public.mezmurs add column if not exists youtube_url text not null default '';
+
 alter table public.posts enable row level security;
 alter table public.mezmurs enable row level security;
 
