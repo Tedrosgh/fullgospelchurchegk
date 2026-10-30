@@ -20,11 +20,22 @@ import Seo, { SeoProvider } from "./components/Seo/Seo";
 import Analytics from "./components/Analytics/Analytics";
 
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const { pathname, state } = useLocation();
+  const previousPath = React.useRef(null);
 
   React.useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-  }, [pathname]);
+    const previous = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    return () => { window.history.scrollRestoration = previous; };
+  }, []);
+
+  React.useEffect(() => {
+    if (previousPath.current === pathname) return;
+    previousPath.current = pathname;
+    if (state?.mezmurList?.scrollY == null) {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    }
+  }, [pathname, state]);
 
   return null;
 };

@@ -3,7 +3,7 @@ import { Alert, Box, Button, Chip, CircularProgress, Paper, Stack, Typography } 
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import YouTubeIcon from "@mui/icons-material/YouTube";
-import { useHistory, useParams } from "react-router-dom";
+import { useHistory, useLocation, useParams } from "react-router-dom";
 import { fetchSingleMezmur } from "../../api/api";
 import { editorialGradient, editorialShadow } from "../../theme";
 import { useContentSeo } from "../../components/Seo/Seo";
@@ -12,6 +12,7 @@ import { getYouTubeUrl } from "../../utils/youtube";
 const SingleMezmur = () => {
   const { id } = useParams();
   const history = useHistory();
+  const location = useLocation();
   const [mezmur, setMezmur] = useState(null);
   const [error, setError] = useState("");
   useContentSeo(mezmur?.title, mezmur ? [mezmur.artist, mezmur.langetext].filter(Boolean).join(" — ") : "");
@@ -35,7 +36,7 @@ const SingleMezmur = () => {
   return (
     <Box component="article" sx={{ maxWidth: 900, mx: "auto", py: { xs: 2, md: 4 }, pb: 7 }}>
       <Paper sx={{ p: { xs: 3, md: 5 }, borderRadius: 1, color: "common.white", background: editorialGradient, boxShadow: editorialShadow }}>
-        <Button color="inherit" startIcon={<ArrowBackIcon />} onClick={() => history.goBack()} sx={{ mb: 3 }}>Back to Mezmur</Button>
+        <Button color="inherit" startIcon={<ArrowBackIcon />} onClick={() => location.state?.fromMezmurList ? history.goBack() : history.push("/mezmur")} sx={{ mb: 3 }}>Back to Mezmur</Button>
         <Stack direction={{ xs: "column", sm: "row" }} spacing={2.5} alignItems={{ sm: "center" }}>
           <Box sx={{ width: 64, height: 64, borderRadius: 0, bgcolor: "rgba(255,255,255,.15)", border: "1px solid rgba(255,255,255,.45)", color: "white", display: "grid", placeItems: "center", flexShrink: 0 }}><MusicNoteOutlinedIcon fontSize="large" /></Box>
           <Box>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -8,6 +8,7 @@ import {
   Menu,
   MenuItem,
   Paper,
+  Pagination,
   Table,
   TableBody,
   TableCell,
@@ -21,7 +22,7 @@ import {
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import MusicNoteOutlinedIcon from "@mui/icons-material/MusicNoteOutlined";
 import SearchIcon from "@mui/icons-material/Search";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteMezmurAction, getMezmurs } from "../../actions/postsActions";
 import mezmurHero from "../../images/mezemran.jpg";
@@ -48,7 +49,12 @@ const exportAsPdf = (mezmur) => {
 };
 
 const Mezmur = ({ adminMode = false, embedded = false, canDelete = false }) => {
-  const [query, setQuery] = useState("");
+  const location = useLocation();
+  const savedList = location.state?.mezmurList;
+  const [query, setQuery] = useState(savedList?.query || "");
+  const [page, setPage] = useState(savedList?.page || 1);
+  const restoreScroll = useRef(savedList?.scrollY);
+  const listTop = useRef(null);
   const [menuAnchor, setMenuAnchor] = useState(null);
   const [selectedMezmur, setSelectedMezmur] = useState(null);
   const history = useHistory();
@@ -70,6 +76,40 @@ const Mezmur = ({ adminMode = false, embedded = false, canDelete = false }) => {
       )
       .sort((a, b) => (a.title || "").localeCompare(b.title || ""));
   }, [items, query]);
+
+  const pageCount = Math.max(1, Math.ceil(mezmurs.length / 30));
+  const currentPage = Math.min(page, pageCount);
+  const visibleMezmurs = mezmurs.slice((currentPage - 1) * 30, currentPage * 30);
+
+  useEffect(() => {
+    if (loading || error || !mezmurs.length || restoreScroll.current == null) return undefined;
+    const frame = requestAnimationFrame(() => {
+      window.scrollTo({ top: restoreScroll.current, left: 0, behavior: "auto" });
+      restoreScroll.current = null;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [loading, error, mezmurs.length]);
+
+  const saveList = (nextQuery, nextPage, scrollY) => {
+    history.replace({ ...location, state: { ...location.state, mezmurList: { query: nextQuery, page: nextPage, scrollY } } });
+  };
+
+  const openSong = (id, edit = adminMode) => {
+    saveList(query, currentPage, window.scrollY);
+    history.push(edit ? `/admin/mezmur/${id}/edit` : `/mezmur/${id}`, { fromMezmurList: true });
+  };
+
+  const changePage = (event, nextPage) => {
+    setPage(nextPage);
+    saveList(query, nextPage, undefined);
+    listTop.current?.scrollIntoView({ behavior: "auto", block: "start" });
+  };
+
+  const pagination = (position) => !!mezmurs.length && (
+    <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+      <Pagination aria-label={`${position} song pages`} count={pageCount} page={currentPage} onChange={changePage} color="primary" size={isMobile ? "small" : "medium"} siblingCount={isMobile ? 0 : 1} />
+    </Box>
+  );
 
   const openActions = (event, mezmur) => {
     setMenuAnchor(event.currentTarget);
@@ -103,9 +143,9 @@ const Mezmur = ({ adminMode = false, embedded = false, canDelete = false }) => {
         </Box>
       </Box>}
 
-      <Paper elevation={0} sx={{ p: { xs: 2, sm: 2.5 }, mb: 3, borderRadius: 1, border: "1px solid", borderColor: "divider" }}>
+      <Paper ref={listTop} elevation={0} sx={{ scrollMarginTop: 24, p: { xs: 2, sm: 2.5 }, mb: 3, borderRadius: 1, border: "1px solid", borderColor: "divider" }}>
         <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, alignItems: { sm: "center" }, gap: 2 }}>
-          <TextField fullWidth label="Search by title or artist" value={query} onChange={(event) => setQuery(event.target.value)} InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment> }} />
+          <TextField fullWidth label="Search by title or artist" value={query} onChange={(event) => { setQuery(event.target.value); setPage(1); saveList(event.target.value, 1, undefined); }} InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon /></InputAdornment> }} />
           <Typography color="text.secondary" sx={{ whiteSpace: "nowrap" }}>{mezmurs.length} songs</Typography>
         </Box>
       </Paper>
@@ -113,6 +153,8 @@ const Mezmur = ({ adminMode = false, embedded = false, canDelete = false }) => {
       {loading && <Box sx={{ display: "grid", placeItems: "center", py: 6 }}><CircularProgress /></Box>}
       {error && <Alert severity="error">{error}</Alert>}
       {!loading && !error && !mezmurs.length && <Alert severity="info">No songs found.</Alert>}
+
+      {pagination("Top")}
 
       {!!mezmurs.length && (
         <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 1, border: "1px solid", borderColor: "divider", overflowX: { xs: "hidden", sm: "auto" } }}>
@@ -135,18 +177,18 @@ const Mezmur = ({ adminMode = false, embedded = false, canDelete = false }) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {mezmurs.map((mezmur) => (
+              {visibleMezmurs.map((mezmur) => (
                 <TableRow
                   key={mezmur._id}
                   hover
                   role="link"
                   tabIndex={0}
                   aria-label={`${adminMode ? "Edit" : "View"} ${mezmur.title || "mezmur"}`}
-                  onClick={() => history.push(adminMode ? `/admin/mezmur/${mezmur._id}/edit` : `/mezmur/${mezmur._id}`)}
+                  onClick={() => openSong(mezmur._id)}
                   onKeyDown={(event) => {
                     if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
-                      history.push(adminMode ? `/admin/mezmur/${mezmur._id}/edit` : `/mezmur/${mezmur._id}`);
+                      openSong(mezmur._id);
                     }
                   }}
                   sx={{ cursor: "pointer", "&:nth-of-type(even)": { bgcolor: "rgba(21,101,192,.035)" } }}
@@ -176,9 +218,11 @@ const Mezmur = ({ adminMode = false, embedded = false, canDelete = false }) => {
         </TableContainer>
       )}
 
+      {pagination("Bottom")}
+
       <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={closeActions}>
-        <MenuItem onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) history.push(`/mezmur/${id}`); }}>View</MenuItem>
-        {adminMode && <MenuItem onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) history.push(`/admin/mezmur/${id}/edit`); }}>Edit title & lyrics</MenuItem>}
+        <MenuItem onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) openSong(id, false); }}>View</MenuItem>
+        {adminMode && <MenuItem onClick={() => { const id = selectedMezmur?._id; closeActions(); if (id) openSong(id, true); }}>Edit title & lyrics</MenuItem>}
         {adminMode && canDelete && <MenuItem onClick={removeSelectedMezmur}>Delete</MenuItem>}
         <MenuItem onClick={() => { const mezmur = selectedMezmur; closeActions(); if (mezmur) exportAsPdf(mezmur); }}>Export as PDF</MenuItem>
       </Menu>
